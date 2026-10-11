@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Spectral:ital,wght@0,600;1,400&display=swap">
-<link rel="stylesheet" href="css/app.css?v=19">
+<link rel="stylesheet" href="css/app.css?v=20">
 <!-- Bright or dark: the reader's choice for the whole site (biology.theme), else the computer's setting. Set before
      the first paint so the page never flashes the other version. -->
 <script>(function () { try { var t = localStorage.getItem('biology.theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();</script>
@@ -17,6 +17,7 @@
 <body>
 <div class="top">
   <div class="upbar"><a class="up" href="https://nlcsbiology.com/biology-hub/">← Biology Hub</a><span class="upbtns"><button class="themebtn" id="btnRestart" type="button" aria-label="Start the whole page again">↺ Start <span class="lg">the page </span>again</button><button class="themebtn" id="btnTheme" type="button" hidden></button></span></div>
+  <div class="lessonbar" id="lessonBar" hidden></div>
   <div class="eyebrow">IB Biology · B4.1.4 · C4.1.3 · C4.1.15 · B4.2.12</div>
   <h1>Rocky shore fieldwork</h1>
   <p class="by">Practise the field trip on a virtual shore, then analyse the data in Google Sheets or R · <a class="by-me" href="https://github.com/Mompel226" target="_blank" rel="noopener">Dr Daniel Mompel Riera</a></p>
@@ -314,8 +315,12 @@
   Code: AGPL-3.0 · Teaching material: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> — free for teaching, not for selling. Pictures keep their own licences.
 </footer>
 
-<script src="js/shore-data.js?v=19"></script>
-<script src="js/app.js?v=19"></script>
-<script src="js/practice.js?v=19"></script>
+<script src="https://accounts.google.com/gsi/client?hl=en-GB" async defer></script>
+<script src="js/config.js?v=20"></script>
+<script src="js/signin.js?v=20"></script>
+<script src="js/lesson.js?v=20"></script>
+<script src="js/shore-data.js?v=20"></script>
+<script src="js/app.js?v=20"></script>
+<script src="js/practice.js?v=20"></script>
 </body>
 </html>

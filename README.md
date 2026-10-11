@@ -18,6 +18,19 @@ fills any time left; then about 20 minutes of real IB questions on paper, which 
 
 IB Biology guide (first assessment 2025): B4.1.4, C4.1.3, C4.1.4, C4.1.15, B4.2.12–13.
 
+## For the teacher: how each student is doing
+A student who signs in with their school Google account (the line under the title; the same sign-in as the Biology Hub)
+has every Check, every choice and every ↺ Start again kept for their teacher, question by question: how many checks, whether
+they were right at the first check, and the wrong answers they typed or chose. It is saved a minute after their last
+answer, and only for students on the teacher's class list. The teacher sees it on the teacher page's **🔬 Practicals** tab:
+one square per question for each student, the questions the class finds hardest, and **● Live** during the lesson. It is
+not homework and not a mark. Signed out, the page works exactly the same and nothing leaves the browser.
+
+Behind it: `js/lesson.js` and `js/signin.js` are copies of `labs-shared/` (made by `tools/practicals-sync.mjs` in the
+workspace), `js/config.js` names this practical, and `data/questions.json` lists its questions for the board
+(`node tools/make-questions.mjs` writes it from the page itself; `--check` says when it is out of date). Keep a question's
+id when you reword it, or its students' records move to a new square.
+
 ## Downloads (in `downloads/`)
 - `fieldwork-recording-sheet.docx` — the recording sheet for the shore.
 - `fieldwork-workbook.xlsx` — opens in Google Sheets: yellow cells for data; CORREL, RSQ, CHISQ.TEST and

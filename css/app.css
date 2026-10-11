@@ -43,6 +43,14 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--sea-ink)}
 .top{max-width:1360px;margin:0 auto;padding:26px 22px 0}
+.lessonbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:-4px 0 14px;font-size:13px;color:var(--ink2)}
+.lessonbar[hidden]{display:none}
+.lesson__who{font-weight:600;color:var(--ink)}
+.lesson__say.is-no{color:var(--bad)}
+.lesson__t{font-weight:600}
+.lesson__out{font:500 12.5px/1 var(--sans);color:var(--ink3);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+.lesson__msg{flex-basis:100%;color:var(--amber)}
+.lesson__g{display:inline-flex;min-height:32px;align-items:center}
 .upbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px}
 .upbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .themebtn{font:500 12.5px/1 var(--sans);color:var(--ink2);background:var(--surface);border:1px solid var(--rule);border-radius:100px;padding:7px 12px;cursor:pointer}

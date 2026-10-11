@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const A = window.ShoreApp, $ = (s, el) => (el || document).querySelector(s), $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
-  const h = A.h, fmt = A.fmt;
+  const h = A.h, fmt = A.fmt, L = A.L;
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   /* A card the student opens in place (one open at a time in a part: app.js) */
   function fold(kind, title, open) {
@@ -21,11 +21,11 @@
   const escA = s => esc(s).replace(/"/g, '&quot;');
   const norm = s => String(s).normalize('NFKC').toLowerCase().replace(/[’‘`´]/g, "'").replace(/[‐‑‒–—−-]/g, ' ')
     .replace(/[.,;:!?]+$/, '').replace(/\s+/g, ' ').trim().replace(/^(the|a|an) /, '');
-  function gap(acc, size) {
-    return `<input class="gapin" type="text" data-acc="${escA(JSON.stringify(acc))}" size="${size || 14}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type the missing word">`;
+  function gap(acc, size, label) {
+    return `<input class="gapin" type="text" data-acc="${escA(JSON.stringify(acc))}"${label ? ` data-label="${escA(label)}"` : ''} size="${size || 14}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Type the missing word">`;
   }
-  function num(v, tol, dp, size) {
-    return `<input class="gapin" type="text" inputmode="decimal" data-num="${v}" data-tol="${tol}" data-show="${escA(fmt(v, dp))}" size="${size || 6}" autocomplete="off" aria-label="Type the missing number">`;
+  function num(v, tol, dp, size, label) {
+    return `<input class="gapin" type="text" inputmode="decimal" data-num="${v}"${label ? ` data-label="${escA(label)}"` : ''} data-tol="${tol}" data-show="${escA(fmt(v, dp))}" size="${size || 6}" autocomplete="off" aria-label="Type the missing number">`;
   }
   function right(inp) {
     if (inp.dataset.num != null) {
@@ -36,15 +36,19 @@
   }
   function shown(inp) { return inp.dataset.num != null ? inp.dataset.show : JSON.parse(inp.dataset.acc)[0]; }
   /* Check marks each gap. The answers can be shown only after two complete tries (effort before answers). */
-  function checker(box, after) {
+  /* id: the set's question id on the teacher's board; reg: its words there (part, title, short) */
+  function checker(box, after, id, meta) {
+    if (meta) A.reg(Object.assign({ id, kind: 'gaps', gaps: $$('input.gapin', box).map(i => i.dataset.label || shown(i)) }, meta));
     const out = h('p', { 'aria-live': 'polite' }), b = h('button', { class: 'btn', type: 'button' }, 'Check');
     const show = h('button', { class: 'btn ghost', type: 'button' }, 'Show the answers'); show.hidden = true;
     let tries = 0;
     b.addEventListener('click', () => {
       const g = $$('input.gapin', box);
       if (g.some(i => !i.value.trim())) { out.innerHTML = 'Type an answer in every gap first.'; return; }
-      tries++; let ok = 0;
-      g.forEach(i => { const good = right(i); if (good) ok++; i.classList.toggle('right', good); i.classList.toggle('wrong', !good); });
+      tries++; let ok = 0; const wrongs = [];
+      g.forEach((i, k) => { const good = right(i); if (good) ok++; else wrongs.push((k + 1) + '=' + i.value.trim());
+        i.classList.toggle('right', good); i.classList.toggle('wrong', !good); });
+      if (id) L.check(id, ok === g.length, wrongs);
       if (ok === g.length) { out.innerHTML = `<span class="ok">✓ All ${g.length} correct.</span>${after ? ' ' + after : ''}`; show.hidden = true; return; }
       out.innerHTML = `<span class="bad">${ok} of ${g.length} correct.</span> Change the ones marked in red, then check again.` +
         (tries < 2 ? ' Check your spelling too.' : '');
@@ -59,6 +63,7 @@
     const restart = again(() => {
       $$('input.gapin', box).forEach(i => { i.value = ''; i.classList.remove('right', 'wrong'); });
       $$('.ans', box).forEach(a => a.remove()); tries = 0; show.hidden = true; out.innerHTML = '';
+      if (id) L.restart([id]);
     });
     box.appendChild(b); box.appendChild(show); box.appendChild(restart); box.appendChild(out);
   }
@@ -88,7 +93,7 @@
   function match1(box) {
     box.innerHTML = '<h3>Type the words</h3><p class="note">Type the term for each meaning. Spelling counts; capital letters do not.</p>';
     const t = h('div'); t.innerHTML = WORDS.map(([d, w], i) => `<p class="mrow">${i + 1}. ${d} ${gap(w, 22)}</p>`).join('');
-    box.appendChild(t); checker(box, 'Use these words in your answers: they are the words in the mark schemes.');
+    box.appendChild(t); checker(box, 'Use these words in your answers: they are the words in the mark schemes.', 'p1-words', { part: 1, title: 'Type the words', short: 'W' });
   }
 
   /* ---------- 2. fill the gaps: typed, no word bank ---------- */
@@ -104,7 +109,7 @@
       `On a 12 m tape, an interrupted belt transect with one quadrat every 1.5 m, starting at 0 m, needs ${num(9, 0, 0, 4)} quadrats.`
     ];
     const t = h('div'); t.innerHTML = s.map((x, i) => `<p class="mrow">${i + 1}. ${x}</p>`).join(''); box.appendChild(t);
-    checker(box, 'Use these words in your answers: they are the words in the mark schemes.');
+    checker(box, 'Use these words in your answers: they are the words in the mark schemes.', 'p2-gaps', { part: 2, title: 'Fill the gaps', short: 'G' });
   }
 
   /* ---------- 7. sentence frames, built from the student's own numbers: every gap typed ---------- */
@@ -120,14 +125,14 @@
     const MORE = ['greater than', 'larger than', 'bigger than', 'higher than', 'more than'], LESS = ['less than', 'smaller than', 'lower than'];
     const F = [
       { t: 'A. Describe the kite diagram', n: 'Describe where each species is found along the transect. Use the kite diagram in part 6.',
-        s: `Barnacles have their highest cover on the ${gap(['upper', 'top', 'high'])} shore, and their cover ${gap(['decreases', 'falls', 'declines'])} towards the water's edge. Sea lettuce is found mainly between ${num(gFrom, 0, 0, 4)} m and ${num(gTo, 0, 0, 4)} m. Brown seaweed is found mainly on the ${gap(['lower', 'low', 'bottom'])} shore, near the water. This pattern of bands is called ${gap(['zonation'])}.` },
+        s: `Barnacles have their highest cover on the ${gap(['upper', 'top', 'high'])} shore, and their cover ${gap(['decreases', 'falls', 'declines'])} towards the water's edge. Sea lettuce is found mainly between ${num(gFrom, 0, 0, 4, 'from (m)')} m and ${num(gTo, 0, 0, 4, 'to (m)')} m. Brown seaweed is found mainly on the ${gap(['lower', 'low', 'bottom'])} shore, near the water. This pattern of bands is called ${gap(['zonation'])}.` },
       { t: 'B. State a correlation, with its evidence', n: 'Barnacle cover and rock temperature (part 6). Give r to 2 decimal places.',
-        s: `There is a ${gap(strength(rb))} ${gap([rb > 0 ? 'positive' : 'negative'])} correlation between rock temperature and barnacle cover: r = ${num(rb, 0.006, 2)}. The size of r is ${gap(big ? MORE : LESS)} the critical value for 11 quadrats, ${num(0.602, 0.0005, 3)}, so the correlation is ${gap(big ? ['significant', 'statistically significant'] : ['not significant', 'not statistically significant', 'insignificant'])} at the 5 % level.` },
+        s: `There is a ${gap(strength(rb), 14, 'strength')} ${gap([rb > 0 ? 'positive' : 'negative'], 14, 'direction')} correlation between rock temperature and barnacle cover: r = ${num(rb, 0.006, 2, 6, 'r')}. The size of r is ${gap(big ? MORE : LESS, 14, 'greater or less than')} the critical value for 11 quadrats, ${num(0.602, 0.0005, 3)}, so the correlation is ${gap(big ? ['significant', 'statistically significant'] : ['not significant', 'not statistically significant', 'insignificant'], 14, 'significant or not')} at the 5 % level.` },
       { t: 'C. Correlation is not cause', n: 'Say what the correlation does not show, and why.',
         s: `A correlation does not show ${gap(['causation', 'cause', 'a causal relationship', 'cause and effect'])}. Another variable that changes along the shore, such as the time the rock is out of the ${gap(['water', 'sea'])}, may cause the change in barnacle cover. A ${gap(['controlled', 'manipulative'])} experiment that changes only the temperature, and keeps every other variable the same, would give stronger evidence.` },
       { t: 'D. Conclude from a chi-squared test', n: 'Limpets and sea lettuce in the random quadrats (part 5). Give χ² to 2 decimal places.',
-        s: `The calculated χ² value is ${num(k.X, 0.006, 2)}. It is ${gap(sig ? MORE : LESS)} the critical value of ${num(3.84, 0.005, 2)} for ${num(1, 0, 0, 3)} degree(s) of freedom at p = 0.05, so the null hypothesis is ${gap(sig ? ['rejected'] : ['not rejected', 'accepted', 'retained'])}.` +
-          (sig ? ` Limpets and sea lettuce were found in the same quadrat ${gap(neg ? ['less', 'less often'] : ['more', 'more often'])} often than expected: a ${gap(neg ? ['negative'] : ['positive'])} association.` : '') },
+        s: `The calculated χ² value is ${num(k.X, 0.006, 2, 6, 'χ²')}. It is ${gap(sig ? MORE : LESS, 14, 'greater or less than')} the critical value of ${num(3.84, 0.005, 2)} for ${num(1, 0, 0, 3)} degree(s) of freedom at p = 0.05, so the null hypothesis is ${gap(sig ? ['rejected'] : ['not rejected', 'accepted', 'retained'], 14, 'rejected or not')}.` +
+          (sig ? ` Limpets and sea lettuce were found in the same quadrat ${gap(neg ? ['less', 'less often'] : ['more', 'more often'], 14, 'less or more')} often than expected: a ${gap(neg ? ['negative'] : ['positive'], 14, 'negative or positive')} association.` : '') },
       { t: 'E. A limitation and an improvement', n: 'Evaluate the method.',
         s: `One limitation is that only ${gap(['one', '1', 'a single', 'single'])} transect was sampled, so the results may not be ${gap(['representative'])} of the whole shore. To improve the investigation, repeat the transect at three places along the shore and calculate the ${gap(['mean', 'average'])} cover at each distance. Measure the rock temperature at every quadrat at about the ${gap(['same'])} time, because the rock heats up during the low tide.` },
       { t: 'F. Link the data to niches', n: 'Use the words of B4.1.4 and B4.2.12.',
@@ -136,7 +141,7 @@
     box.innerHTML = '';
     F.forEach((f, i) => {
       const d = fold('Frame', f.t, i === 0), inn = $('.fold-in', d); inn.innerHTML = `<p class="note">${f.n}</p><p class="frame-s">${f.s}</p>`;
-      checker(inn); box.appendChild(d);
+      checker(inn, '', 'p7-frame-' + 'abcdef'[i], { part: 7, title: f.t, short: 'ABCDEF'[i] }); box.appendChild(d);
     });
   }
 
@@ -154,14 +159,16 @@
     ];
     box.innerHTML = '';
     tasks.forEach((t, i) => {
-      const f = fold('Write', `Your turn ${i + 1}. ${t.t}`), d = $('.fold-in', f); box.appendChild(f);
+      const f = fold('Write', `Your turn ${i + 1}. ${t.t}`), d = $('.fold-in', f), id = 'p7-write-' + (i + 1); box.appendChild(f);
+      A.reg({ id, part: 7, title: 'Your turn ' + (i + 1) + ': ' + t.t, short: 'Y' + (i + 1), kind: 'text' });
       d.innerHTML = `<p>${t.q}</p><textarea rows="5" aria-label="Your answer"></textarea>`;
       const b = h('button', { class: 'btn ghost', type: 'button' }, 'Show a model answer'), out = h('div');
       b.addEventListener('click', () => {
         if (!wroteEnough(d, out)) return;
+        L.done(id);
         out.innerHTML = `<div class="box sea"><div class="k">A model answer</div><p>${t.model}</p><p class="note">Tick what your answer has:</p>${t.check.map(c => `<label class="tick"><input type="checkbox"> ${c}</label>`).join('')}</div>`;
       });
-      d.appendChild(b); d.appendChild(again(() => { $('textarea', d).value = ''; out.innerHTML = ''; })); d.appendChild(out);
+      d.appendChild(b); d.appendChild(again(() => { $('textarea', d).value = ''; out.innerHTML = ''; L.restart([id]); })); d.appendChild(out);
     });
   }
 
@@ -180,7 +187,7 @@
       { t: 'When to measure the temperature', type: 'mcq', q: 'The rock temperature was measured at 0 m at the start of the low tide and at 10 m an hour later. Why is this a problem?', a: ['The rock heats up during the low tide, so the time of measurement changes the temperature, not only the position on the shore.', 'Temperature probes do not work on wet rock.', 'There is no problem: temperature is an abiotic variable.'], c: 0, why: 'Time is an uncontrolled variable. Measure all the quadrats within a short time, or record the time and take it into account.' },
       { t: 'The gradient of the trendline', type: 'num', q: 'Use the trendline for barnacle cover against rock temperature (part 6, or =SLOPE in Google Sheets). By how many percentage points does barnacle cover increase for each 1 °C rise in rock temperature? Give your answer to 1 decimal place.', ans: () => Math.round(slopeBarn() * 10) / 10, tol: 0.06, why: () => `The gradient of the line of best fit in part 6 is ${fmt(slopeBarn(), 1)} percentage points per °C (it uses your table from part 3). In Google Sheets: =SLOPE(C2:C12, B2:B12).` },
       { t: 'Crabs: the Lincoln index', type: 'num', q: 'Shore crabs are motile, so quadrats cannot sample them (C4.1.4). On the first day you catch and mark 24 crabs, then release them. The next day you catch 30 crabs; 6 of them are marked. Use the Lincoln index to estimate the size of the crab population.', ans: 120, tol: 0.5, why: 'Population ≈ M × N ÷ R = 24 × 30 ÷ 6 = 120 crabs (M = marked first, N = caught second, R = marked recaptures).' },
-      { t: 'The Lincoln index: its assumptions', type: 'mcq', q: 'Which assumption of the Lincoln index is LEAST likely to be true for these crabs?', a: ['No crabs enter or leave the area between the two samples.', 'The marks do not fall off overnight.', 'Marked crabs mix with unmarked crabs before the second sample.'], c: 0, why: 'A shore is open: crabs move in and out with every tide, so the population is not closed between the samples.' },
+      { t: 'The Lincoln index: its assumptions', type: 'mcq', q: 'Which assumption of the Lincoln index is LEAST likely to be true for these crabs?', a: ['No crabs enter or leave the area between the two samples.', 'The marks stay on the crabs overnight.', 'Marked crabs mix with unmarked crabs before the second sample.'], c: 0, why: 'A shore is open: crabs move in and out with every tide, so the population is not closed between the samples.' },
       { t: 'Design an experiment', type: 'text', q: 'Design an experiment to test whether grazing by limpets causes the negative association between limpets and sea lettuce.',
         model: 'Mark out 20 squares of rock, 0.5 m × 0.5 m, at the same height on the shore, so that abiotic conditions are similar. Choose 10 squares at random and fix a small mesh cage over each one that keeps limpets out without harming them; leave the other 10 open as controls (an empty cage frame on them controls for shade). After several weeks, estimate the percentage cover of sea lettuce in every square. If the cover is significantly higher inside the cages (for example with a t-test), this supports grazing by limpets as a cause. Remove the cages at the end.',
         check: ['an independent variable: limpets removed or present', 'a dependent variable: sea lettuce cover, with how it is measured', 'controlled variables: same shore height, same size of square', 'replicates and a control group', 'how the results show the cause'] }
@@ -189,7 +196,8 @@
     const ll = $('#limp-list'); if (ll) ll.textContent = LIMP.join(', ');
     const KIND = { num: 'Calculate', mcq: 'Choose', text: 'Design' };
     C.forEach((c, i) => {
-      const f = fold(KIND[c.type], `${i + 1}. ${c.t}`), d = $('.fold-in', f); box.appendChild(f);
+      const f = fold(KIND[c.type], `${i + 1}. ${c.t}`), d = $('.fold-in', f), id = 'p8-c' + (i + 1); box.appendChild(f);
+      A.reg(Object.assign({ id, part: 8, title: c.t, short: String(i + 1), kind: c.type }, c.type === 'mcq' ? { opts: c.a } : {}));
       d.innerHTML = `<p>${c.q}</p>`;
       const out = h('p', { 'aria-live': 'polite' });
       if (c.type === 'num') {
@@ -198,19 +206,20 @@
         b.addEventListener('click', () => {
           const v = parseFloat(inp.value); const ans = typeof c.ans === 'function' ? c.ans() : c.ans, why = typeof c.why === 'function' ? c.why() : c.why;
           if (isNaN(v)) { out.innerHTML = 'Type a number first.'; return; }
+          L.check(id, Math.abs(v - ans) <= c.tol, [String(inp.value).trim().slice(0, 20)]);
           if (Math.abs(v - ans) <= c.tol) { out.innerHTML = `<span class="ok">✓ Correct.</span> ${why}`; return; }
           wrong++;
           out.innerHTML = `<span class="bad">✗ Not yet.</span> Try again.` + (wrong >= 2 ? ` Or <button class="linkish" type="button">show the working</button>.` : '');
           const l = out.querySelector('.linkish'); if (l) l.addEventListener('click', () => { out.innerHTML = why; });
         });
-        d.appendChild(inp); d.appendChild(b); d.appendChild(again(() => { inp.value = ''; wrong = 0; out.innerHTML = ''; }));
+        d.appendChild(inp); d.appendChild(b); d.appendChild(again(() => { inp.value = ''; wrong = 0; out.innerHTML = ''; L.restart([id]); }));
       } else if (c.type === 'mcq') {
-        const reset = A.mcq(d, c, 31 + i * 5); d.appendChild(again(reset)); return;
+        const reset = A.mcq(d, c, 31 + i * 5, id); d.appendChild(again(reset)); return;
       } else {
         d.insertAdjacentHTML('beforeend', '<textarea rows="6" aria-label="Your answer"></textarea>');
         const b = h('button', { class: 'btn ghost', type: 'button' }, 'Show a model answer');
-        b.addEventListener('click', () => { if (!wroteEnough(d, out)) return; out.innerHTML = `<div class="box sea"><div class="k">A model answer</div><p>${c.model}</p><p class="note">Tick what your answer has:</p>${c.check.map(x => `<label class="tick"><input type="checkbox"> ${x}</label>`).join('')}</div>`; });
-        d.appendChild(b); d.appendChild(again(() => { $('textarea', d).value = ''; out.innerHTML = ''; }));
+        b.addEventListener('click', () => { if (!wroteEnough(d, out)) return; L.done(id); out.innerHTML = `<div class="box sea"><div class="k">A model answer</div><p>${c.model}</p><p class="note">Tick what your answer has:</p>${c.check.map(x => `<label class="tick"><input type="checkbox"> ${x}</label>`).join('')}</div>`; });
+        d.appendChild(b); d.appendChild(again(() => { $('textarea', d).value = ''; out.innerHTML = ''; L.restart([id]); }));
       }
       d.appendChild(out);
     });
@@ -251,4 +260,15 @@
   const R = { match1, gap2, frames, write, challenge, rsteps };
   $$('.practice').forEach(b => { if (R[b.dataset.p]) R[b.dataset.p](b); });
   document.addEventListener('partshown', e => { if (e.detail === 7) { frames($('[data-p="frames"]')); write($('[data-p="write"]')); } });
+  /* The teacher's board names the questions from data/questions.json (the labs script reads it). On a local server only,
+     the page compares it with its own list and says when it must be written again: copy(JSON.stringify(ShoreApp.manifest(), null, 1)). */
+  /* tools/make-questions.mjs opens the page with ?manifest=1 in headless Chrome and writes data/questions.json from this */
+  if (/[?&]manifest=1(&|$)/.test(location.search)) { const pre = h('pre', { id: 'manifest' }); pre.textContent = JSON.stringify(A.manifest(), null, 1); document.body.appendChild(pre); }
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+    fetch('data/questions.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(j => {
+      const want = JSON.stringify(A.manifest());
+      if (!j || JSON.stringify(j) !== want) console.warn('data/questions.json does not match this page: write it again from ShoreApp.manifest()');
+      else console.info('data/questions.json matches this page');
+    }).catch(() => console.warn('data/questions.json could not be read'));
+  }
 })();

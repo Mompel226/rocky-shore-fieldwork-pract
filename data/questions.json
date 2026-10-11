@@ -1,0 +1,674 @@
+{
+ "id": "rocky-shore-fieldwork-pract",
+ "v": 1,
+ "parts": [
+  {
+   "n": 1,
+   "title": "The shore"
+  },
+  {
+   "n": 2,
+   "title": "Methods"
+  },
+  {
+   "n": 3,
+   "title": "Transect"
+  },
+  {
+   "n": 4,
+   "title": "Random quadrats"
+  },
+  {
+   "n": 7,
+   "title": "Write it up"
+  },
+  {
+   "n": 8,
+   "title": "Challenge"
+  }
+ ],
+ "groups": [
+  {
+   "id": "p3-transect",
+   "part": 3,
+   "title": "Transect quadrats",
+   "short": "T"
+  },
+  {
+   "id": "p4-random",
+   "part": 4,
+   "title": "Random quadrats",
+   "short": "R"
+  }
+ ],
+ "questions": [
+  {
+   "id": "p1-quiz-1",
+   "part": 1,
+   "title": "Barnacles X and Y: which niche?",
+   "short": "Q1",
+   "kind": "mcq",
+   "opts": [
+    "The fundamental niche of X includes the middle shore; competition with Y restricts its realized niche to the upper shore.",
+    "The fundamental niche of X is the upper shore only.",
+    "X is absent from the lower shore because of desiccation.",
+    "The realized niche of X is larger than its fundamental niche."
+   ]
+  },
+  {
+   "id": "p1-quiz-2",
+   "part": 1,
+   "title": "Sea lettuce missing at both ends",
+   "short": "Q2",
+   "kind": "mcq",
+   "opts": [
+    "Top: outside its range of tolerance for desiccation. Bottom: competition, for example with brown seaweed.",
+    "Top: competition with brown seaweed. Bottom: desiccation.",
+    "Both ends: grazing by limpets only.",
+    "Both ends: the rock temperature is outside its range of tolerance."
+   ]
+  },
+  {
+   "id": "p1-quiz-3",
+   "part": 1,
+   "title": "A range of tolerance at 34 °C",
+   "short": "Q3",
+   "kind": "mcq",
+   "opts": [
+    "Its upper limit on the shore is set by an abiotic variable: it can grow only where the rock stays below about 30 °C.",
+    "It would grow on the upper shore if there were no limpets there.",
+    "Its realized niche reaches higher on the shore than its fundamental niche.",
+    "It would survive at 34 °C if competitors were removed."
+   ]
+  },
+  {
+   "id": "p1-words",
+   "kind": "gaps",
+   "gaps": [
+    "sessile",
+    "motile",
+    "zonation",
+    "abiotic variable",
+    "desiccation",
+    "range of tolerance",
+    "biotic interaction",
+    "fundamental niche",
+    "realized niche",
+    "interspecific competition",
+    "competitive exclusion"
+   ],
+   "part": 1,
+   "title": "Type the words",
+   "short": "W"
+  },
+  {
+   "id": "p2-quiz-1",
+   "part": 2,
+   "title": "Biased quadrat placement",
+   "short": "Q1",
+   "kind": "mcq",
+   "opts": [
+    "It is biased upwards: the quadrats are not a random sample of the area.",
+    "It is less precise, but not biased.",
+    "It cannot be calculated, because percentage cover needs a continuous belt transect.",
+    "It is unaffected, because every quadrat has 100 squares."
+   ]
+  },
+  {
+   "id": "p2-quiz-2",
+   "part": 2,
+   "title": "Transect time and quadrats",
+   "short": "Q2",
+   "kind": "mcq",
+   "opts": [
+    "33 minutes; 40 quadrats",
+    "30 minutes; 40 quadrats",
+    "33 minutes; 20 quadrats",
+    "30 minutes; 20 quadrats"
+   ]
+  },
+  {
+   "id": "p2-quiz-3",
+   "part": 2,
+   "title": "Cover or count for limpets",
+   "short": "Q3",
+   "kind": "mcq",
+   "opts": [
+    "Limpets are separate individuals that can be counted, and density is a number of individuals per unit area.",
+    "Limpets move too fast to be inside a quadrat.",
+    "Percentage cover can be used only on a continuous belt transect.",
+    "A limpet is smaller than one small square of the quadrat."
+   ]
+  },
+  {
+   "id": "p2-quiz-4",
+   "part": 2,
+   "title": "Lincoln index: an estimate too high",
+   "short": "Q4",
+   "kind": "mcq",
+   "opts": [
+    "Some crabs lose their marks before the second sample.",
+    "Marked crabs are easier to catch than unmarked crabs.",
+    "The second sample is larger than the first.",
+    "No crabs are born or die between the two samples."
+   ]
+  },
+  {
+   "id": "p2-gaps",
+   "kind": "gaps",
+   "gaps": [
+    "systematic",
+    "gradient",
+    "continuous",
+    "interrupted",
+    "bias",
+    "sessile",
+    "motile",
+    "Lincoln",
+    "cover",
+    "density",
+    "4.8",
+    "9"
+   ],
+   "part": 2,
+   "title": "Fill the gaps",
+   "short": "G"
+  },
+  {
+   "id": "p3-t0",
+   "part": 3,
+   "title": "Quadrat at 0 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t1",
+   "part": 3,
+   "title": "Quadrat at 1 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t2",
+   "part": 3,
+   "title": "Quadrat at 2 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t3",
+   "part": 3,
+   "title": "Quadrat at 3 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t4",
+   "part": 3,
+   "title": "Quadrat at 4 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t5",
+   "part": 3,
+   "title": "Quadrat at 5 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t6",
+   "part": 3,
+   "title": "Quadrat at 6 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t7",
+   "part": 3,
+   "title": "Quadrat at 7 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t8",
+   "part": 3,
+   "title": "Quadrat at 8 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t9",
+   "part": 3,
+   "title": "Quadrat at 9 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p3-t10",
+   "part": 3,
+   "title": "Quadrat at 10 m",
+   "kind": "quad",
+   "group": "p3-transect"
+  },
+  {
+   "id": "p4-r1",
+   "part": 4,
+   "title": "Random quadrat 1 (across 7, down 9)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r2",
+   "part": 4,
+   "title": "Random quadrat 2 (across 9, down 9)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r3",
+   "part": 4,
+   "title": "Random quadrat 3 (across 6, down 2)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r4",
+   "part": 4,
+   "title": "Random quadrat 4 (across 3, down 5)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r5",
+   "part": 4,
+   "title": "Random quadrat 5 (across 1, down 2)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r6",
+   "part": 4,
+   "title": "Random quadrat 6 (across 5, down 0)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r7",
+   "part": 4,
+   "title": "Random quadrat 7 (across 4, down 1)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r8",
+   "part": 4,
+   "title": "Random quadrat 8 (across 3, down 7)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r9",
+   "part": 4,
+   "title": "Random quadrat 9 (across 9, down 5)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r10",
+   "part": 4,
+   "title": "Random quadrat 10 (across 4, down 9)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r11",
+   "part": 4,
+   "title": "Random quadrat 11 (across 0, down 1)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r12",
+   "part": 4,
+   "title": "Random quadrat 12 (across 4, down 4)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r13",
+   "part": 4,
+   "title": "Random quadrat 13 (across 9, down 8)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r14",
+   "part": 4,
+   "title": "Random quadrat 14 (across 1, down 5)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r15",
+   "part": 4,
+   "title": "Random quadrat 15 (across 8, down 9)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r16",
+   "part": 4,
+   "title": "Random quadrat 16 (across 2, down 9)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r17",
+   "part": 4,
+   "title": "Random quadrat 17 (across 9, down 4)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r18",
+   "part": 4,
+   "title": "Random quadrat 18 (across 3, down 2)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r19",
+   "part": 4,
+   "title": "Random quadrat 19 (across 1, down 7)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r20",
+   "part": 4,
+   "title": "Random quadrat 20 (across 3, down 9)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r21",
+   "part": 4,
+   "title": "Random quadrat 21 (across 1, down 8)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r22",
+   "part": 4,
+   "title": "Random quadrat 22 (across 5, down 7)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r23",
+   "part": 4,
+   "title": "Random quadrat 23 (across 9, down 3)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r24",
+   "part": 4,
+   "title": "Random quadrat 24 (across 2, down 8)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r25",
+   "part": 4,
+   "title": "Random quadrat 25 (across 3, down 1)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r26",
+   "part": 4,
+   "title": "Random quadrat 26 (across 6, down 4)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r27",
+   "part": 4,
+   "title": "Random quadrat 27 (across 1, down 3)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r28",
+   "part": 4,
+   "title": "Random quadrat 28 (across 0, down 8)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r29",
+   "part": 4,
+   "title": "Random quadrat 29 (across 8, down 1)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p4-r30",
+   "part": 4,
+   "title": "Random quadrat 30 (across 9, down 0)",
+   "kind": "quad",
+   "group": "p4-random"
+  },
+  {
+   "id": "p7-frame-a",
+   "kind": "gaps",
+   "gaps": [
+    "upper",
+    "decreases",
+    "from (m)",
+    "to (m)",
+    "lower",
+    "zonation"
+   ],
+   "part": 7,
+   "title": "A. Describe the kite diagram",
+   "short": "A"
+  },
+  {
+   "id": "p7-frame-b",
+   "kind": "gaps",
+   "gaps": [
+    "strength",
+    "direction",
+    "r",
+    "greater or less than",
+    "0.602",
+    "significant or not"
+   ],
+   "part": 7,
+   "title": "B. State a correlation, with its evidence",
+   "short": "B"
+  },
+  {
+   "id": "p7-frame-c",
+   "kind": "gaps",
+   "gaps": [
+    "causation",
+    "water",
+    "controlled"
+   ],
+   "part": 7,
+   "title": "C. Correlation is not cause",
+   "short": "C"
+  },
+  {
+   "id": "p7-frame-d",
+   "kind": "gaps",
+   "gaps": [
+    "χ²",
+    "greater or less than",
+    "3.84",
+    "1",
+    "rejected or not",
+    "less or more",
+    "negative or positive"
+   ],
+   "part": 7,
+   "title": "D. Conclude from a chi-squared test",
+   "short": "D"
+  },
+  {
+   "id": "p7-frame-e",
+   "kind": "gaps",
+   "gaps": [
+    "one",
+    "representative",
+    "mean",
+    "same"
+   ],
+   "part": 7,
+   "title": "E. A limitation and an improvement",
+   "short": "E"
+  },
+  {
+   "id": "p7-frame-f",
+   "kind": "gaps",
+   "gaps": [
+    "abiotic",
+    "desiccation",
+    "biotic",
+    "competition",
+    "realized",
+    "fundamental"
+   ],
+   "part": 7,
+   "title": "F. Link the data to niches",
+   "short": "F"
+  },
+  {
+   "id": "p7-write-1",
+   "part": 7,
+   "title": "Your turn 1: Describe a relationship: brown seaweed and rock temperature",
+   "short": "Y1",
+   "kind": "text"
+  },
+  {
+   "id": "p7-write-2",
+   "part": 7,
+   "title": "Your turn 2: Evaluate a statement about sea lettuce",
+   "short": "Y2",
+   "kind": "text"
+  },
+  {
+   "id": "p8-c1",
+   "part": 8,
+   "title": "The mean number of limpets",
+   "short": "1",
+   "kind": "num"
+  },
+  {
+   "id": "p8-c2",
+   "part": 8,
+   "title": "The standard deviation",
+   "short": "2",
+   "kind": "num"
+  },
+  {
+   "id": "p8-c3",
+   "part": 8,
+   "title": "Clumped or spread at random?",
+   "short": "3",
+   "kind": "mcq",
+   "opts": [
+    "They are clumped: many quadrats have none and a few have several.",
+    "They are spread evenly over the rock.",
+    "They are spread at random."
+   ]
+  },
+  {
+   "id": "p8-c4",
+   "part": 8,
+   "title": "The density of limpets",
+   "short": "4",
+   "kind": "num"
+  },
+  {
+   "id": "p8-c5",
+   "part": 8,
+   "title": "All the limpets in the area",
+   "short": "5",
+   "kind": "num"
+  },
+  {
+   "id": "p8-c6",
+   "part": 8,
+   "title": "Chi-squared: expected values",
+   "short": "6",
+   "kind": "mcq",
+   "opts": [
+    "With small expected values, one quadrat more or less changes χ² a lot, so the test is unreliable.",
+    "Because the critical value is 3.84.",
+    "Because a quadrat has 100 squares."
+   ]
+  },
+  {
+   "id": "p8-c7",
+   "part": 8,
+   "title": "A bigger quadrat",
+   "short": "7",
+   "kind": "mcq",
+   "opts": [
+    "More quadrats will hold both species, so an association is harder to detect.",
+    "Nothing changes: quadrat size does not matter.",
+    "There will be fewer limpets in each quadrat."
+   ]
+  },
+  {
+   "id": "p8-c8",
+   "part": 8,
+   "title": "When to measure the temperature",
+   "short": "8",
+   "kind": "mcq",
+   "opts": [
+    "The rock heats up during the low tide, so the time of measurement changes the temperature, not only the position on the shore.",
+    "Temperature probes do not work on wet rock.",
+    "There is no problem: temperature is an abiotic variable."
+   ]
+  },
+  {
+   "id": "p8-c9",
+   "part": 8,
+   "title": "The gradient of the trendline",
+   "short": "9",
+   "kind": "num"
+  },
+  {
+   "id": "p8-c10",
+   "part": 8,
+   "title": "Crabs: the Lincoln index",
+   "short": "10",
+   "kind": "num"
+  },
+  {
+   "id": "p8-c11",
+   "part": 8,
+   "title": "The Lincoln index: its assumptions",
+   "short": "11",
+   "kind": "mcq",
+   "opts": [
+    "No crabs enter or leave the area between the two samples.",
+    "The marks stay on the crabs overnight.",
+    "Marked crabs mix with unmarked crabs before the second sample."
+   ]
+  },
+  {
+   "id": "p8-c12",
+   "part": 8,
+   "title": "Design an experiment",
+   "short": "12",
+   "kind": "text"
+  }
+ ]
+}

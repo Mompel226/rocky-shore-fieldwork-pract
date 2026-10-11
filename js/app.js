@@ -71,6 +71,7 @@
   /* ↺ Start the whole page again: deletes this page's saved records (transect, random quadrats) and every answer. */
   $('#btnRestart').addEventListener('click', () => {
     if (!confirm('Start the whole page again? Your transect estimates, your random quadrats and every answer on this page will be deleted.')) return;
+    L.restartAll();   /* every question opens a new round; what was done stays in the teacher's record */
     try { Object.keys(localStorage).filter(k => k.indexOf('rocky-shore.') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* private window: nothing was saved */ }
     location.replace(location.pathname);
   });
@@ -216,7 +217,7 @@
     ST.forEach(s => { mine[s.d] = mine[s.d] || {}; SP.forEach(p => { if (mine[s.d][p.k] === '' || mine[s.d][p.k] == null) { mine[s.d][p.k] = s[p.k]; store.set('tfilled', true); } }); });
     store.set('transect', mine); tableT(); drawTransect(); $('#t-msg').textContent = 'The empty cells now hold our counts. Your own estimates are unchanged.';
   });
-  $('#t-clear').addEventListener('click', () => { if (!confirm('Delete all your transect estimates?')) return; mine = {}; store.set('transect', mine); store.set('tfilled', false); tableT(); drawTransect(); });
+  $('#t-clear').addEventListener('click', () => { if (!confirm('Delete all your transect estimates?')) return; L.restart(ST.map(s => 'p3-t' + s.d)); mine = {}; store.set('transect', mine); store.set('tfilled', false); tableT(); drawTransect(); });
 
   /* ---------------- part 4: random quadrats ---------------- */
   const A = D.area, AX = A.x0 * PW, AY = A.y0 * PH, CELL = 50;
@@ -270,7 +271,7 @@
     RQ.forEach(r => { if (!rmine[r.q]) { rmine[r.q] = { limp: r.limp > 0 ? 'yes' : 'no', green: r.green > 0 ? 'yes' : 'no' }; store.set('rfilled', true); } });
     rnext = RQ.length; store.set('random', rmine); store.set('rnext', rnext); drawArea(false); tableR();
   });
-  $('#r-clear').addEventListener('click', () => { if (!confirm('Delete all your random-quadrat records?')) return; rmine = {}; rnext = 0; store.set('random', rmine); store.set('rnext', 0); store.set('rfilled', false); drawArea(false); tableR(); });
+  $('#r-clear').addEventListener('click', () => { if (!confirm('Delete all your random-quadrat records?')) return; L.restart(RQ.map(r => 'p4-r' + r.q)); rmine = {}; rnext = 0; store.set('random', rmine); store.set('rnext', 0); store.set('rfilled', false); drawArea(false); tableR(); });
   $('#r-csv').addEventListener('click', () => {
     const rows = RQ.map(r => { const m = rmine[r.q] || { limp: r.limp > 0 ? 'yes' : 'no', green: r.green > 0 ? 'yes' : 'no' }; return [r.q, r.gx, r.gy, m.limp === 'yes' ? 'present' : 'absent', m.green === 'yes' ? 'present' : 'absent']; });
     download('random-quadrats.csv', [['quadrat', 'across', 'down', 'limpets', 'sea_lettuce']].concat(rows).map(r => r.join(',')).join('\n'));
@@ -348,6 +349,8 @@
         const tol = p.unit === '%' ? 5 : 0, ok = Math.abs(v - s[p.k]) <= tol;
         return `<span class="${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✗'}</span> ${p.name}: you ${v}, our count ${s[p.k]}${p.unit === '%' ? ' %' : ''}`;
       });
+      const off = SP.filter(p => m[p.k] !== '' && m[p.k] != null && Math.abs(m[p.k] - s[p.k]) > (p.unit === '%' ? 5 : 0));
+      if (SP.every(p => m[p.k] !== '' && m[p.k] != null)) L.check('p3-t' + cur.id, !off.length, off.map(p => p.name + ': ' + m[p.k]));
       msg.innerHTML = lines.join('<br>') + (s.limpHidden ? `<br><span class="note">${s.limpHidden} of the ${s.limp} limpets are under the seaweed.</span>` : '') +
         '<br><span class="note">Within 5 % counts as a good estimate.</span>';
       drawTransect(cur.id);
@@ -355,6 +358,7 @@
       const r = RQ.find(x => x.q === cur.id), m = rmine[cur.id];
       if (!m) { msg.textContent = 'Choose present or absent for both species first.'; return; }
       const a = m.limp === (r.limp > 0 ? 'yes' : 'no'), b = m.green === (r.green > 0 ? 'yes' : 'no');
+      L.check('p4-r' + cur.id, a && b, [a ? '' : 'Limpets: ' + (m.limp === 'yes' ? 'present' : 'absent'), b ? '' : 'Sea lettuce: ' + (m.green === 'yes' ? 'present' : 'absent')].filter(Boolean));
       msg.innerHTML = `<span class="${a ? 'ok' : 'bad'}">${a ? '✓' : '✗'}</span> Limpets: ${r.limp > 0 ? 'present (' + r.limp + ')' : 'absent'}<br><span class="${b ? 'ok' : 'bad'}">${b ? '✓' : '✗'}</span> Sea lettuce: ${r.green > 0 ? 'present (' + r.green + ' % cover)' : 'absent'}`;
       drawArea(false);
     }
@@ -483,11 +487,29 @@
     el('text', { x: X1 + 28, y: top + row / 2 + 4 }, svg, '100 %');
   }
 
+  /* ---------------- the lesson record (labs-shared/practical/lesson.js) and this page's list of questions ----------------
+     Every Check, choice and ↺ Start again is told to Lesson, which keeps it for the teacher's 🔬 Practicals board when the
+     pupil is signed in. Each question registers itself as it is drawn (reg, group): manifest() is data/questions.json,
+     and on a local server the page says when that file no longer matches (practice.js, at the end). */
+  const L = window.Lesson || { check() {}, done() {}, restart() {}, restartAll() {} };
+  const QREG = [], GREG = [];
+  const reg = q => { if (!QREG.some(x => x.id === q.id)) QREG.push(q); };
+  const group = g => { if (!GREG.some(x => x.id === g.id)) GREG.push(g); };
+  const PARTS = [[1, 'The shore'], [2, 'Methods'], [3, 'Transect'], [4, 'Random quadrats'], [5, 'Chi-squared'], [6, 'Correlation'], [7, 'Write it up'], [8, 'Challenge']];
+  function manifest() {
+    const qs = QREG.map((q, i) => [q, i]).sort((a, b) => a[0].part - b[0].part || a[1] - b[1]).map(x => x[0]);
+    const used = new Set(qs.map(q => q.part));
+    return { id: 'rocky-shore-fieldwork-pract', v: 1, parts: PARTS.filter(p => used.has(p[0])).map(p => ({ n: p[0], title: p[1] })),
+             groups: GREG.slice(), questions: qs };
+  }
+  ST.forEach(s => reg({ id: 'p3-t' + s.d, part: 3, title: 'Quadrat at ' + s.d + ' m', kind: 'quad', group: 'p3-transect' }));
+  group({ id: 'p3-transect', part: 3, title: 'Transect quadrats', short: 'T' });
+
   /* ---------------- quick checks ---------------- */
   // Options are shown in a fixed shuffled order, so the right answer is never always first.
   const shuffle = (a, seed) => { const b = a.slice(); let s = seed || 7; for (let i = b.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
   // Multiple choice: a wrong choice says only "not this one"; the reason appears with the right answer (effort first).
-  function mcq(d, it, seed) {
+  function mcq(d, it, seed, id) {
     const out = h('p', { 'aria-live': 'polite' });
     // the wrong options in a shuffled order, the right one at a position that changes from question to question
     const opts = shuffle(it.a.map((txt, i) => [txt, i]).filter(([, i]) => i !== it.c), seed);
@@ -496,43 +518,47 @@
     opts.forEach(([txt, i]) => {
       const b = h('button', { class: 'btn ghost', type: 'button' }, txt); bs.push(b);
       b.addEventListener('click', () => {
+        L.check(id, i === it.c, i === it.c ? [] : ['o' + i]);
         b.classList.add(i === it.c ? 'chosen-right' : 'chosen-wrong');
         out.innerHTML = i === it.c ? '<span class="ok">✓ Correct.</span> ' + it.why : '<span class="bad">✗ Not this one.</span> Think again, then try another answer.';
       });
       d.appendChild(b);
     });
     d.appendChild(out);
-    return () => { bs.forEach(b => b.classList.remove('chosen-right', 'chosen-wrong')); out.innerHTML = ''; };   // start again
+    return () => { bs.forEach(b => b.classList.remove('chosen-right', 'chosen-wrong')); out.innerHTML = ''; L.restart([id]); };   // start again
   }
   const QUIZ = {
-    q1: [{ q: 'Barnacle X lives only on the upper shore. When barnacle Y is removed from the middle shore, X extends down into the middle shore, but X never extends into the lower shore. Which conclusion is best supported?',
+    q1: [{ t: 'Barnacles X and Y: which niche?', q: 'Barnacle X lives only on the upper shore. When barnacle Y is removed from the middle shore, X extends down into the middle shore, but X never extends into the lower shore. Which conclusion is best supported?',
       a: ['The fundamental niche of X includes the middle shore; competition with Y restricts its realized niche to the upper shore.', 'The fundamental niche of X is the upper shore only.', 'X is absent from the lower shore because of desiccation.', 'The realized niche of X is larger than its fundamental niche.'], c: 0,
       why: 'X can live on the middle shore when Y is absent, so the middle shore is inside its fundamental niche. With Y present, X is restricted to the upper shore: its realized niche. Something else (another species, or an abiotic variable) excludes X from the lower shore, but it cannot be desiccation: the lower shore is the wettest part.' },
-    { q: 'Along the transect, sea lettuce is absent from the top 2 m and from the bottom 3 m. Which pair of explanations is most consistent with B4.1.4 and B4.2.12?',
+    { t: 'Sea lettuce missing at both ends', q: 'Along the transect, sea lettuce is absent from the top 2 m and from the bottom 3 m. Which pair of explanations is most consistent with B4.1.4 and B4.2.12?',
       a: ['Top: outside its range of tolerance for desiccation. Bottom: competition, for example with brown seaweed.', 'Top: competition with brown seaweed. Bottom: desiccation.', 'Both ends: grazing by limpets only.', 'Both ends: the rock temperature is outside its range of tolerance.'], c: 0,
       why: 'The upper limit of a species is usually set by an abiotic variable (drying out high on the shore); the lower limit is often set by biotic interactions, such as competition with the brown seaweed that covers the lower shore.' },
-    { q: 'At low tide the rock on the upper shore reaches 34 °C. A seaweed survives rock temperatures from 5 °C to 30 °C. Which prediction is best supported?',
+    { t: 'A range of tolerance at 34 °C', q: 'At low tide the rock on the upper shore reaches 34 °C. A seaweed survives rock temperatures from 5 °C to 30 °C. Which prediction is best supported?',
       a: ['Its upper limit on the shore is set by an abiotic variable: it can grow only where the rock stays below about 30 °C.', 'It would grow on the upper shore if there were no limpets there.', 'Its realized niche reaches higher on the shore than its fundamental niche.', 'It would survive at 34 °C if competitors were removed.'], c: 0,
       why: '34 °C is outside its range of tolerance, so removing competitors or grazers cannot make the upper shore part of its niche. A realized niche is never larger than the fundamental niche.' }],
-    q2: [{ q: 'To save time, a student places quadrats only where seaweed is growing. What is the main effect on the estimate of mean seaweed cover for the area?',
+    q2: [{ t: 'Biased quadrat placement', q: 'To save time, a student places quadrats only where seaweed is growing. What is the main effect on the estimate of mean seaweed cover for the area?',
       a: ['It is biased upwards: the quadrats are not a random sample of the area.', 'It is less precise, but not biased.', 'It cannot be calculated, because percentage cover needs a continuous belt transect.', 'It is unaffected, because every quadrat has 100 squares.'], c: 0,
       why: 'Choosing "interesting" spots is bias: bare rock is never sampled, so the mean cover is too high. Random positions give every point an equal chance.' },
-    { q: 'A 20 m interrupted belt transect has a quadrat every 2 m, starting at 0 m, and each quadrat takes 3 minutes to record. How long does the recording take, and how many 0.5 m quadrats would a continuous belt transect of the same tape need?',
+    { t: 'Transect time and quadrats', q: 'A 20 m interrupted belt transect has a quadrat every 2 m, starting at 0 m, and each quadrat takes 3 minutes to record. How long does the recording take, and how many 0.5 m quadrats would a continuous belt transect of the same tape need?',
       a: ['33 minutes; 40 quadrats', '30 minutes; 40 quadrats', '33 minutes; 20 quadrats', '30 minutes; 20 quadrats'], c: 0,
       why: 'Quadrats at 0, 2, 4 … 20 m: 11 quadrats, 11 × 3 = 33 minutes (remember the one at 0 m). A continuous belt needs 20 ÷ 0.5 = 40 quadrats.' },
-    { q: 'Why is percentage cover not a good way to estimate the population density of limpets?',
+    { t: 'Cover or count for limpets', q: 'Why is percentage cover not a good way to estimate the population density of limpets?',
       a: ['Limpets are separate individuals that can be counted, and density is a number of individuals per unit area.', 'Limpets move too fast to be inside a quadrat.', 'Percentage cover can be used only on a continuous belt transect.', 'A limpet is smaller than one small square of the quadrat.'], c: 0,
       why: 'Cover measures area, not the number of individuals. Count the limpets and divide by the area sampled (per m²).' },
-    { q: 'In a capture–mark–release–recapture study of shore crabs, which of these would make the Lincoln index estimate of the population too HIGH?',
+    { t: 'Lincoln index: an estimate too high', q: 'In a capture–mark–release–recapture study of shore crabs, which of these would make the Lincoln index estimate of the population too HIGH?',
       a: ['Some crabs lose their marks before the second sample.', 'Marked crabs are easier to catch than unmarked crabs.', 'The second sample is larger than the first.', 'No crabs are born or die between the two samples.'], c: 0,
       why: 'Population ≈ (number marked × number in the second sample) ÷ number marked in the second sample. Lost marks make the last number too small, so the estimate is too large. Marked crabs that are easier to catch make it too small.' }]
   };
   $$('.quiz').forEach(box => {
     const set = QUIZ[box.dataset.quiz]; if (!set) return;
     box.innerHTML = '<h3>Check yourself</h3>';
+    const part = box.dataset.quiz === 'q1' ? 1 : 2;
     const resets = set.map((it, n) => {
       const d = h('div', { class: 'box' }); d.innerHTML = `<p><b>${n + 1}.</b> ${it.q}</p>`;
-      box.appendChild(d); return mcq(d, it, 11 + n * 7 + box.dataset.quiz.length);
+      const id = 'p' + part + '-quiz-' + (n + 1);
+      reg({ id, part, title: it.t, short: 'Q' + (n + 1), kind: 'mcq', opts: it.a });
+      box.appendChild(d); return mcq(d, it, 11 + n * 7 + box.dataset.quiz.length, id);
     });
     const b = h('button', { class: 'btn ghost again', type: 'button' }, '↺ Start these questions again');
     b.addEventListener('click', () => resets.forEach(r => r())); box.appendChild(b);
@@ -574,7 +600,9 @@
   window.addEventListener('resize', stageH);
   if (PHONE.addEventListener) PHONE.addEventListener('change', () => { const n = +((/#part-(\d+)/.exec(location.hash) || [0, 1])[1]); if ($('#part-' + n).dataset.mode === 'transect') drawTransect(); });
   $('#credits').innerHTML = D.credits.map(c => `${c.what}: ${c.who}, <a href="${c.url}" target="_blank" rel="noopener">${c.licence}</a>`).join(' · ');
-  window.ShoreApp = { series, chi, pearson, ranks, fmt, store, h, mcq };
+  RQ.forEach(r => reg({ id: 'p4-r' + r.q, part: 4, title: 'Random quadrat ' + r.q + ' (across ' + r.gx + ', down ' + r.gy + ')', kind: 'quad', group: 'p4-random' }));
+  group({ id: 'p4-random', part: 4, title: 'Random quadrats', short: 'R' });
+  window.ShoreApp = { series, chi, pearson, ranks, fmt, store, h, mcq, L, reg, manifest };
   tableT(); tableR();
   const m0 = /#part-(\d+)/.exec(location.hash);
   show(m0 ? +m0[1] : 1, true);
