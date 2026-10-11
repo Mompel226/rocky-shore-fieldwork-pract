@@ -25,9 +25,11 @@ each time, of similar length); in part 5, each table opens only after its quick 
 Part 10, **Your field trip**, is about the real trip, taken from the teacher's workbook (which changes every year and
 is not published): a rocky shore of dark volcanic rock with shallow pools; the animals students may find (top shell
 *Monodonta labio*, limpet *Cellana toreuma*, chiton *Acanthopleura japonica*), with the teacher's own photographs; what
-is measured (distance, counts, water temperature, pH, salinity) and each instrument's uncertainty; belt transects of
-10 quadrats, three repeats, raw data shared and processed alone; and the mini IA's three criteria by name, with links
-to the Write-Up Lab. It gives no research question, no results table and no analysis of the students' own data:
+is measured (distance, counts, water temperature, pH, salinity) and each instrument's uncertainty, and why these
+non-sessile animals can still be counted in a quadrat at low tide; and the mini IA's three criteria by name, with links
+to the Write-Up Lab. Its quick checks stay with that theory. A separately coloured **Get ready** panel follows, with no
+questions: how the day works (belt transects of 10 quadrats, three repeats, raw data shared and processed alone), the
+things to bring with pictures, safety and care for the shore. It gives no research question, no results table and no analysis of the students' own data:
 those are their mini IA (memory: never do the assessment). The practice shore's downloads went to the Archive on
 11 Oct 2026 for that reason.
 
@@ -63,6 +65,8 @@ expected value is at least 5 (χ² = 8.17, p = 0.0043), inside one zone (the mid
   public domain); pages in `tools/source-credits.json`.
 - Part 10's photographs of the top shell, limpet and chiton (`img/species/`): Dr Daniel Mompel Riera, CC BY-NC-SA 4.0,
   cropped from his own photographs; no camera or place data kept.
+- Part 10's pictures of the things to bring (`img/kit/`): [Fluent Emoji](https://github.com/microsoft/fluentui-emoji),
+  Microsoft, MIT licence (its notice in `img/kit/LICENSE-fluentui-emoji.txt`).
 
 Made by Dr Daniel Mompel Riera, NLCS Jeju. Code: AGPL-3.0 (LICENSE). Teaching material: CC BY-NC-SA 4.0
 (LICENSE-CONTENT). See NOTICE.

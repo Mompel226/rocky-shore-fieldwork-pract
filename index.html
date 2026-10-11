@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Spectral:ital,wght@0,600;1,400&display=swap">
-<link rel="stylesheet" href="css/app.css?v=23">
+<link rel="stylesheet" href="css/app.css?v=24">
 <!-- Bright or dark: the reader's choice for the whole site (biology.theme), else the computer's setting. Set before
      the first paint so the page never flashes the other version. -->
 <script>(function () { try { var t = localStorage.getItem('biology.theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();</script>
@@ -276,6 +276,7 @@
       <h2>Your field trip</h2>
       <p class="sub">Parts 1–9 use a practice shore. On the field trip you sample a real rocky shore: dark volcanic rock, with shallow pools at low tide. What you study there depends on what you find, and your research question is your own. Your teacher’s workbook gives this year’s details: the place, the species and the deadline.</p>
 
+      <p class="blk">Before the trip · learn</p>
       <h3>What you may find</h3>
       <p>These three animals are common on this kind of shore. All three are molluscs that graze on the algae on the rock. On the day, your class chooses the two species to sample, from what you find.</p>
       <div class="ids">
@@ -309,7 +310,8 @@
           <tr><td class="l">Salinity</td><td>the unit on the probe’s screen, often ppt (parts per thousand)</td><td class="l">salinity probe</td></tr>
         </tbody>
       </table></div>
-      <p>These animals are <u>counted</u> (their abundance): you do not estimate a percentage cover. Before your first transect, measure the pH, the temperature and the salinity of the sea itself, to compare with the water on the shore.</p>
+      <p>You <u>count</u> these animals (their abundance): you do not estimate a percentage cover. They are not <button class="term" data-t="sessile">sessile</button>: they move. But they move slowly, and at low tide limpets and chitons clamp to the rock, so a quadrat can still sample them. Some may move, or hide in cracks, while you sample.</p>
+      <p>Before your first transect, measure the pH, the temperature and the salinity of the sea itself, to compare with the water on the shore.</p>
       <p>Some animals lie on the edge of the quadrat. A common rule: count an animal only when more than half of it is inside. Use the same rule in every quadrat.</p>
 
       <h3>The uncertainty of each instrument</h3>
@@ -321,13 +323,6 @@
       </ul>
       <div data-qc="p10-qc-2"></div>
 
-      <h3>On the day</h3>
-      <ul>
-        <li>You work in a group. Each person takes each role in the group at least once: your workbook names the roles.</li>
-        <li>Each group lays a belt transect of 10 quadrats, out from the sea or the high-tide mark, at three different places along the shore: three repeats. Choose a line that no other group uses.</li>
-        <li>The class puts its <u>raw data</u> in one shared spreadsheet. Share only raw data: you process the data yourself.</li>
-      </ul>
-
       <h3>Back at school: your mini IA</h3>
       <p>Your write-up is marked on three things: the <b>research question</b>, its <b>background</b> and the <b>data analysis</b>. This page does not give you a research question, a results table or an analysis of your data: they are your own work. It gives you the skills:</p>
       <ul>
@@ -338,24 +333,36 @@
       </ul>
       <div data-qc="p10-qc-3"></div>
 
-      <h3>Bring</h3>
-      <ul class="check">
-        <li>Shoes with a good grip that can get wet</li>
-        <li>A hat, sun cream and water</li>
-        <li>A phone in a waterproof bag, to photograph every quadrat: you can check your counts later</li>
-      </ul>
-      <div class="box amber">
-        <div class="k">Safety</div>
+      <section class="getready" aria-labelledby="gr-h">
+        <p class="blk">On the day · get ready</p>
+        <h3 id="gr-h">How the day works</h3>
         <ul>
-          <li>Check the tide time. Start as the tide goes out and finish before it comes back in.</li>
-          <li>Wet rock and algae are slippery. Walk; do not run or jump between rocks.</li>
-          <li>Never turn your back to the sea. Stay with your group and within sight of your teacher.</li>
+          <li>You work in a group. Each person takes each role in the group at least once: your workbook names the roles.</li>
+          <li>Each group lays a belt transect of 10 quadrats, out from the sea or the high-tide mark, at three different places along the shore: three repeats. Choose a line that no other group uses.</li>
+          <li>The class puts its <u>raw data</u> in one shared spreadsheet. Share only raw data: you process the data yourself.</li>
         </ul>
-      </div>
-      <div class="box">
-        <div class="k">Care for the shore</div>
-        <p>Do not pull limpets or chitons off the rock: count them where they are. Turn every rock back the way it was, and return every animal you pick up to the place where you found it.</p>
-      </div>
+        <h3>Bring</h3>
+        <ul class="kit">
+          <li class="kit__i"><img src="img/kit/hiking_boot_3d.png" width="256" height="256" alt="" loading="lazy"><span><b>Shoes with a good grip</b>that can get wet: wet rock and algae are slippery</span></li>
+          <li class="kit__i"><img src="img/kit/billed_cap_3d.png" width="256" height="256" alt="" loading="lazy"><span><b>A hat</b>you are in the sun for hours</span></li>
+          <li class="kit__i"><img src="img/kit/lotion_bottle_3d.png" width="256" height="256" alt="" loading="lazy"><span><b>Sun cream</b>put it on before you leave, and again later</span></li>
+          <li class="kit__i"><img src="img/kit/sunglasses_3d.png" width="256" height="256" alt="" loading="lazy"><span><b>Sunglasses</b>light reflects off the water</span></li>
+          <li class="kit__i"><img src="img/kit/droplet_3d.png" width="256" height="256" alt="" loading="lazy"><span><b>Water to drink</b>enough for the whole morning</span></li>
+          <li class="kit__i"><img src="img/kit/mobile_phone_3d.png" width="256" height="256" alt="" loading="lazy"><span><b>A phone in a waterproof bag</b>photograph every quadrat, so you can check your counts later</span></li>
+        </ul>
+        <div class="box amber">
+          <div class="k">Safety</div>
+          <ul>
+            <li>Check the tide time. Start as the tide goes out and finish before it comes back in.</li>
+            <li>Wet rock and algae are slippery. Walk; do not run or jump between rocks.</li>
+            <li>Never turn your back to the sea. Stay with your group and within sight of your teacher.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <div class="k">Care for the shore</div>
+          <p>Do not pull limpets or chitons off the rock: count them where they are. Turn every rock back the way it was, and return every animal you pick up to the place where you found it.</p>
+        </div>
+      </section>
       <p class="note">In class, your teacher may also give you real IB questions on transects and chi-squared, with their IB mark scheme.</p>
     </section>
   </main>
@@ -379,16 +386,16 @@
 <footer>
   Something wrong, or a suggestion? Please contact me: <a href="mailto:dmompelriera@nlcsjeju.kr">dmompelriera@nlcsjeju.kr</a>.<br>
   Checked against the IB Biology guide (first assessment 2025): B4.1.4, C4.1.3, C4.1.4, C4.1.15, B4.2.12–13.<br>
-  Pictures: <span id="credits"></span>. The top shell, limpet and chiton (part 10): Dr Daniel Mompel Riera, CC BY-NC-SA 4.0. The tape, the quadrats and all the data are a simulation made for this page.<br>
+  Pictures: <span id="credits"></span>. The top shell, limpet and chiton (part 10): Dr Daniel Mompel Riera, CC BY-NC-SA 4.0. The things to bring: <a href="https://github.com/microsoft/fluentui-emoji" target="_blank" rel="noopener">Fluent Emoji</a>, Microsoft, MIT licence. The tape, the quadrats and all the data are a simulation made for this page.<br>
   Code: AGPL-3.0 · Teaching material: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> — free for teaching, not for selling. Pictures keep their own licences.
 </footer>
 
 <script src="https://accounts.google.com/gsi/client?hl=en-GB" async defer></script>
-<script src="js/config.js?v=23"></script>
-<script src="js/signin.js?v=23"></script>
-<script src="js/lesson.js?v=23"></script>
-<script src="js/shore-data.js?v=23"></script>
-<script src="js/app.js?v=23"></script>
-<script src="js/practice.js?v=23"></script>
+<script src="js/config.js?v=24"></script>
+<script src="js/signin.js?v=24"></script>
+<script src="js/lesson.js?v=24"></script>
+<script src="js/shore-data.js?v=24"></script>
+<script src="js/app.js?v=24"></script>
+<script src="js/practice.js?v=24"></script>
 </body>
 </html>

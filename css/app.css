@@ -222,6 +222,17 @@ table.data td.c-ny::before{background:#22C55E} table.data td.c-nn::before{backgr
 .idc__t i{color:var(--ink2);margin-left:4px}
 .idc__t p{margin:5px 0 0;font-size:15px}
 table.measure td,table.measure th{vertical-align:top}
+/* part 10 in two blocks: what to learn (with its quick checks), then a differently coloured panel for the day itself */
+.blk{font:700 11.5px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--sea-ink);margin:22px 0 2px;padding-top:12px;border-top:2px solid var(--sea)}
+.getready{margin:26px -8px 12px;padding:4px 18px 16px;border-radius:16px;background:var(--amber-soft);border:1px solid var(--amber-edge)}
+.getready .blk{color:var(--amber);border-top-color:var(--amber-edge)}
+.getready .box{background:var(--sheet)}
+.getready ul.kit{list-style:none;margin:8px 0 14px;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.kit__i{display:flex;align-items:center;gap:12px;background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:10px 12px}
+.kit__i img{width:52px;height:52px;flex:none}
+.kit__i span{font-size:13.5px;line-height:1.4;color:var(--ink2)}
+.kit__i b{display:block;font-size:15px;color:var(--ink);margin-bottom:1px}
+@media (max-width:560px){ .getready{margin:22px -6px 12px;padding:4px 12px 12px} }
 @media (max-width:560px){
   .idc{grid-template-columns:1fr}
   .idc__pics a{flex:1}
