@@ -719,20 +719,23 @@
       why: 'R² = r² = (−0.30)² = 0.09, so about 9 %. R² is never negative. The other 91 % of the variation comes from other variables, or from chance.' },
     'p9-qc-1': { part: 9, short: 'q1', title: 'The R function for SD', kind: 'text', acc: ['sd', 'sd()', 'sd(x)'],
       q: 'Which R function gives the standard deviation of a set of numbers? Type its name.', why: '<code>sd()</code>, as in step 1: <code>sd(limpets)</code>.' },
-    'p10-qc-1': { part: 10, short: 'q1', title: 'Temperatures read 90 minutes apart', kind: 'mcq', c: 0,
-      q: 'On a sunny afternoon, a group reads the rock temperature at 10 m at 13:10 and at 0 m at 14:40. The rock at 0 m is 9 °C hotter. What is the main problem with this comparison?',
-      a: ['Part of the 9 °C difference may come from 90 more minutes of sun, not from the position on the shore.',
-          'Holding the probe on the rock for 30 seconds is too short a time to give a reading of its temperature.',
-          'The upper shore is normally cooler than the lower shore, so a 9 °C difference must be an error in reading.',
-          'Readings taken at different times can never be used in one correlation, so all the data must be deleted.'],
-      why: 'The rock heats up during a sunny low tide, so the time of a reading changes it. Read every temperature in one quick walk along the tape, and record the time.' },
-    'p10-qc-2': { part: 10, short: 'q2', title: 'Two people, two estimates', kind: 'mcq', c: 0,
-      q: 'Two people estimate the cover in the same quadrat and get 35 % and 45 %. What is the best plan for the rest of the transect?',
-      a: ['One person estimates the cover in every quadrat, so any error is the same in all of them.',
-          'Each person estimates half of the quadrats, so the work is shared and finished sooner.',
-          'Always record the higher of the two estimates, so that no organism is left out of the data.',
-          'Stop estimating cover and record only presence or absence, because cover is never reliable.'],
-      why: 'Estimates of cover differ between people. The same person every time keeps the estimates consistent along the transect.' }
+    'p10-qc-1': { part: 10, short: 'q1', title: 'An empty shell in a quadrat', kind: 'mcq', c: 0,
+      q: 'An empty limpet shell lies upside down in one of your quadrats, pearly side up. Do you count it as a limpet?',
+      a: ['No: an empty shell is not a living animal, so it is not part of the population you are sampling.',
+          'Yes: every shell in the quadrat counts, because a shell shows that the species lives in that place.',
+          'Yes, but only as half an animal, because the shell is in the quadrat but the body of the limpet is not.',
+          'No, but record it as percentage cover instead, because an empty shell cannot be counted as one animal.'],
+      why: 'You sample the living population. A living limpet clamps tightly to the rock; an empty shell moves easily and often lies upside down.' },
+    'p10-qc-2': { part: 10, short: 'q2', title: 'The uncertainty of a pH probe', kind: 'num', ans: 0.01, tol: 0.0001, dp: 2,
+      q: 'A pH probe shows 7.96 on its screen, and its manual gives no other uncertainty. What is the uncertainty of this reading? Type the number after ±.',
+      why: '± 0.01: the smallest step the screen shows (the last digit). In the column heading: pH ± 0.01.' },
+    'p10-qc-3': { part: 10, short: 'q3', title: 'Raw data, not means', kind: 'mcq', c: 0,
+      q: 'A student correlates the MEAN count at each of the 10 distances with the mean salinity there, instead of using every quadrat. Why should r be calculated from the raw data?',
+      a: ['Means hide the variation between quadrats, so r usually looks stronger than the data show, and n falls to 10.',
+          'Means are less accurate than raw data, because a mean is rounded to fewer decimal places than a reading.',
+          'Pearson’s r can be calculated only from whole numbers, and the mean of a set of counts is often a decimal.',
+          'Means make r look weaker than the data show, because a mean adds the errors of all the quadrats together.'],
+      why: 'A mean of three quadrats removes most of their scatter, so the points lie closer to a line, and the test then uses n = 10 instead of every quadrat. The raw data show the real spread.' }
   };
   $$('[data-qc]').forEach(b => { const q = QC[b.dataset.qc]; if (q) quick(b, Object.assign({ id: b.dataset.qc }, q)); });
   /* the chi-squared steps' own quick checks are drawn with their step; listed here so the teacher's board names them */
@@ -817,6 +820,9 @@
     // the photograph stays on the left for every part (Daniel, 11 Oct 2026); on a narrow screen it stays pinned at the top
     // only for the parts that work on it (data-pin)
     document.body.classList.toggle('photo-on', pin);
+    // part 10 is about the real field trip, so its picture is a photograph of that kind of shore, not the practice shore
+    const trip = mode === 'trip';
+    $('#photo').hidden = trip; $('#cap').hidden = trip; $('#tripPhoto').hidden = !trip; $('#tripCap').hidden = !trip;
     stageH();
     if (mode === 'zones') drawZones($$('#zone-choices button').find(b => b.getAttribute('aria-pressed') === 'true').dataset.zone);
     else if (mode === 'method') drawMethod($$('#method-choices button').find(b => b.getAttribute('aria-pressed') === 'true').dataset.m);

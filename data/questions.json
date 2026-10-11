@@ -796,27 +796,34 @@
   {
    "id": "p10-qc-1",
    "part": 10,
-   "title": "Temperatures read 90 minutes apart",
+   "title": "An empty shell in a quadrat",
    "short": "q1",
    "kind": "mcq",
    "opts": [
-    "Part of the 9 °C difference may come from 90 more minutes of sun, not from the position on the shore.",
-    "Holding the probe on the rock for 30 seconds is too short a time to give a reading of its temperature.",
-    "The upper shore is normally cooler than the lower shore, so a 9 °C difference must be an error in reading.",
-    "Readings taken at different times can never be used in one correlation, so all the data must be deleted."
+    "No: an empty shell is not a living animal, so it is not part of the population you are sampling.",
+    "Yes: every shell in the quadrat counts, because a shell shows that the species lives in that place.",
+    "Yes, but only as half an animal, because the shell is in the quadrat but the body of the limpet is not.",
+    "No, but record it as percentage cover instead, because an empty shell cannot be counted as one animal."
    ]
   },
   {
    "id": "p10-qc-2",
    "part": 10,
-   "title": "Two people, two estimates",
+   "title": "The uncertainty of a pH probe",
    "short": "q2",
+   "kind": "num"
+  },
+  {
+   "id": "p10-qc-3",
+   "part": 10,
+   "title": "Raw data, not means",
+   "short": "q3",
    "kind": "mcq",
    "opts": [
-    "One person estimates the cover in every quadrat, so any error is the same in all of them.",
-    "Each person estimates half of the quadrats, so the work is shared and finished sooner.",
-    "Always record the higher of the two estimates, so that no organism is left out of the data.",
-    "Stop estimating cover and record only presence or absence, because cover is never reliable."
+    "Means hide the variation between quadrats, so r usually looks stronger than the data show, and n falls to 10.",
+    "Means are less accurate than raw data, because a mean is rounded to fewer decimal places than a reading.",
+    "Pearson’s r can be calculated only from whole numbers, and the mean of a set of counts is often a decimal.",
+    "Means make r look weaker than the data show, because a mean adds the errors of all the quadrats together."
    ]
   }
  ]

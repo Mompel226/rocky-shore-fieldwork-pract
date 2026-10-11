@@ -211,9 +211,22 @@ table.data td.cat::before{content:'';position:absolute;left:0;top:0;bottom:0;wid
 table.data td.c-yy::before{background:#8B5CF6} table.data td.c-yn::before{background:#F97316}
 table.data td.c-ny::before{background:#22C55E} table.data td.c-nn::before{background:#9CA3AF}
 
-/* part 10: what to do on the shore, in order */
-ol.field{padding-left:22px}
-ol.field li{margin:7px 0}
+/* part 10: the animals of the real shore, each with its photographs beside its description */
+.ids{display:grid;gap:10px;margin:10px 0 8px}
+.idc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start;background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:12px}
+.idc__pics{display:flex;gap:6px}
+.idc__pics a{display:block;line-height:0;border-radius:9px;overflow:hidden}
+.idc__pics img{width:140px;height:140px;object-fit:cover}
+.idc__pics a:hover img,.idc__pics a:focus-visible img{filter:brightness(1.08)}
+.idc__t b{font-size:16px}
+.idc__t i{color:var(--ink2);margin-left:4px}
+.idc__t p{margin:5px 0 0;font-size:15px}
+table.measure td,table.measure th{vertical-align:top}
+@media (max-width:560px){
+  .idc{grid-template-columns:1fr}
+  .idc__pics a{flex:1}
+  .idc__pics img{width:100%;height:auto;aspect-ratio:1}
+}
 .words{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
 .words .term{border:1px solid var(--rule);border-radius:100px;padding:5px 11px;background:var(--surface);font-size:14px}
 

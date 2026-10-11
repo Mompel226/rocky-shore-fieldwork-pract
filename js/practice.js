@@ -241,9 +241,7 @@
       out: "\tSpearman's rank correlation rho\n\nS = 356.35, p-value = 0.04197\n...\n       rho \n-0.6197507", note: 'Compare with Pearson\'s r for the same data (part 6). Which one describes the graph better?' },
     { t: 'Chi-squared for an association', p: 'Put the four observed counts into a 2 × 2 table, then test it.',
       code: 'observed <- matrix(c(4, 14, 9, 3), nrow = 2,\n   dimnames = list(Limpets = c("present", "absent"),\n                   Sea_lettuce = c("present", "absent")))\ntest <- chisq.test(observed, correct = FALSE)\ntest\ntest$expected',
-      out: "\tPearson's Chi-squared test\n\nX-squared = 8.1674, df = 1, p-value = 0.004265\n\n         Sea_lettuce\nLimpets   present absent\n  present     7.8    5.2\n  absent     10.2    6.8", note: '<code>matrix()</code> fills the table column by column. <code>correct = FALSE</code> gives the χ² you calculate by hand; R\'s default adds a correction the IB does not use. Use your own counts from part 4.' },
-    { t: 'The whole analysis in one file', p: 'fieldwork.R (below) also draws the kite diagram. In section 3, change barnacles_pct to sea_lettuce_pct in all three places, and explain what the new graph shows.',
-      code: '# in fieldwork.R, section 3: barnacles_pct  →  sea_lettuce_pct (three places)', out: '', note: 'A hump-shaped scatter graph and r close to 0: the same lesson as part 6.' }
+      out: "\tPearson's Chi-squared test\n\nX-squared = 8.1674, df = 1, p-value = 0.004265\n\n         Sea_lettuce\nLimpets   present absent\n  present     7.8    5.2\n  absent     10.2    6.8", note: '<code>matrix()</code> fills the table column by column. <code>correct = FALSE</code> gives the χ² you calculate by hand; R\'s default adds a correction the IB does not use. Use your own counts from part 4.' }
   ];
   function rsteps(box) {
     box.innerHTML = '';

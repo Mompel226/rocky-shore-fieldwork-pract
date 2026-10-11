@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Spectral:ital,wght@0,600;1,400&display=swap">
-<link rel="stylesheet" href="css/app.css?v=22">
+<link rel="stylesheet" href="css/app.css?v=23">
 <!-- Bright or dark: the reader's choice for the whole site (biology.theme), else the computer's setting. Set before
      the first paint so the page never flashes the other version. -->
 <script>(function () { try { var t = localStorage.getItem('biology.theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();</script>
@@ -20,8 +20,8 @@
   <div class="lessonbar" id="lessonBar" hidden></div>
   <div class="eyebrow">IB Biology · B4.1.4 · C4.1.3 · C4.1.15 · B4.2.12</div>
   <h1>Rocky shore fieldwork</h1>
-  <p class="by">Practise the field trip on a virtual shore, then analyse the data in Google Sheets or R · <a class="by-me" href="https://github.com/Mompel226" target="_blank" rel="noopener">Dr Daniel Mompel Riera</a></p>
-  <p class="note">Parts 1–7 take about 50 minutes: each part says how long. Part 8 is for any time you have left, part 9 (R) is extra, and part 10 gets you ready for the shore.</p>
+  <p class="by">Practise the skills of the field trip on a practice shore, then analyse its data in Google Sheets or R · <a class="by-me" href="https://github.com/Mompel226" target="_blank" rel="noopener">Dr Daniel Mompel Riera</a></p>
+  <p class="note">Parts 1–7 take about 50 minutes: each part says how long. Part 8 is for any time you have left, part 9 (R) is extra, and part 10 is about your own field trip.</p>
 </div>
 
 <nav class="partbar" id="partbar" aria-label="Parts of the practical">
@@ -35,7 +35,7 @@
     <button role="tab" id="tab-7" aria-controls="part-7" aria-selected="false"><span class="n">7</span>Write it up</button>
     <button role="tab" id="tab-8" aria-controls="part-8" aria-selected="false"><span class="n">8</span>Challenge</button>
     <button role="tab" id="tab-9" aria-controls="part-9" aria-selected="false"><span class="n">9</span>R (extra)</button>
-    <button role="tab" id="tab-10" aria-controls="part-10" aria-selected="false"><span class="n">10</span>On the shore</button>
+    <button role="tab" id="tab-10" aria-controls="part-10" aria-selected="false"><span class="n">10</span>Your field trip</button>
   </div>
 </nav>
 
@@ -45,7 +45,9 @@
       <img src="img/shore.jpg" width="1600" height="1350" alt="A rocky shore at low tide photographed from straight above by a drone. The sea is at the top. Below it, a band of brown and bright green seaweed with dark rock pools, then a wide area of green seaweed and pale rock, then pale rock with small pools at the bottom.">
       <svg class="ov" id="ov" viewBox="0 0 1600 1350" aria-hidden="false" role="group" aria-label="Drawing on the photograph"></svg>
     </div>
-    <figcaption id="cap">A rocky shore at low tide, seen from straight above. The sea is at the top. Photograph: Boris Izmaylov, <a href="https://unsplash.com/photos/vibrant-blue-ocean-meets-a-rocky-moss-covered-coastline-UFHcOip6GJA" target="_blank" rel="noopener">Unsplash</a>. The tape, the quadrats and all the data are a simulation made for this page.</figcaption>
+    <div class="photo trip" id="tripPhoto" hidden><img src="img/species/limpets-in-a-pool.jpg" width="640" height="466" alt="Two limpets on dark volcanic rock under the clear, shallow water of a rock pool. Sunlight makes a pattern of bright lines on the rock."></div>
+    <figcaption id="tripCap" hidden>The kind of shore you sample: dark volcanic rock under shallow water at low tide. Two limpets in a rock pool. Photograph: Dr Daniel Mompel Riera, <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>.</figcaption>
+    <figcaption id="cap">A rocky shore at low tide, seen from straight above. The sea is at the top. Photograph: Boris Izmaylov, <a href="https://unsplash.com/photos/vibrant-blue-ocean-meets-a-rocky-moss-covered-coastline-UFHcOip6GJA" target="_blank" rel="noopener">Unsplash</a>. The tape, the quadrats and all the data are a simulation made for this page: a practice shore, not the shore of your field trip.</figcaption>
   </figure>
 
   <main class="panel" id="panel">
@@ -267,55 +269,94 @@
       <div class="box ib"><div class="k">No RStudio on your laptop?</div><p><a href="https://nlcsbiology.com/learn-r/ib.html">Learn R · Statistics in R</a> runs real R in your browser. Its chi-squared and correlation stages use the same commands as below.</p></div>
       <div class="practice" data-p="rsteps"></div>
       <div data-qc="p9-qc-1"></div>
-      <a class="card" href="downloads/fieldwork.R" download><div class="t">fieldwork.R: every step in one file</div><div class="d">Save it in the same folder as your two CSV files (parts 3 and 4). In RStudio: Session ▸ Set Working Directory ▸ To Source File Location, then press Source. With no CSV files, it uses this page's data.</div></a>
     </section>
 
     <!-- 10 ----------------------------------------------------------------- -->
-    <section class="part" id="part-10" role="tabpanel" aria-labelledby="tab-10" data-mode="transect">
-      <h2>Get ready for the shore</h2>
-      <p class="sub">Your teacher gives you real IB questions on transects and chi-squared to answer on paper, and then their IB mark scheme to mark your answers.</p>
-      <a class="card" href="downloads/fieldwork-recording-sheet.docx" download><div class="t">The recording sheet (Word)</div><div class="d">For the shore: one row for each quadrat, with the time, the rock temperature and each species. Print it, or copy its columns into your notebook.</div></a>
-      <a class="card" href="downloads/fieldwork-workbook.xlsx" download><div class="t">The workbook (opens in Google Sheets)</div><div class="d">Upload it to Google Drive and open it with Google Sheets. Yellow cells are for your data; chi-squared, r and R² are calculated for you, and every formula is shown so you can build it yourself.</div></a>
-      <h3>On the shore, step by step</h3>
-      <ol class="field">
-        <li><b>Lay the tape.</b> Start where the first barnacles are, at the top of the shore: this is 0&nbsp;m. Lay the tape in a straight line down the shore, at right angles to the water’s edge.</li>
-        <li><b>Start at the bottom.</b> At low tide, record the quadrat nearest the water first, then move up the shore. The rising tide covers the lower shore first.</li>
-        <li><b>Place the quadrat.</b> Put one corner of the quadrat on the mark on the tape, always on the same side of the tape. Photograph it from straight above.</li>
-        <li><b>Estimate the cover.</b> For each species, count the small squares that are at least half covered: each one is 1&nbsp;%. Then lift the seaweed gently, estimate the barnacle cover, count the limpets, and return the seaweed to its place.</li>
-        <li><b>Measure the abiotic variable.</b> One person measures the rock temperature at every quadrat in one quick walk along the tape, so that all the readings are taken within about 10 minutes. Hold the probe on the rock for 30 seconds before you read it, and record the time.</li>
-        <li><b>A species you do not know?</b> Photograph it and give it a working name, for example “red crust”. Use the same name all day, and identify it later.</li>
-        <li><b>Random quadrats.</b> Lay two tapes at right angles along two edges of the area. Two random numbers give the distance along each tape.</li>
-        <li><b>Before you leave the shore.</b> Check that every row of your sheet is complete. Your class pools its transects: several transects show how much the shore varies from place to place, so a conclusion about the whole shore is better supported.</li>
-      </ol>
+    <section class="part" id="part-10" role="tabpanel" aria-labelledby="tab-10" data-mode="trip">
+      <h2>Your field trip</h2>
+      <p class="sub">Parts 1–9 use a practice shore. On the field trip you sample a real rocky shore: dark volcanic rock, with shallow pools at low tide. What you study there depends on what you find, and your research question is your own. Your teacher’s workbook gives this year’s details: the place, the species and the deadline.</p>
+
+      <h3>What you may find</h3>
+      <p>These three animals are common on this kind of shore. All three are molluscs that graze on the algae on the rock. On the day, your class chooses the two species to sample, from what you find.</p>
+      <div class="ids">
+        <div class="idc">
+          <div class="idc__pics"><a href="img/species/top-shell.jpg" target="_blank" rel="noopener"><img src="img/species/top-shell.jpg" width="600" height="600" alt="A top shell in the palm of a hand: a dark, rounded, coiled shell with spiral rows of small pale bumps." loading="lazy"></a><a href="img/species/top-shell-opening.jpg" target="_blank" rel="noopener"><img src="img/species/top-shell-opening.jpg" width="600" height="600" alt="The same top shell turned over: a round opening, pearly white inside." loading="lazy"></a></div>
+          <div class="idc__t"><b>Top shell</b> <i>Monodonta labio</i>
+            <p>A sea snail. Its shell is coiled and dark, with spiral rows of small pale bumps. The opening is round and pearly white inside, with a tooth on its inner edge. It moves slowly over the rock and hides in cracks.</p></div>
+        </div>
+        <div class="idc">
+          <div class="idc__pics"><a href="img/species/limpet.jpg" target="_blank" rel="noopener"><img src="img/species/limpet.jpg" width="640" height="640" alt="A limpet under shallow water: a flat, cone-shaped shell with ridges that reach the edge, covered with yellow-green algae." loading="lazy"></a></div>
+          <div class="idc__t"><b>Limpet</b> <i>Cellana toreuma</i>
+            <p>A flat, cone-shaped shell with no coil. Ridges run from the top of the shell to its edge. Algae often grow on the shell. It clamps tightly to the rock, and at low tide it stays in one place.</p></div>
+        </div>
+        <div class="idc">
+          <div class="idc__pics"><a href="img/species/chiton.jpg" target="_blank" rel="noopener"><img src="img/species/chiton.jpg" width="640" height="640" alt="A chiton on wet rock: an oval animal with eight brown shell plates in a row along its back, surrounded by a speckled rim." loading="lazy"></a></div>
+          <div class="idc__t"><b>Chiton</b> <i>Acanthopleura japonica</i>
+            <p>An oval, flat animal with eight shell plates in a row along its back. A tough rim, the girdle, surrounds the plates and is covered with short spines. It grips the rock very tightly.</p></div>
+        </div>
+      </div>
+      <p class="note">A species you do not know? Photograph it and give it a working name, for example “red crust”. Use the same name all day, and identify it later. Photographs: Dr Daniel Mompel Riera, CC BY-NC-SA 4.0 (press a photograph to see it larger).</p>
       <div data-qc="p10-qc-1"></div>
+
+      <h3>What you measure</h3>
+      <div class="tablewrap"><table class="data measure">
+        <thead><tr><th>Variable</th><th>Unit</th><th>Instrument</th></tr></thead>
+        <tbody>
+          <tr><td class="l">Distance along the transect, from the sea or the high-tide mark</td><td>m</td><td class="l">tape measure</td></tr>
+          <tr><td class="l">Number of each of your two species in each quadrat</td><td>none (a count)</td><td class="l">your eyes: count each animal</td></tr>
+          <tr><td class="l">Water temperature</td><td>°C</td><td class="l">temperature probe</td></tr>
+          <tr><td class="l">pH</td><td>none</td><td class="l">pH probe</td></tr>
+          <tr><td class="l">Salinity</td><td>the unit on the probe’s screen, often ppt (parts per thousand)</td><td class="l">salinity probe</td></tr>
+        </tbody>
+      </table></div>
+      <p>These animals are <u>counted</u> (their abundance): you do not estimate a percentage cover. Before your first transect, measure the pH, the temperature and the salinity of the sea itself, to compare with the water on the shore.</p>
+      <p>Some animals lie on the edge of the quadrat. A common rule: count an animal only when more than half of it is inside. Use the same rule in every quadrat.</p>
+
+      <h3>The uncertainty of each instrument</h3>
+      <p>Your data analysis is marked partly on how you consider uncertainty. Give the uncertainty of each instrument in the heading of its column, for example <b>Water temperature / °C ± 0.1</b>.</p>
+      <ul>
+        <li><b>A digital probe:</b> ± the smallest step its screen shows. If the probe’s manual gives a larger uncertainty, use that one.</li>
+        <li><b>A scale you read by eye</b>, such as a tape measure: ± half of its smallest division.</li>
+        <li><b>A count</b> has no instrument, but two people can count differently: the same rule for the edge of the quadrat keeps the counts consistent.</li>
+      </ul>
       <div data-qc="p10-qc-2"></div>
+
+      <h3>On the day</h3>
+      <ul>
+        <li>You work in a group. Each person takes each role in the group at least once: your workbook names the roles.</li>
+        <li>Each group lays a belt transect of 10 quadrats, out from the sea or the high-tide mark, at three different places along the shore: three repeats. Choose a line that no other group uses.</li>
+        <li>The class puts its <u>raw data</u> in one shared spreadsheet. Share only raw data: you process the data yourself.</li>
+      </ul>
+
+      <h3>Back at school: your mini IA</h3>
+      <p>Your write-up is marked on three things: the <b>research question</b>, its <b>background</b> and the <b>data analysis</b>. This page does not give you a research question, a results table or an analysis of your data: they are your own work. It gives you the skills:</p>
+      <ul>
+        <li>Chi-squared, for an association between your two species: part 5.</li>
+        <li>Pearson’s r or Spearman’s rank, between one species and one abiotic variable: part 6, and part 9 in R. Use the raw data of every quadrat, not means.</li>
+        <li>Sentences about data: part 7.</li>
+        <li>How each part of the write-up is marked, at IA level, in the Write-Up Lab: <a href="https://nlcsbiology.com/write-up-lab/#/part/question">the research question</a>, <a href="https://nlcsbiology.com/write-up-lab/#/part/background">the background</a>, <a href="https://nlcsbiology.com/write-up-lab/#/part/tables">results tables</a>, <a href="https://nlcsbiology.com/write-up-lab/#/part/graphs">graphs</a> and <a href="https://nlcsbiology.com/write-up-lab/#/part/stats">statistical tests</a>.</li>
+      </ul>
+      <div data-qc="p10-qc-3"></div>
+
       <h3>Bring</h3>
       <ul class="check">
-        <li>A tape measure (at least 10 m) and a 0.5 m × 0.5 m quadrat divided into 100 squares</li>
-        <li>A temperature probe or thermometer, for the rock surface</li>
-        <li>A pencil and the recording sheet in a plastic bag (paper gets wet), or a phone with Google Sheets</li>
-        <li>A phone to photograph every quadrat: you can check your estimates later</li>
-        <li>Shoes with a good grip, a hat, sun cream and water</li>
-      </ul>
-      <h3>Record</h3>
-      <ul>
-        <li>The distance along the tape for every quadrat, and the time.</li>
-        <li>The percentage cover of each sessile species, and the number of limpets, with the seaweed lifted.</li>
-        <li>The abiotic variable at every quadrat (rock temperature), with its unit. Measure every quadrat within a short time: the rock heats up during the low tide.</li>
-        <li>Anything unusual: a rock pool, sand, a quadrat you could not reach.</li>
+        <li>Shoes with a good grip that can get wet</li>
+        <li>A hat, sun cream and water</li>
+        <li>A phone in a waterproof bag, to photograph every quadrat: you can check your counts later</li>
       </ul>
       <div class="box amber">
         <div class="k">Safety</div>
         <ul>
           <li>Check the tide time. Start as the tide goes out and finish before it comes back in.</li>
-          <li>Wet rock and seaweed are slippery. Walk; do not run or jump between rocks.</li>
+          <li>Wet rock and algae are slippery. Walk; do not run or jump between rocks.</li>
           <li>Never turn your back to the sea. Stay with your group and within sight of your teacher.</li>
         </ul>
       </div>
       <div class="box">
         <div class="k">Care for the shore</div>
-        <p>Turn every rock back the way it was. Do not pull limpets off the rock: their muscle is easily damaged and they may not reattach. Leave every organism where you found it.</p>
+        <p>Do not pull limpets or chitons off the rock: count them where they are. Turn every rock back the way it was, and return every animal you pick up to the place where you found it.</p>
       </div>
+      <p class="note">In class, your teacher may also give you real IB questions on transects and chi-squared, with their IB mark scheme.</p>
     </section>
   </main>
 </div>
@@ -338,16 +379,16 @@
 <footer>
   Something wrong, or a suggestion? Please contact me: <a href="mailto:dmompelriera@nlcsjeju.kr">dmompelriera@nlcsjeju.kr</a>.<br>
   Checked against the IB Biology guide (first assessment 2025): B4.1.4, C4.1.3, C4.1.4, C4.1.15, B4.2.12–13.<br>
-  Pictures: <span id="credits"></span>. The tape, the quadrats and all the data are a simulation made for this page.<br>
+  Pictures: <span id="credits"></span>. The top shell, limpet and chiton (part 10): Dr Daniel Mompel Riera, CC BY-NC-SA 4.0. The tape, the quadrats and all the data are a simulation made for this page.<br>
   Code: AGPL-3.0 · Teaching material: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> — free for teaching, not for selling. Pictures keep their own licences.
 </footer>
 
 <script src="https://accounts.google.com/gsi/client?hl=en-GB" async defer></script>
-<script src="js/config.js?v=22"></script>
-<script src="js/signin.js?v=22"></script>
-<script src="js/lesson.js?v=22"></script>
-<script src="js/shore-data.js?v=22"></script>
-<script src="js/app.js?v=22"></script>
-<script src="js/practice.js?v=22"></script>
+<script src="js/config.js?v=23"></script>
+<script src="js/signin.js?v=23"></script>
+<script src="js/lesson.js?v=23"></script>
+<script src="js/shore-data.js?v=23"></script>
+<script src="js/app.js?v=23"></script>
+<script src="js/practice.js?v=23"></script>
 </body>
 </html>
