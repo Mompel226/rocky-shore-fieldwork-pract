@@ -19,6 +19,14 @@
    "title": "Random quadrats"
   },
   {
+   "n": 5,
+   "title": "Chi-squared"
+  },
+  {
+   "n": 6,
+   "title": "Correlation"
+  },
+  {
    "n": 7,
    "title": "Write it up"
   },
@@ -43,16 +51,36 @@
  ],
  "questions": [
   {
+   "id": "p1-qc-1",
+   "part": 1,
+   "title": "Which band dries out most?",
+   "short": "q1",
+   "kind": "num"
+  },
+  {
+   "id": "p1-qc-2",
+   "part": 1,
+   "title": "What sets the two limits?",
+   "short": "q2",
+   "kind": "mcq",
+   "opts": [
+    "Its upper limit by an abiotic variable such as drying out; its lower limit by biotic interactions such as competition.",
+    "Its upper limit by biotic interactions such as competition; its lower limit by an abiotic variable such as drying out.",
+    "Both of its limits by abiotic variables such as drying out, because biotic interactions do not change along the shore.",
+    "Both of its limits by biotic interactions such as grazing, because abiotic variables are the same all along the shore."
+   ]
+  },
+  {
    "id": "p1-quiz-1",
    "part": 1,
    "title": "Barnacles X and Y: which niche?",
    "short": "Q1",
    "kind": "mcq",
    "opts": [
-    "The fundamental niche of X includes the middle shore; competition with Y restricts its realized niche to the upper shore.",
-    "The fundamental niche of X is the upper shore only.",
-    "X is absent from the lower shore because of desiccation.",
-    "The realized niche of X is larger than its fundamental niche."
+    "Competition with Y keeps X on the upper shore: the middle shore is in its fundamental niche, not its realized niche.",
+    "Drying out keeps X on the upper shore: the middle shore is outside its range of tolerance and its fundamental niche.",
+    "Y preys on X on the middle shore: the middle shore is in its realized niche, but not in its fundamental niche.",
+    "X and Y share one realized niche: X moves down only because the middle shore becomes drier when Y is removed."
    ]
   },
   {
@@ -62,10 +90,10 @@
    "short": "Q2",
    "kind": "mcq",
    "opts": [
-    "Top: outside its range of tolerance for desiccation. Bottom: competition, for example with brown seaweed.",
-    "Top: competition with brown seaweed. Bottom: desiccation.",
-    "Both ends: grazing by limpets only.",
-    "Both ends: the rock temperature is outside its range of tolerance."
+    "Top: drying out at low tide is outside its range of tolerance. Bottom: brown seaweed outcompetes it for space.",
+    "Top: brown seaweed outcompetes it for space. Bottom: drying out at low tide is outside its range of tolerance.",
+    "Both ends: limpets graze it faster than it grows, because limpets are found all along the transect.",
+    "Both ends: the rock temperature is outside its range of tolerance: too hot at the top, too cold at the bottom."
    ]
   },
   {
@@ -75,10 +103,10 @@
    "short": "Q3",
    "kind": "mcq",
    "opts": [
-    "Its upper limit on the shore is set by an abiotic variable: it can grow only where the rock stays below about 30 °C.",
-    "It would grow on the upper shore if there were no limpets there.",
-    "Its realized niche reaches higher on the shore than its fundamental niche.",
-    "It would survive at 34 °C if competitors were removed."
+    "Its upper limit is set by an abiotic variable: it can live only where the rock stays at or below about 30 °C.",
+    "Its upper limit is set by grazing: with no limpets it could grow on the upper shore, even at 34 °C at low tide.",
+    "Its realized niche reaches higher than its fundamental niche, because there is less competition on the upper shore.",
+    "Its upper limit is set by its competitors: with them removed, it could survive the 34 °C of the upper shore."
    ]
   },
   {
@@ -102,16 +130,36 @@
    "short": "W"
   },
   {
+   "id": "p2-qc-1",
+   "part": 2,
+   "title": "Quadrats on a 6 m tape",
+   "short": "q1",
+   "kind": "num"
+  },
+  {
+   "id": "p2-qc-2",
+   "part": 2,
+   "title": "How to sample periwinkles",
+   "short": "q2",
+   "kind": "mcq",
+   "opts": [
+    "Count them in each quadrat, as for limpets, and search the cracks inside the quadrat as well.",
+    "Estimate their percentage cover, as for barnacles, because they are too small to count one by one.",
+    "Use capture–mark–release–recapture, because every animal that lives on the shore is motile.",
+    "Leave them out, because a quadrat can be used only for sessile organisms such as the seaweeds."
+   ]
+  },
+  {
    "id": "p2-quiz-1",
    "part": 2,
    "title": "Biased quadrat placement",
    "short": "Q1",
    "kind": "mcq",
    "opts": [
-    "It is biased upwards: the quadrats are not a random sample of the area.",
-    "It is less precise, but not biased.",
-    "It cannot be calculated, because percentage cover needs a continuous belt transect.",
-    "It is unaffected, because every quadrat has 100 squares."
+    "The mean is too high, because bare rock is never sampled: the positions are chosen, so they are biased.",
+    "The mean is less precise but still unbiased, because every quadrat is still divided into 100 small squares of cover.",
+    "The mean cannot be calculated, because percentage cover needs quadrats placed side by side along a belt.",
+    "The mean is unchanged, because the same quadrat size and the same way of counting are used every time."
    ]
   },
   {
@@ -134,10 +182,10 @@
    "short": "Q3",
    "kind": "mcq",
    "opts": [
-    "Limpets are separate individuals that can be counted, and density is a number of individuals per unit area.",
-    "Limpets move too fast to be inside a quadrat.",
-    "Percentage cover can be used only on a continuous belt transect.",
-    "A limpet is smaller than one small square of the quadrat."
+    "Limpets are separate individuals, and density is a number of individuals per unit area, so they are counted.",
+    "Limpets move about during the low tide, so their cover changes while it is estimated, but a count does not.",
+    "Percentage cover is used only for plants and seaweeds, never for animals such as limpets or barnacles.",
+    "Percentage cover can be estimated only along a continuous belt transect, never in quadrats placed at random."
    ]
   },
   {
@@ -147,10 +195,10 @@
    "short": "Q4",
    "kind": "mcq",
    "opts": [
-    "Some crabs lose their marks before the second sample.",
-    "Marked crabs are easier to catch than unmarked crabs.",
-    "The second sample is larger than the first.",
-    "No crabs are born or die between the two samples."
+    "Some crabs lose their marks before the second sample, so fewer marked crabs are caught again.",
+    "Marked crabs are easier to catch than unmarked crabs, so more marked crabs are caught again.",
+    "The second sample is larger than the first, so more crabs in total are caught on the second day.",
+    "No crabs are born or die between the two samples, so the size of the population stays the same."
    ]
   },
   {
@@ -250,6 +298,39 @@
    "title": "Quadrat at 10 m",
    "kind": "quad",
    "group": "p3-transect"
+  },
+  {
+   "id": "p3-qc-1",
+   "part": 3,
+   "title": "Counting squares for cover",
+   "short": "q1",
+   "kind": "num"
+  },
+  {
+   "id": "p3-qc-2",
+   "part": 3,
+   "title": "Cover with the seaweed not lifted",
+   "short": "q2",
+   "kind": "mcq",
+   "opts": [
+    "B’s estimates are too low wherever seaweed grows, so B’s data show barnacles falling too steeply towards the sea.",
+    "B’s estimates are better, because only the barnacles that can be seen from above count towards the percentage cover.",
+    "B’s estimates are as valid as A’s, because the two students simply make different random errors in their counting.",
+    "B’s estimates are too high, because seaweed that lies on the rock looks like barnacles when it is seen from above."
+   ]
+  },
+  {
+   "id": "p4-qc-1",
+   "part": 4,
+   "title": "Random squares that cluster",
+   "short": "q1",
+   "kind": "mcq",
+   "opts": [
+    "Keep them: random positions can fall close together by chance, and moving them by choice would bring back bias.",
+    "Move the next quadrats lower in the area, so that the 30 quadrats are spread evenly over all of the 5 m × 5 m area.",
+    "Start again with new numbers, because a random sample is not valid unless its quadrats are spread out evenly.",
+    "Add five quadrats on the green patches by choice, so that both species have a fair chance of being recorded."
+   ]
   },
   {
    "id": "p4-r1",
@@ -462,6 +543,41 @@
    "group": "p4-random"
   },
   {
+   "id": "p5-qc-1",
+   "part": 5,
+   "title": "An expected value",
+   "short": "E",
+   "kind": "num"
+  },
+  {
+   "id": "p5-qc-2",
+   "part": 5,
+   "title": "One cell of χ²",
+   "short": "χ²",
+   "kind": "num"
+  },
+  {
+   "id": "p5-qc-3",
+   "part": 5,
+   "title": "Degrees of freedom of a 3 × 2 table",
+   "short": "df",
+   "kind": "num"
+  },
+  {
+   "id": "p6-qc-1",
+   "part": 6,
+   "title": "Is r = −0.55 significant?",
+   "short": "q1",
+   "kind": "num"
+  },
+  {
+   "id": "p6-qc-2",
+   "part": 6,
+   "title": "R² from r",
+   "short": "q2",
+   "kind": "num"
+  },
+  {
    "id": "p7-frame-a",
    "kind": "gaps",
    "gaps": [
@@ -582,9 +698,9 @@
    "short": "3",
    "kind": "mcq",
    "opts": [
-    "They are clumped: many quadrats have none and a few have several.",
-    "They are spread evenly over the rock.",
-    "They are spread at random."
+    "They are clumped: many quadrats hold none and a few hold several, so the counts vary more than chance gives.",
+    "They are spread evenly: most quadrats hold about one limpet, so the counts vary less than chance gives.",
+    "They are spread at random: each limpet settles by chance alone, so the counts vary about as much as chance gives."
    ]
   },
   {
@@ -608,9 +724,9 @@
    "short": "6",
    "kind": "mcq",
    "opts": [
-    "With small expected values, one quadrat more or less changes χ² a lot, so the test is unreliable.",
-    "Because the critical value is 3.84.",
-    "Because a quadrat has 100 squares."
+    "With expected values below 5, one quadrat more or less changes χ² a lot, so the test is unreliable.",
+    "With expected values below 5, χ² can never pass the critical value of 3.84, so the result is never significant.",
+    "With expected values below 5, there are no degrees of freedom, so no critical value can be read from the table."
    ]
   },
   {
@@ -620,9 +736,9 @@
    "short": "7",
    "kind": "mcq",
    "opts": [
-    "More quadrats will hold both species, so an association is harder to detect.",
-    "Nothing changes: quadrat size does not matter.",
-    "There will be fewer limpets in each quadrat."
+    "More quadrats will hold both species, so a negative association becomes harder to detect.",
+    "Fewer quadrats will hold both species, so the negative association will look stronger than it is.",
+    "Nothing will change, because presence and absence do not depend on the size of the quadrat."
    ]
   },
   {
@@ -632,9 +748,9 @@
    "short": "8",
    "kind": "mcq",
    "opts": [
-    "The rock heats up during the low tide, so the time of measurement changes the temperature, not only the position on the shore.",
-    "Temperature probes do not work on wet rock.",
-    "There is no problem: temperature is an abiotic variable."
+    "The rock heats up during the low tide, so the time of each reading changes it, not only the place on the shore.",
+    "Temperature probes read too low on wet rock, so the readings near the water’s edge are wrong, not the timing.",
+    "There is no problem, because an abiotic variable such as the rock temperature stays the same all through a low tide."
    ]
   },
   {
@@ -658,9 +774,9 @@
    "short": "11",
    "kind": "mcq",
    "opts": [
-    "No crabs enter or leave the area between the two samples.",
-    "The marks stay on the crabs overnight.",
-    "Marked crabs mix with unmarked crabs before the second sample."
+    "No crabs enter or leave the area between the first sample and the second sample.",
+    "The marks stay on the crabs overnight and can still be seen clearly in the second sample.",
+    "Marked crabs mix fully with the unmarked crabs in the area before the second sample is taken."
    ]
   },
   {
@@ -669,6 +785,39 @@
    "title": "Design an experiment",
    "short": "12",
    "kind": "text"
+  },
+  {
+   "id": "p9-qc-1",
+   "part": 9,
+   "title": "The R function for SD",
+   "short": "q1",
+   "kind": "num"
+  },
+  {
+   "id": "p10-qc-1",
+   "part": 10,
+   "title": "Temperatures read 90 minutes apart",
+   "short": "q1",
+   "kind": "mcq",
+   "opts": [
+    "Part of the 9 °C difference may come from 90 more minutes of sun, not from the position on the shore.",
+    "Holding the probe on the rock for 30 seconds is too short a time to give a reading of its temperature.",
+    "The upper shore is normally cooler than the lower shore, so a 9 °C difference must be an error in reading.",
+    "Readings taken at different times can never be used in one correlation, so all the data must be deleted."
+   ]
+  },
+  {
+   "id": "p10-qc-2",
+   "part": 10,
+   "title": "Two people, two estimates",
+   "short": "q2",
+   "kind": "mcq",
+   "opts": [
+    "One person estimates the cover in every quadrat, so any error is the same in all of them.",
+    "Each person estimates half of the quadrats, so the work is shared and finished sooner.",
+    "Always record the higher of the two estimates, so that no organism is left out of the data.",
+    "Stop estimating cover and record only presence or absence, because cover is never reliable."
+   ]
   }
  ]
 }

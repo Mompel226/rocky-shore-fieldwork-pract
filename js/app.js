@@ -94,7 +94,16 @@
   })();
 
   /* ---------------- the drawing on the photograph ---------------- */
-  function clear() { while (ov.firstChild) ov.removeChild(ov.firstChild); }
+  /* zoom: a part of the photograph, enlarged with its drawing (the random area, 11 Oct 2026: Daniel, "don't be afraid of
+     making the quadrat bigger"). The photograph is then drawn inside the drawing, so both enlarge together. */
+  let zoomed = null;
+  function clear(zoom) {
+    while (ov.firstChild) ov.removeChild(ov.firstChild);
+    zoomed = zoom || null;
+    ov.setAttribute('viewBox', zoom ? zoom.join(' ') : '0 0 ' + PW + ' ' + PH);
+    ov.classList.toggle('zoomed', !!zoom);
+    if (zoom) el('image', { href: 'img/shore.jpg', x: 0, y: 0, width: PW, height: PH }, ov);
+  }
   // The tape runs along the left edge of the quadrats. Each quadrat is drawn exactly where its close-up comes from:
   // the 0.5 m square centred on its mark (tools/make-shore.py).
   const Q = 50, TX = s => s.px - Q / 2;
@@ -105,8 +114,9 @@
     el('line', { class: 'tape', x1: TX(a), y1: a.py + 40, x2: TX(b), y2: b.py - 40 }, ov);
   }
   function scaleBar() {
-    el('line', { class: 'scale', x1: 60, y1: 1300, x2: 60 + M, y2: 1300 }, ov);
-    el('text', { class: 'lab-s', x: 60 + M + 16, y: 1310 }, ov, '1 m');
+    const x = zoomed ? zoomed[0] + 24 : 60, y = zoomed ? zoomed[1] + zoomed[3] - 26 : 1300;
+    el('line', { class: 'scale', x1: x, y1: y, x2: x + M, y2: y }, ov);
+    el('text', { class: 'lab-s', x: x + M + 12, y: y + 9 }, ov, '1 m');
   }
   function label(x, y, text, anchor) { return el('text', { class: 'lab', x, y, 'text-anchor': anchor || 'start' }, ov, text); }
 
@@ -135,12 +145,29 @@
   }
   $$('#zone-choices button').forEach(b => b.addEventListener('click', () => drawZones(b.dataset.zone)));
 
+  /* Each method in the same order: what you do, then what you record, its strength and its weakness, each in its own
+     box (11 Oct 2026, Daniel: "strength with one colour, weakness with another"). */
   const METHODS = {
-    line: '<p><b>Line transect.</b> Lay a tape from the top of the shore to the water\'s edge. At regular points along it (here every 1 m), record every species that touches the tape.</p><p><b>You record:</b> which species are present at each point.</p><p><b>Strength:</b> quick. <b>Weakness:</b> a narrow line misses organisms between the points, and it gives no percentage cover.</p>',
-    cont: '<p><b>Belt transect, continuous.</b> Place quadrats side by side along the whole tape. A 10 m tape and 0.5 m quadrats give 10 ÷ 0.5 = 20 quadrats.</p><p><b>You record:</b> the percentage cover or the number of each species in every quadrat.</p><p><b>Strength:</b> the most complete record of the shore. <b>Weakness:</b> slow; the tide may come back before you finish.</p>',
-    inter: '<p><b>Belt transect, interrupted.</b> Place a quadrat at regular intervals along the tape: here every 1 m, which gives 11 quadrats (0 m to 10 m).</p><p><b>You record:</b> the percentage cover or the number of each species in every quadrat.</p><p><b>Strength:</b> much faster than a continuous belt, and it still shows how each species changes along the gradient. <b>Weakness:</b> it misses what is between the quadrats. <u>This is the method in part 3.</u></p>',
-    random: '<p><b>Random quadrats.</b> Choose positions with random numbers inside one area where conditions are about the same everywhere.</p><p><b>You record:</b> the number, the percentage cover or the presence of each species in each quadrat.</p><p><b>Strength:</b> no bias in where the quadrats go. The mean per quadrat estimates the density of the whole area; the standard deviation shows how much the quadrats differ (C4.1.3). <b>Weakness:</b> it does not show a change along a gradient. <u>This is the method in part 4.</u></p>'
+    line: { name: 'Line transect', what: 'Lay a tape from the top of the shore to the water\'s edge. At regular points along it (here every 1 m), record every species that touches the tape.',
+      rec: 'which species are present at each point', pro: 'quick, and it shows where along the gradient each species starts and stops',
+      con: 'a narrow line misses organisms between the points, and it gives no percentage cover or numbers' },
+    cont: { name: 'Belt transect, continuous', what: 'Place <button class="term" data-t="quadrat">quadrats</button> side by side along the whole tape. A 10 m tape and 0.5 m quadrats give 10 ÷ 0.5 = 20 quadrats.',
+      rec: 'the <button class="term" data-t="cover">percentage cover</button> or the number of each species in every quadrat', pro: 'the most complete record of the shore: nothing between the quadrats is missed',
+      con: 'slow: the tide may come back before you finish, so the lower shore may not be sampled' },
+    inter: { name: 'Belt transect, interrupted', what: 'Place a quadrat at regular intervals along the tape: here every 1 m, which gives 11 quadrats (0 m to 10 m).',
+      rec: 'the percentage cover or the number of each species in every quadrat', pro: 'much faster than a continuous belt, and it still shows how each species changes along the gradient',
+      con: 'it misses what lies between the quadrats, so a narrow band of one species can be missed', part: 3 },
+    random: { name: 'Random quadrats', what: 'Choose positions with random numbers inside one area where conditions are about the same everywhere.',
+      rec: 'the number, the percentage cover or the presence of each species in each quadrat', pro: 'no <button class="term" data-t="bias">bias</button> in where the quadrats go; the mean per quadrat estimates the <button class="term" data-t="density">density</button> of the whole area, and the <button class="term" data-t="sd">standard deviation</button> shows how much the quadrats differ (C4.1.3)',
+      con: 'it does not show a change along a gradient, so it is used inside one zone only', part: 4 }
   };
+  function methodHTML(x) {
+    return `<p><b>${x.name}.</b> ${x.what}</p><div class="facts">` +
+      `<div class="fact rec"><span class="fk">You record</span>${x.rec}</div>` +
+      `<div class="fact pro"><span class="fk">Strength</span>${x.pro}</div>` +
+      `<div class="fact con"><span class="fk">Weakness</span>${x.con}</div></div>` +
+      (x.part ? `<p class="note">This is the method you use in part ${x.part}.</p>` : '');
+  }
   function drawMethod(m) {
     clear(); scaleBar();
     const a = ST[0], b = ST[10];
@@ -152,17 +179,17 @@
       if (m === 'inter') ST.forEach(s => el('rect', { class: 'q', x: TX(s), y: s.py - Q / 2, width: Q, height: Q }, ov));
       label(a.px + 60, a.py + 14, '0 m'); label(b.px + 60, b.py + 14, '10 m');
     }
-    $('#method-text').innerHTML = METHODS[m];
+    $('#method-text').innerHTML = methodHTML(METHODS[m]);
     $$('#method-choices button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === m)));
   }
   $$('#method-choices button').forEach(b => b.addEventListener('click', () => drawMethod(b.dataset.m)));
 
   /* ---------------- part 3: the transect ---------------- */
   const SP = [
-    { k: 'barn', name: 'Barnacles', unit: '%', col: 'var(--barn)', note: 'with the seaweed lifted' },
-    { k: 'green', name: 'Sea lettuce', unit: '%', col: 'var(--green)' },
-    { k: 'brown', name: 'Brown seaweed', unit: '%', col: 'var(--brown)' },
-    { k: 'limp', name: 'Limpets', unit: 'number', col: 'var(--limp)', note: 'with the seaweed lifted' }
+    { k: 'barn', name: 'Barnacles', unit: '%', col: 'var(--barn)', hex: '#F5F5F0', note: 'with the seaweed lifted' },
+    { k: 'green', name: 'Sea lettuce', unit: '%', col: 'var(--green)', hex: '#6BE34B' },
+    { k: 'brown', name: 'Brown seaweed', unit: '%', col: 'var(--brown)', hex: '#E0A030' },
+    { k: 'limp', name: 'Limpets', unit: 'number', col: 'var(--limp)', hex: '#FF7A59', note: 'with the seaweed lifted' }
   ];
   let mine = store.get('transect', {});        // {d: {barn, green, brown, limp}}
   function drawTransect(sel) {
@@ -184,6 +211,33 @@
       const b = h('button', { type: 'button', class: done ? 'done' : '', 'aria-label': 'Quadrat at ' + s.d + ' m' + (done ? ', recorded' : '') }, s.d + ' m');
       b.addEventListener('click', () => openQuad('t', s.d));
       $('#t-pick').appendChild(b);
+    });
+  }
+  /* part 6: beside each quadrat its rock temperature and the value of the species chosen, so the scatter graph's points can
+     be found on the shore; the square is shaded by that value */
+  function drawCorr() {
+    clear(); scaleBar(); tape();
+    const S = series(true), p = SP.find(x => x.k === sp), max = sp === 'limp' ? 10 : 100;
+    ST.forEach((s, i) => {
+      const v = S[i][sp];
+      el('rect', { class: 'q', x: TX(s), y: s.py - Q / 2, width: Q, height: Q, style: `fill:${p.hex};fill-opacity:${Math.min(1, v / max) * 0.9}` }, ov);
+      el('text', { class: 'lab-s', x: s.px + 50, y: s.py + 12 }, ov, `${fmt(s.temp, 1)} °C · ${v}${sp === 'limp' ? ' limpets' : ' %'}`);
+    });
+    el('text', { class: 'lab', x: TX(ST[10]) - 20, y: ST[10].py - 70, 'text-anchor': 'middle' }, ov, p.name);
+  }
+  /* part 7: the three zones beside the transect, for describing the kite diagram */
+  function drawWrite() {
+    clear(); scaleBar(); tape();
+    ST.forEach(s => el('rect', { class: 'q', x: TX(s), y: s.py - Q / 2, width: Q, height: Q }, ov));
+    [[1117, 'Upper shore', 1240], [597, 'Middle shore', 870], [222, 'Lower shore', 420]].forEach(([y, name, ly]) => {
+      el('line', { class: 'zline', x1: 0, y1: y, x2: PW, y2: y }, ov);
+      label(1180, ly, name, 'middle');
+    });
+    /* every 2 m, so the distances of the kite diagram can be found on the shore */
+    ST.forEach(s => {
+      if (s.d % 2) return;
+      if (s.d === 0 || s.d === 10) label(s.px + 60, s.py + 14, s.d + ' m');
+      else el('text', { class: 'lab-s', x: s.px + 60, y: s.py + 12 }, ov, s.d + ' m');
     });
   }
   function tableT() {
@@ -224,20 +278,56 @@
   const RQ = D.random.filter(r => !r.skip);
   let rmine = store.get('random', {});         // {q: {limp: 'yes'|'no', green: 'yes'|'no'}}
   let rnext = store.get('rnext', 0);
+  const ZOOM = [AX - 140, AY - 52, 760, 641];          /* the 5 m × 5 m area with its labels, about twice as large */
+  const POOLQ = D.random.filter(r => r.skip);           /* the square skipped because it is mostly a rock pool */
+  function poolMark(i, j) { if (POOLQ.some(r => r.gx === i && r.gy === j)) el('text', { class: 'lab-pool', x: AX + i * CELL + CELL / 2, y: AY + j * CELL + CELL / 2 + 1 }, ov, 'pool'); }
+  function areaFrame() {
+    el('rect', { class: 'area', x: AX, y: AY, width: 10 * CELL, height: 10 * CELL }, ov);
+    label(AX, AY - 18, '5 m × 5 m');
+    for (let i = 0; i < 10; i++) el('text', { class: 'lab-xs', x: AX + i * CELL + 25, y: AY + 10 * CELL + 30, 'text-anchor': 'middle' }, ov, i);
+    for (let j = 0; j < 10; j++) el('text', { class: 'lab-xs', x: AX - 12, y: AY + j * CELL + 33, 'text-anchor': 'end' }, ov, j);
+    el('text', { class: 'lab-s', x: AX + 5 * CELL, y: AY + 10 * CELL + (zoomed ? 58 : 70), 'text-anchor': 'middle' }, ov, 'across →');
+    el('text', { class: 'lab-s', x: AX - 46, y: AY + 5 * CELL + 12, 'text-anchor': 'end' }, ov, 'down ↓');
+  }
   function drawArea(methodView) {
-    clear(); scaleBar();
+    clear(methodView ? null : ZOOM); scaleBar();
     for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) {
       const r = RQ.find(q => q.gx === i && q.gy === j);
       const cls = 'cell' + (methodView ? (r ? ' pick' : '') : r && rmine[r.q] ? ' seen' : r && RQ.indexOf(r) === rnext - 1 ? ' pick' : '');
       const c = el('rect', { class: cls, x: AX + i * CELL, y: AY + j * CELL, width: CELL, height: CELL }, ov);
       if (!methodView && r && (rmine[r.q] || RQ.indexOf(r) < rnext)) { c.style.cursor = 'pointer'; c.addEventListener('click', () => openQuad('r', r.q)); }
     }
-    el('rect', { class: 'area', x: AX, y: AY, width: 10 * CELL, height: 10 * CELL }, ov);
-    label(AX, AY - 22, '5 m × 5 m');
-    for (let i = 0; i < 10; i++) el('text', { class: 'lab-xs', x: AX + i * CELL + 25, y: AY + 10 * CELL + 30, 'text-anchor': 'middle' }, ov, i);
-    for (let j = 0; j < 10; j++) el('text', { class: 'lab-xs', x: AX - 12, y: AY + j * CELL + 33, 'text-anchor': 'end' }, ov, j);
-    el('text', { class: 'lab-s', x: AX + 5 * CELL, y: AY + 10 * CELL + 70, 'text-anchor': 'middle' }, ov, 'across →');
-    el('text', { class: 'lab-s', x: AX - 46, y: AY + 5 * CELL + 12, 'text-anchor': 'end' }, ov, 'down ↓');
+    areaFrame();
+  }
+  /* part 5: every quadrat of part 4 in its group, in the colours of the tables (11 Oct 2026, Daniel: "use the image on the
+     left to visualize the results … link the theory and the practice") */
+  const CAT = { yy: { c: '#8B5CF6', l: 'L+S', w: 'limpets and sea lettuce' }, yn: { c: '#F97316', l: 'L', w: 'limpets only' },
+                ny: { c: '#22C55E', l: 'S', w: 'sea lettuce only' }, nn: { c: '#E5E7EB', l: '–', w: 'neither' } };
+  function catOf(r) {
+    const m = rmine[r.q], L = m ? m.limp === 'yes' : r.limp > 0, G = m ? m.green === 'yes' : r.green > 0;
+    return (L ? 'y' : 'n') + (G ? 'y' : 'n');
+  }
+  function drawChiArea() {
+    clear(ZOOM); scaleBar();
+    for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) {
+      const r = RQ.find(q => q.gx === i && q.gy === j), x = AX + i * CELL, y = AY + j * CELL;
+      if (!r) { el('rect', { class: 'cell', x, y, width: CELL, height: CELL }, ov); poolMark(i, j); continue; }
+      const k = CAT[catOf(r)];
+      el('rect', { class: 'catcell', x: x + 2, y: y + 2, width: CELL - 4, height: CELL - 4, fill: k.c, stroke: k.c }, ov);
+      el('text', { class: 'lab-cat' + (k === CAT.nn ? ' dark' : ''), x: x + CELL / 2, y: y + CELL / 2 + 1 }, ov, k.l);
+    }
+    areaFrame();
+  }
+  /* part 8: the limpets counted in each quadrat (the numbers of the challenge) */
+  function drawCounts() {
+    clear(ZOOM); scaleBar();
+    for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) {
+      const r = RQ.find(q => q.gx === i && q.gy === j), x = AX + i * CELL, y = AY + j * CELL;
+      el('rect', { class: r ? 'cntcell' + (r.limp ? ' some' : '') : 'cell', x: x + (r ? 2 : 0), y: y + (r ? 2 : 0), width: CELL - (r ? 4 : 0), height: CELL - (r ? 4 : 0) }, ov);
+      if (r) el('text', { class: 'lab-cnt' + (r.limp ? '' : ' zero'), x: x + CELL / 2, y: y + CELL / 2 + 1 }, ov, r.limp);
+      else poolMark(i, j);
+    }
+    areaFrame();
   }
   function counts(useKey) {
     const o = { yy: 0, yn: 0, ny: 0, nn: 0, n: 0 };
@@ -390,9 +480,12 @@
     const r = t * Math.exp(-z * z - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
     return r;
   }
-  function tbl(rows, head) {
-    return '<div class="tablewrap"><table class="data"><thead><tr>' + head.map(x => `<th>${x}</th>`).join('') + '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map((x, i) => i === 0 ? `<th>${x}</th>` : `<td>${x}</td>`).join('') + '</tr>').join('') + '</tbody></table></div>';
+  function tbl(rows, head, cats) {
+    return '<div class="tablewrap"><table class="data"><thead><tr>' + head.map(x => `<th>${x}</th>`).join('') + '</tr></thead><tbody>' +
+      rows.map((r, ri) => '<tr>' + r.map((x, i) => i === 0 ? `<th>${x}</th>` : `<td${cats ? ` class="cat c-${cats[ri][i - 1]}"` : ''}>${x}</td>`).join('') + '</tr>').join('') + '</tbody></table></div>';
   }
+  const CATS = [['yy', 'yn'], ['ny', 'nn']];
+  let chiGate = {};                                    /* the steps whose quick check is done: their table shows */
   function renderChi() {
     const k = chi(), O = k.O, E = k.E;
     $('#c-source').textContent = !k.mineAll ? 'Part 4 is not finished, so the empty quadrats use our records. Finish part 4 to use only your own.'
@@ -404,10 +497,12 @@
     const B = [
       `<p>On the shore, limpets and sea lettuce sometimes share a quadrat and sometimes do not.</p><p><b>The question:</b> are the two species found together <u>more often</u>, or <u>less often</u>, than chance alone would give? If so, there is an <button class="term" data-t="association">association</button> between them.</p><p class="note">Analogy: if two friends choose their seats at random, they sit together only by chance. If they sit together most days, or never, their seats are associated.</p>`,
       `<p><b>Null hypothesis (H<sub>0</sub>):</b> there is no association between the distribution of limpets and the distribution of sea lettuce. The two species are distributed independently.</p><p><b>Alternative hypothesis (H<sub>1</sub>):</b> there is an association between the distribution of limpets and the distribution of sea lettuce.</p>`,
-      `<p>The observed counts (O): how many of the ${k.N} quadrats fell into each group.</p>` + tbl([['Limpets present', O[0][0], O[0][1]], ['Limpets absent', O[1][0], O[1][1]]], head) + `<p class="note">Row totals: ${k.R[0]} and ${k.R[1]}. Column totals: ${k.C[0]} and ${k.C[1]}. Grand total: ${k.N}.</p>`,
-      `<p>The expected counts (E) are the numbers you would get if the two species were independent.</p><div class="formula">E = row total × column total ÷ grand total</div><p>For example, limpets present and sea lettuce present: ${k.R[0]} × ${k.C[0]} ÷ ${k.N} = <b>${fmt(E[0][0], 2)}</b></p>` + tbl([['Limpets present', fmt(E[0][0], 2), fmt(E[0][1], 2)], ['Limpets absent', fmt(E[1][0], 2), fmt(E[1][1], 2)]], head) + `<p class="note">The test is valid only if every expected value is at least 5. ${Math.min(E[0][0], E[0][1], E[1][0], E[1][1]) >= 5 ? 'Here they all are.' : 'Here one is below 5: sample more quadrats.'}</p>`,
-      `<div class="formula">χ² = Σ (O − E)² ÷ E</div><p>Calculate (O − E)² ÷ E for each of the four cells, then find their sum (Σ means "the sum of").</p>` + tbl([['Limpets present', fmt(k.parts[0], 2), fmt(k.parts[1], 2)], ['Limpets absent', fmt(k.parts[2], 2), fmt(k.parts[3], 2)]], head) + `<p>χ² = ${k.parts.map(x => fmt(x, 2)).join(' + ')} = <b>${fmt(k.X, 2)}</b></p>`,
-      `<p><b>Degrees of freedom</b> = (number of rows − 1) × (number of columns − 1) = (2 − 1) × (2 − 1) = <b>1</b>.</p><p>The <button class="term" data-t="critical">critical value</button> of χ² for 1 degree of freedom at p = 0.05 is <b>3.84</b>.</p>` + tbl([['1 degree of freedom', '2.71', '3.84', '6.63']], ['p', '0.10', '0.05', '0.01']) + `<p>Compare: our χ² = ${fmt(k.X, 2)} is ${big ? '<b>larger</b>' : '<b>smaller</b>'} than 3.84.</p>`,
+      `<p>The observed counts (O): how many of the ${k.N} quadrats fell into each group. The photograph shows each quadrat in the colour of its group.</p>` + tbl([['Limpets present', O[0][0], O[0][1]], ['Limpets absent', O[1][0], O[1][1]]], head, CATS) + `<p class="note">Row totals: ${k.R[0]} and ${k.R[1]}. Column totals: ${k.C[0]} and ${k.C[1]}. Grand total: ${k.N}.</p>`,
+      `<p>The expected counts (E) are the numbers you would get if the two species were independent.</p><div class="formula">E = row total × column total ÷ grand total</div><p>For example, limpets present and sea lettuce present: ${k.R[0]} × ${k.C[0]} ÷ ${k.N} = <b>${fmt(E[0][0], 2)}</b></p><div data-chiqc="3"></div>` +
+        `<div class="gate"${chiGate[3] ? '' : ' hidden'}>` + tbl([['Limpets present', fmt(E[0][0], 2), fmt(E[0][1], 2)], ['Limpets absent', fmt(E[1][0], 2), fmt(E[1][1], 2)]], head, CATS) + `<p class="note">The test is valid only if every expected value is at least 5. ${Math.min(E[0][0], E[0][1], E[1][0], E[1][1]) >= 5 ? 'Here they all are.' : 'Here one is below 5: sample more quadrats.'}</p></div>`,
+      `<div class="formula">χ² = Σ (O − E)² ÷ E</div><p>Calculate (O − E)² ÷ E for each of the four cells, then find their sum (Σ means "the sum of"). For example, limpets present and sea lettuce present: (${O[0][0]} − ${fmt(E[0][0], 2)})² ÷ ${fmt(E[0][0], 2)} = <b>${fmt(k.parts[0], 2)}</b></p><div data-chiqc="4"></div>` +
+        `<div class="gate"${chiGate[4] ? '' : ' hidden'}>` + tbl([['Limpets present', fmt(k.parts[0], 2), fmt(k.parts[1], 2)], ['Limpets absent', fmt(k.parts[2], 2), fmt(k.parts[3], 2)]], head, CATS) + `<p>χ² = ${k.parts.map(x => fmt(x, 2)).join(' + ')} = <b>${fmt(k.X, 2)}</b></p></div>`,
+      `<p><b>Degrees of freedom</b> = (number of rows − 1) × (number of columns − 1) = (2 − 1) × (2 − 1) = <b>1</b>.</p><div data-chiqc="5"></div><p>The <button class="term" data-t="critical">critical value</button> of χ² for 1 degree of freedom at p = 0.05 is <b>3.84</b>.</p>` + tbl([['1 degree of freedom', '2.71', '3.84', '6.63']], ['p', '0.10', '0.05', '0.01']) + `<p>Compare: our χ² = ${fmt(k.X, 2)} is ${big ? '<b>larger</b>' : '<b>smaller</b>'} than 3.84.</p>`,
       `<p>${big ? `χ² = ${fmt(k.X, 2)} is larger than the critical value 3.84, so <b>reject the null hypothesis</b>. There is a <button class="term" data-t="significant">significant</button> association between limpets and sea lettuce (p &lt; 0.05).` : `χ² = ${fmt(k.X, 2)} is smaller than the critical value 3.84, so <b>do not reject the null hypothesis</b>. There is no significant association (p &gt; 0.05).`}</p>` +
         (big ? `<p><b>Which direction?</b> Compare O with E. Limpets and sea lettuce together: observed ${O[0][0]}, expected ${fmt(E[0][0], 1)}. They were found together <u>${neg ? 'less' : 'more'} often</u> than expected: a <b>${neg ? 'negative' : 'positive'} association</b>.</p>` : '') +
         `<div class="box"><div class="k">Reading p</div><p>p = ${k.p < 0.001 ? 'less than 0.001' : fmt(k.p, 3)}. If the two species were really independent, chance alone would give a χ² this large ${k.p < 0.001 ? 'less than 1 time in 1,000' : k.p < 0.01 ? 'about ' + Math.round(k.p * 1000) + ' times in 1,000' : 'about ' + Math.round(k.p * 100) + ' times in 100'}. If p is below 0.05, the result is significant. <b>Small p, big news. Big p, no news.</b></p></div>`,
@@ -415,6 +510,21 @@
       `<p>Put the observed counts in a 2 × 2 block, for example cells B2:C3 (rows: limpets present, absent; columns: sea lettuce present, absent).</p><p>1. Expected value for cell B2, in F2:</p><div class="formula">=SUM(B2:C2)*SUM(B2:B3)/SUM(B2:C3)</div><p>Complete F2:G3 the same way, changing the row and the column.</p><p>2. The p-value directly:</p><div class="formula">=CHISQ.TEST(B2:C3, F2:G3)</div><p>3. The χ² value, from the p-value:</p><div class="formula">=CHISQ.INV.RT(CHISQ.TEST(B2:C3, F2:G3), 1)</div><p>4. The critical value, to compare:</p><div class="formula">=CHISQ.INV.RT(0.05, 1)</div><p class="note">The workbook in part 10 has all of this set up. Excel uses the same formulas.</p>`
     ];
     $('#c-body').innerHTML = B[cstep];
+    /* the quick checks inside the steps: the student works out one value; the step's table then shows (or after two tries) */
+    const CQ = {
+      3: { id: 'p5-qc-1', part: 5, short: 'E', title: 'An expected value', kind: 'num', tol: 0.006, dp: 2, ans: () => E[1][1],
+           q: `Now you: the expected value for limpets absent and sea lettuce absent. Give it to 2 decimal places.`,
+           why: () => `${k.R[1]} × ${k.C[1]} ÷ ${k.N} = ${fmt(E[1][1], 2)}.` },
+      4: { id: 'p5-qc-2', part: 5, short: 'χ²', title: 'One cell of χ²', kind: 'num', tol: 0.015, dp: 2, ans: () => k.parts[1],
+           q: `Now you: (O − E)² ÷ E for limpets present and sea lettuce absent (O = ${O[0][1]}, E = ${fmt(E[0][1], 2)}). Give it to 2 decimal places.`,
+           why: () => `(${O[0][1]} − ${fmt(E[0][1], 2)})² ÷ ${fmt(E[0][1], 2)} = ${fmt(k.parts[1], 2)}.` },
+      5: { id: 'p5-qc-3', part: 5, short: 'df', title: 'Degrees of freedom of a 3 × 2 table', kind: 'num', tol: 0, ans: 2,
+           q: 'Another student records whether one species is present or absent in quadrats in three zones of the shore. The table has 3 rows (the zones) and 2 columns (present, absent). How many degrees of freedom does it have?',
+           why: '(3 − 1) × (2 − 1) = 2. The critical value at p = 0.05 is then 5.99.' }
+    };
+    const qb = $('[data-chiqc]', $('#c-body'));
+    if (qb && CQ[cstep]) { const st = cstep; quick(qb, CQ[st], () => { chiGate[st] = true; const g = $('.gate', $('#c-body')); if (g) g.hidden = false; }); }
+    $('#c-key').innerHTML = Object.keys(CAT).map(c => `<span class="catk"><i style="background:${CAT[c].c}"></i><b>${CAT[c].l}</b> ${CAT[c].w}: ${k.O[c[0] === 'y' ? 0 : 1][c[1] === 'y' ? 0 : 1]}</span>`).join('');
     $('#c-prev').disabled = cstep === 0; $('#c-next').disabled = cstep === CSTEPS.length - 1;
   }
   $('#c-prev').addEventListener('click', () => { cstep = Math.max(0, cstep - 1); renderChi(); });
@@ -465,7 +575,7 @@
     $('#k-source').textContent = !own ? 'The empty cells of your table use our counts. Finish part 3 to use only your own.'
       : store.get('tfilled', false) ? 'These graphs use your estimates from part 3, and our counts where you pressed Fill.' : 'These graphs use your own estimates from part 3.';
   }
-  $$('#k-choices button').forEach(b => b.addEventListener('click', () => { sp = b.dataset.sp; drawScatter(); }));
+  $$('#k-choices button').forEach(b => b.addEventListener('click', () => { sp = b.dataset.sp; drawScatter(); if (currentPart === 6) drawCorr(); }));
   document.addEventListener('themechange', () => { if ($('#k-chart').firstChild) { drawScatter(); drawKite(); } });
   function drawKite() {
     const S = series(true), svg = $('#kite'); svg.innerHTML = '';
@@ -506,48 +616,167 @@
   group({ id: 'p3-transect', part: 3, title: 'Transect quadrats', short: 'T' });
 
   /* ---------------- quick checks ---------------- */
-  // Options are shown in a fixed shuffled order, so the right answer is never always first.
-  const shuffle = (a, seed) => { const b = a.slice(); let s = seed || 7; for (let i = b.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
-  // Multiple choice: a wrong choice says only "not this one"; the reason appears with the right answer (effort first).
+  /* Multiple choice (11 Oct 2026, Daniel: "make sure that the longest is not the right one, that you randomize them … not
+     aligned left … it's very obvious"): the options are written to the same length and detail, shown as one left-aligned
+     list (A, B, C, D) in a new random order every time the page opens. A wrong choice says only "not this one"; the
+     reason comes with the right answer (effort first). The record keeps each option by its place in the list, not on screen. */
   function mcq(d, it, seed, id) {
-    const out = h('p', { 'aria-live': 'polite' });
-    // the wrong options in a shuffled order, the right one at a position that changes from question to question
-    const opts = shuffle(it.a.map((txt, i) => [txt, i]).filter(([, i]) => i !== it.c), seed);
-    opts.splice((seed * 7 + 3) % it.a.length, 0, [it.a[it.c], it.c]);
-    const bs = [];
-    opts.forEach(([txt, i]) => {
-      const b = h('button', { class: 'btn ghost', type: 'button' }, txt); bs.push(b);
+    const order = it.a.map((txt, i) => [txt, i]);
+    for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+    const list = h('div', { class: 'opts', role: 'group', 'aria-label': 'Choose one answer' }), out = h('p', { 'aria-live': 'polite' }), bs = [];
+    order.forEach(([txt, i], k) => {
+      const b = h('button', { class: 'opt', type: 'button' }, `<span class="opt__l" aria-hidden="true">${'ABCDE'[k]}</span><span class="opt__t"></span>`);
+      b.querySelector('.opt__t').textContent = txt; bs.push(b);
       b.addEventListener('click', () => {
         L.check(id, i === it.c, i === it.c ? [] : ['o' + i]);
         b.classList.add(i === it.c ? 'chosen-right' : 'chosen-wrong');
         out.innerHTML = i === it.c ? '<span class="ok">✓ Correct.</span> ' + it.why : '<span class="bad">✗ Not this one.</span> Think again, then try another answer.';
       });
-      d.appendChild(b);
+      list.appendChild(b);
     });
-    d.appendChild(out);
+    d.appendChild(list); d.appendChild(out);
     return () => { bs.forEach(b => b.classList.remove('chosen-right', 'chosen-wrong')); out.innerHTML = ''; L.restart([id]); };   // start again
   }
+  /* ---------------- quick checks: a question after each piece of theory (11 Oct 2026, Daniel: "all the time that … there is
+     theory, you ask a question … so it's constantly interactive, and you just don't read") ----------------
+     Typed (words or a number) or multiple choice; the same rules as everywhere on the page: the answer only after two
+     tries, the reason only with the right answer, every try kept in the lesson record (ids p<part>-qc-<n>). */
+  const normA = x => String(x).normalize('NFKC').toLowerCase().replace(/[’‘`´]/g, "'").replace(/[‐‑‒–—−-]/g, ' ').replace(/[.,;:!?]+$/, '').replace(/\s+/g, ' ').trim().replace(/^(the|a|an) /, '');
+  function quick(box, q, onDone) {
+    box.classList.add('qc'); box.innerHTML = '';
+    box.appendChild(h('div', { class: 'qc__k' }, 'Quick check'));
+    box.appendChild(h('p', { class: 'qc__q' }, q.q));
+    reg({ id: q.id, part: q.part, title: q.title, short: q.short, kind: q.kind === 'mcq' ? 'mcq' : 'num', opts: q.kind === 'mcq' ? q.a : undefined });
+    if (q.kind === 'mcq') { mcq(box, q, 0, q.id); return; }
+    const row = h('div', { class: 'qc__row' });
+    const inp = h('input', { type: 'text', class: 'gapin', size: q.kind === 'num' ? 8 : 18, autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', 'aria-label': 'Your answer' });
+    if (q.kind === 'num') inp.setAttribute('inputmode', 'decimal');
+    const b = h('button', { class: 'btn', type: 'button' }, 'Check'), out = h('p', { 'aria-live': 'polite' });
+    let wrong = 0, done = false;
+    const answer = () => typeof q.ans === 'function' ? q.ans() : q.ans;
+    const ok = v => q.kind === 'num' ? (() => { const x = parseFloat(String(v).replace(/[−–]/g, '-').replace(',', '.')); return !isNaN(x) && Math.abs(x - answer()) <= (q.tol || 0) + 1e-9; })()
+                                     : q.acc.map(normA).includes(normA(v));
+    function finish() { if (!done) { done = true; if (onDone) onDone(); } }
+    b.addEventListener('click', () => {
+      const v = inp.value.trim();
+      if (!v) { out.textContent = 'Type your answer first.'; return; }
+      const good = ok(v);
+      L.check(q.id, good, good ? [] : [v.slice(0, 30)]);
+      inp.classList.toggle('right', good); inp.classList.toggle('wrong', !good);
+      if (good) { out.innerHTML = '<span class="ok">✓ Correct.</span> ' + (typeof q.why === 'function' ? q.why() : q.why); finish(); return; }
+      wrong++;
+      out.innerHTML = '<span class="bad">✗ Not yet.</span> ' + (wrong >= 2 ? 'Or <button class="linkish" type="button">show the answer</button>.' : 'Think again and try once more.');
+      const l = out.querySelector('.linkish');
+      if (l) l.addEventListener('click', () => { out.innerHTML = '<b>' + (q.kind === 'num' ? fmt(answer(), q.dp || 0) : q.acc[0]) + '.</b> ' + (typeof q.why === 'function' ? q.why() : q.why); finish(); });
+    });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); b.click(); } });
+    inp.addEventListener('input', () => inp.classList.remove('right', 'wrong'));
+    row.appendChild(inp); if (q.unit) row.appendChild(h('span', { class: 'qc__u' }, q.unit)); row.appendChild(b);
+    box.appendChild(row); box.appendChild(out);
+  }
+  const QC = {
+    'p1-qc-1': { part: 1, short: 'q1', title: 'Which band dries out most?', kind: 'text', acc: ['upper shore', 'upper', 'top of the shore', 'high shore', 'upper zone'],
+      q: 'A seaweed dies when it loses more than half of its water. In which band of the shore is it least likely to survive? Type the band’s name.',
+      why: 'The upper shore is out of the water for the longest time at each low tide, so the rock and the seaweed on it dry out most.' },
+    'p1-qc-2': { part: 1, short: 'q2', title: 'What sets the two limits?', kind: 'mcq', c: 0, q: 'On a rocky shore, which pair most often limits where a species lives?',
+      a: ['Its upper limit by an abiotic variable such as drying out; its lower limit by biotic interactions such as competition.',
+          'Its upper limit by biotic interactions such as competition; its lower limit by an abiotic variable such as drying out.',
+          'Both of its limits by abiotic variables such as drying out, because biotic interactions do not change along the shore.',
+          'Both of its limits by biotic interactions such as grazing, because abiotic variables are the same all along the shore.'],
+      why: 'Higher on the shore the stress is physical (drying, heat); lower down, where conditions are easier, other species compete, graze or prey.' },
+    'p2-qc-1': { part: 2, short: 'q1', title: 'Quadrats on a 6 m tape', kind: 'num', ans: 5, tol: 0,
+      q: 'An interrupted belt transect on a 6 m tape has a quadrat every 1.5 m, starting at 0 m. How many quadrats is that?',
+      why: 'Quadrats at 0, 1.5, 3, 4.5 and 6 m: 6 ÷ 1.5 = 4 gaps, so 5 quadrats. Count the one at 0 m.' },
+    'p2-qc-2': { part: 2, short: 'q2', title: 'How to sample periwinkles', kind: 'mcq', c: 0,
+      q: 'Periwinkles are small snails that move slowly over the rock and hide in cracks at low tide. How should you sample them?',
+      a: ['Count them in each quadrat, as for limpets, and search the cracks inside the quadrat as well.',
+          'Estimate their percentage cover, as for barnacles, because they are too small to count one by one.',
+          'Use capture–mark–release–recapture, because every animal that lives on the shore is motile.',
+          'Leave them out, because a quadrat can be used only for sessile organisms such as the seaweeds.'],
+      why: 'At low tide periwinkles move very little, so, like limpets, they are counted in the quadrat (abundance), cracks included.' },
+    'p3-qc-1': { part: 3, short: 'q1', title: 'Counting squares for cover', kind: 'num', ans: 24, tol: 0, unit: '%',
+      q: 'In a quadrat of 100 small squares, sea lettuce covers 18 squares completely, more than half of 6 other squares, and less than half of 9 other squares. What is its percentage cover?',
+      why: '18 + 6 = 24 squares, each 1 %: 24 %. A square counts only when it is at least half covered, so the 9 squares with less than half are not counted.' },
+    'p3-qc-2': { part: 3, short: 'q2', title: 'Cover with the seaweed not lifted', kind: 'mcq', c: 0,
+      q: 'Along the same transect, student A lifts the seaweed before estimating barnacle cover; student B does not. Which statement about B’s data is correct?',
+      a: ['B’s estimates are too low wherever seaweed grows, so B’s data show barnacles falling too steeply towards the sea.',
+          'B’s estimates are better, because only the barnacles that can be seen from above count towards the percentage cover.',
+          'B’s estimates are as valid as A’s, because the two students simply make different random errors in their counting.',
+          'B’s estimates are too high, because seaweed that lies on the rock looks like barnacles when it is seen from above.'],
+      why: 'Seaweed hides barnacles, and there is more seaweed lower on the shore. So the error is not random: it becomes larger towards the sea, and it makes the gradient look steeper than it is.' },
+    'p4-qc-1': { part: 4, short: 'q1', title: 'Random squares that cluster', kind: 'mcq', c: 0,
+      q: 'Your first five pairs of random numbers all give squares in the top row of the area (down = 0), on pale rock. What do you do?',
+      a: ['Keep them: random positions can fall close together by chance, and moving them by choice would bring back bias.',
+          'Move the next quadrats lower in the area, so that the 30 quadrats are spread evenly over all of the 5 m × 5 m area.',
+          'Start again with new numbers, because a random sample is not valid unless its quadrats are spread out evenly.',
+          'Add five quadrats on the green patches by choice, so that both species have a fair chance of being recorded.'],
+      why: 'Random means every square has the same chance each time, so clusters happen. Choosing positions yourself, even to "spread them out", brings back bias. With 30 quadrats the sample usually covers the area.' },
+    'p6-qc-1': { part: 6, short: 'q1', title: 'Is r = −0.55 significant?', kind: 'text', acc: ['no', 'not significant', 'no it is not'],
+      q: 'From the same 11 quadrats, a student finds r = −0.55 for another species against rock temperature. Is this correlation significant at p = 0.05? Type yes or no.',
+      why: 'No: the size of r (0.55) is less than the critical value for 11 quadrats (0.602), so the correlation is not significant.' },
+    'p6-qc-2': { part: 6, short: 'q2', title: 'R² from r', kind: 'num', ans: 9, tol: 0.5, unit: '%',
+      q: 'On another shore, r = −0.30 for the number of limpets against rock temperature. About what percentage of the variation in limpet numbers does the straight line account for?',
+      why: 'R² = r² = (−0.30)² = 0.09, so about 9 %. R² is never negative. The other 91 % of the variation comes from other variables, or from chance.' },
+    'p9-qc-1': { part: 9, short: 'q1', title: 'The R function for SD', kind: 'text', acc: ['sd', 'sd()', 'sd(x)'],
+      q: 'Which R function gives the standard deviation of a set of numbers? Type its name.', why: '<code>sd()</code>, as in step 1: <code>sd(limpets)</code>.' },
+    'p10-qc-1': { part: 10, short: 'q1', title: 'Temperatures read 90 minutes apart', kind: 'mcq', c: 0,
+      q: 'On a sunny afternoon, a group reads the rock temperature at 10 m at 13:10 and at 0 m at 14:40. The rock at 0 m is 9 °C hotter. What is the main problem with this comparison?',
+      a: ['Part of the 9 °C difference may come from 90 more minutes of sun, not from the position on the shore.',
+          'Holding the probe on the rock for 30 seconds is too short a time to give a reading of its temperature.',
+          'The upper shore is normally cooler than the lower shore, so a 9 °C difference must be an error in reading.',
+          'Readings taken at different times can never be used in one correlation, so all the data must be deleted.'],
+      why: 'The rock heats up during a sunny low tide, so the time of a reading changes it. Read every temperature in one quick walk along the tape, and record the time.' },
+    'p10-qc-2': { part: 10, short: 'q2', title: 'Two people, two estimates', kind: 'mcq', c: 0,
+      q: 'Two people estimate the cover in the same quadrat and get 35 % and 45 %. What is the best plan for the rest of the transect?',
+      a: ['One person estimates the cover in every quadrat, so any error is the same in all of them.',
+          'Each person estimates half of the quadrats, so the work is shared and finished sooner.',
+          'Always record the higher of the two estimates, so that no organism is left out of the data.',
+          'Stop estimating cover and record only presence or absence, because cover is never reliable.'],
+      why: 'Estimates of cover differ between people. The same person every time keeps the estimates consistent along the transect.' }
+  };
+  $$('[data-qc]').forEach(b => { const q = QC[b.dataset.qc]; if (q) quick(b, Object.assign({ id: b.dataset.qc }, q)); });
+  /* the chi-squared steps' own quick checks are drawn with their step; listed here so the teacher's board names them */
+  [['p5-qc-1', 'E', 'An expected value'], ['p5-qc-2', 'χ²', 'One cell of χ²'], ['p5-qc-3', 'df', 'Degrees of freedom of a 3 × 2 table']].forEach(x => reg({ id: x[0], part: 5, title: x[2], short: x[1], kind: 'num' }));
+
   const QUIZ = {
     q1: [{ t: 'Barnacles X and Y: which niche?', q: 'Barnacle X lives only on the upper shore. When barnacle Y is removed from the middle shore, X extends down into the middle shore, but X never extends into the lower shore. Which conclusion is best supported?',
-      a: ['The fundamental niche of X includes the middle shore; competition with Y restricts its realized niche to the upper shore.', 'The fundamental niche of X is the upper shore only.', 'X is absent from the lower shore because of desiccation.', 'The realized niche of X is larger than its fundamental niche.'], c: 0,
+      a: ['Competition with Y keeps X on the upper shore: the middle shore is in its fundamental niche, not its realized niche.',
+          'Drying out keeps X on the upper shore: the middle shore is outside its range of tolerance and its fundamental niche.',
+          'Y preys on X on the middle shore: the middle shore is in its realized niche, but not in its fundamental niche.',
+          'X and Y share one realized niche: X moves down only because the middle shore becomes drier when Y is removed.'], c: 0,
       why: 'X can live on the middle shore when Y is absent, so the middle shore is inside its fundamental niche. With Y present, X is restricted to the upper shore: its realized niche. Something else (another species, or an abiotic variable) excludes X from the lower shore, but it cannot be desiccation: the lower shore is the wettest part.' },
     { t: 'Sea lettuce missing at both ends', q: 'Along the transect, sea lettuce is absent from the top 2 m and from the bottom 3 m. Which pair of explanations is most consistent with B4.1.4 and B4.2.12?',
-      a: ['Top: outside its range of tolerance for desiccation. Bottom: competition, for example with brown seaweed.', 'Top: competition with brown seaweed. Bottom: desiccation.', 'Both ends: grazing by limpets only.', 'Both ends: the rock temperature is outside its range of tolerance.'], c: 0,
+      a: ['Top: drying out at low tide is outside its range of tolerance. Bottom: brown seaweed outcompetes it for space.',
+          'Top: brown seaweed outcompetes it for space. Bottom: drying out at low tide is outside its range of tolerance.',
+          'Both ends: limpets graze it faster than it grows, because limpets are found all along the transect.',
+          'Both ends: the rock temperature is outside its range of tolerance: too hot at the top, too cold at the bottom.'], c: 0,
       why: 'The upper limit of a species is usually set by an abiotic variable (drying out high on the shore); the lower limit is often set by biotic interactions, such as competition with the brown seaweed that covers the lower shore.' },
     { t: 'A range of tolerance at 34 °C', q: 'At low tide the rock on the upper shore reaches 34 °C. A seaweed survives rock temperatures from 5 °C to 30 °C. Which prediction is best supported?',
-      a: ['Its upper limit on the shore is set by an abiotic variable: it can grow only where the rock stays below about 30 °C.', 'It would grow on the upper shore if there were no limpets there.', 'Its realized niche reaches higher on the shore than its fundamental niche.', 'It would survive at 34 °C if competitors were removed.'], c: 0,
+      a: ['Its upper limit is set by an abiotic variable: it can live only where the rock stays at or below about 30 °C.',
+          'Its upper limit is set by grazing: with no limpets it could grow on the upper shore, even at 34 °C at low tide.',
+          'Its realized niche reaches higher than its fundamental niche, because there is less competition on the upper shore.',
+          'Its upper limit is set by its competitors: with them removed, it could survive the 34 °C of the upper shore.'], c: 0,
       why: '34 °C is outside its range of tolerance, so removing competitors or grazers cannot make the upper shore part of its niche. A realized niche is never larger than the fundamental niche.' }],
     q2: [{ t: 'Biased quadrat placement', q: 'To save time, a student places quadrats only where seaweed is growing. What is the main effect on the estimate of mean seaweed cover for the area?',
-      a: ['It is biased upwards: the quadrats are not a random sample of the area.', 'It is less precise, but not biased.', 'It cannot be calculated, because percentage cover needs a continuous belt transect.', 'It is unaffected, because every quadrat has 100 squares.'], c: 0,
+      a: ['The mean is too high, because bare rock is never sampled: the positions are chosen, so they are biased.',
+          'The mean is less precise but still unbiased, because every quadrat is still divided into 100 small squares of cover.',
+          'The mean cannot be calculated, because percentage cover needs quadrats placed side by side along a belt.',
+          'The mean is unchanged, because the same quadrat size and the same way of counting are used every time.'], c: 0,
       why: 'Choosing "interesting" spots is bias: bare rock is never sampled, so the mean cover is too high. Random positions give every point an equal chance.' },
     { t: 'Transect time and quadrats', q: 'A 20 m interrupted belt transect has a quadrat every 2 m, starting at 0 m, and each quadrat takes 3 minutes to record. How long does the recording take, and how many 0.5 m quadrats would a continuous belt transect of the same tape need?',
       a: ['33 minutes; 40 quadrats', '30 minutes; 40 quadrats', '33 minutes; 20 quadrats', '30 minutes; 20 quadrats'], c: 0,
       why: 'Quadrats at 0, 2, 4 … 20 m: 11 quadrats, 11 × 3 = 33 minutes (remember the one at 0 m). A continuous belt needs 20 ÷ 0.5 = 40 quadrats.' },
     { t: 'Cover or count for limpets', q: 'Why is percentage cover not a good way to estimate the population density of limpets?',
-      a: ['Limpets are separate individuals that can be counted, and density is a number of individuals per unit area.', 'Limpets move too fast to be inside a quadrat.', 'Percentage cover can be used only on a continuous belt transect.', 'A limpet is smaller than one small square of the quadrat.'], c: 0,
+      a: ['Limpets are separate individuals, and density is a number of individuals per unit area, so they are counted.',
+          'Limpets move about during the low tide, so their cover changes while it is estimated, but a count does not.',
+          'Percentage cover is used only for plants and seaweeds, never for animals such as limpets or barnacles.',
+          'Percentage cover can be estimated only along a continuous belt transect, never in quadrats placed at random.'], c: 0,
       why: 'Cover measures area, not the number of individuals. Count the limpets and divide by the area sampled (per m²).' },
     { t: 'Lincoln index: an estimate too high', q: 'In a capture–mark–release–recapture study of shore crabs, which of these would make the Lincoln index estimate of the population too HIGH?',
-      a: ['Some crabs lose their marks before the second sample.', 'Marked crabs are easier to catch than unmarked crabs.', 'The second sample is larger than the first.', 'No crabs are born or die between the two samples.'], c: 0,
+      a: ['Some crabs lose their marks before the second sample, so fewer marked crabs are caught again.',
+          'Marked crabs are easier to catch than unmarked crabs, so more marked crabs are caught again.',
+          'The second sample is larger than the first, so more crabs in total are caught on the second day.',
+          'No crabs are born or die between the two samples, so the size of the population stays the same.'], c: 0,
       why: 'Population ≈ (number marked × number in the second sample) ÷ number marked in the second sample. Lost marks make the last number too small, so the estimate is too large. Marked crabs that are easier to catch make it too small.' }]
   };
   $$('.quiz').forEach(box => {
@@ -564,39 +793,66 @@
     b.addEventListener('click', () => resets.forEach(r => r())); box.appendChild(b);
   });
 
-  /* ---------------- parts: one open at a time ---------------- */
+  /* ---------------- parts: one open at a time, as steps across the top ---------------- */
   let currentPart = 1;
+  const NPART = $$('.part').length;
+  const partTitle = n => { const b = $('#tab-' + n); return b ? b.textContent.replace(/^\d+/, '').trim() : ''; };
+  let seen = store.get('seen', []);
+  // under each part: Back and Next, so the way through is plain; above its heading: which part of how many
+  $$('.part').forEach((p, i) => {
+    const n = i + 1, h2 = $('h2', p);
+    if (h2) h2.insertAdjacentHTML('beforebegin', `<p class="partno">Part ${n} of ${NPART}</p>`);
+    const nav = h('nav', { class: 'partnav', 'aria-label': 'Move between parts' });
+    if (n > 1) { const b = h('button', { type: 'button', class: 'back' }, '← ' + (n - 1) + ' · ' + partTitle(n - 1)); b.addEventListener('click', () => show(n - 1)); nav.appendChild(b); }
+    if (n < NPART) { const b = h('button', { type: 'button', class: 'next' }, 'Next: ' + (n + 1) + ' · ' + partTitle(n + 1) + ' →'); b.addEventListener('click', () => show(n + 1)); nav.appendChild(b); }
+    p.appendChild(nav);
+  });
   function show(n, keepScroll) {
     currentPart = n;
-    $$('.tabs button').forEach((b, i) => b.setAttribute('aria-selected', String(i + 1 === n)));
+    if (seen.indexOf(n) < 0) { seen.push(n); store.set('seen', seen); }
+    $$('.tabs button').forEach((b, i) => { b.setAttribute('aria-selected', String(i + 1 === n)); b.classList.toggle('seen', seen.indexOf(i + 1) >= 0); });
+    const tab = $('#tab-' + n); if (tab && tab.scrollIntoView) tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     $$('.part').forEach((p, i) => p.classList.toggle('open', i + 1 === n));
-    const mode = $('#part-' + n).dataset.mode;
-    document.body.classList.toggle('photo-on', $('#part-' + n).hasAttribute('data-pin'));
+    const mode = $('#part-' + n).dataset.mode, pin = $('#part-' + n).hasAttribute('data-pin');
+    // the photograph stays on the left for every part (Daniel, 11 Oct 2026); on a narrow screen it stays pinned at the top
+    // only for the parts that work on it (data-pin)
+    document.body.classList.toggle('photo-on', pin);
     stageH();
     if (mode === 'zones') drawZones($$('#zone-choices button').find(b => b.getAttribute('aria-pressed') === 'true').dataset.zone);
     else if (mode === 'method') drawMethod($$('#method-choices button').find(b => b.getAttribute('aria-pressed') === 'true').dataset.m);
     else if (mode === 'transect') drawTransect();
     else if (mode === 'random') drawArea(false);
+    else if (mode === 'chi') drawChiArea();
+    else if (mode === 'corr') drawCorr();
+    else if (mode === 'write') drawWrite();
+    else if (mode === 'counts') drawCounts();
     else { clear(); scaleBar(); }
     if (n === 5) renderChi();
     if (n === 6) { drawScatter(); drawKite(); }
-    if (!keepScroll && window.innerWidth <= 1000) $('#part-' + n).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // a new part starts at its own top, just under the step bar (and the pinned photograph on a narrow screen)
+    if (!keepScroll) $('#part-' + n).scrollIntoView({ block: 'start' });
     try { history.replaceState(null, '', '#part-' + n); } catch (e) { }
     document.dispatchEvent(new CustomEvent('partshown', { detail: n }));
   }
   $$('.tabs button').forEach((b, i) => b.addEventListener('click', () => show(i + 1)));
-  // Cards (details.fold) open in place, one at a time in a part (Daniel: explore, do not scroll a wall).
-  // If closing a card above moves the open one off the screen, bring it back into view.
-  document.addEventListener('toggle', e => {
-    const d = e.target;
-    if (!(d instanceof HTMLDetailsElement) || !d.classList.contains('fold') || !d.open) return;
-    const part = d.closest('.part'); if (!part) return;
+  // Cards (details.fold) open in place, one at a time in a part (Daniel: explore, do not scroll a wall). The card that is
+  // pressed stays exactly where it is on the screen while the others close (11 Oct 2026: before, the page jumped up).
+  document.addEventListener('click', e => {
+    const sum = e.target.closest ? e.target.closest('details.fold > summary') : null;
+    if (!sum) return;
+    const d = sum.parentElement, part = d.closest('.part');
+    if (d.open || !part) return;                         /* closing a card moves nothing above it */
+    const before = sum.getBoundingClientRect().top;
     $$('details.fold[open]', part).forEach(o => { if (o !== d && !o.contains(d) && !d.contains(o)) o.open = false; });
-    const top = d.getBoundingClientRect().top, pin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--stage-h')) || 0;
-    if (top < pin) d.scrollIntoView({ block: 'start' });
+    const after = sum.getBoundingClientRect().top;
+    if (Math.abs(after - before) > 0.5) window.scrollBy({ top: after - before, left: 0, behavior: 'instant' });
   }, true);
-  // a part's heading must not hide under the photograph pinned at the top of a narrow screen
-  function stageH() { document.documentElement.style.setProperty('--stage-h', document.body.classList.contains('photo-on') ? $('.stage').offsetHeight + 'px' : '0px'); }
+  // the step bar and, on a narrow screen, the pinned photograph: a part's heading and a card must not hide under them
+  function stageH() {
+    const root = document.documentElement.style, bar = $('#partbar');
+    root.setProperty('--bar-h', (bar ? bar.offsetHeight : 0) + 'px');
+    root.setProperty('--stage-h', document.body.classList.contains('photo-on') && window.innerWidth <= 1000 ? $('.stage').offsetHeight + 'px' : '0px');
+  }
   window.addEventListener('resize', stageH);
   if (PHONE.addEventListener) PHONE.addEventListener('change', () => { const n = +((/#part-(\d+)/.exec(location.hash) || [0, 1])[1]); if ($('#part-' + n).dataset.mode === 'transect') drawTransect(); });
   $('#credits').innerHTML = D.credits.map(c => `${c.what}: ${c.who}, <a href="${c.url}" target="_blank" rel="noopener">${c.licence}</a>`).join(' · ');

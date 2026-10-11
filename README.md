@@ -16,6 +16,13 @@ challenge questions (including the Lincoln index) and an R extension. Parts 1–
 fills any time left; then about 20 minutes of real IB questions on paper, which the teacher hands out
 (IB copyright, so they are not in this repository).
 
+The ten parts are tabs along the top. The photograph stays on the left in every part and shows that part's
+results: the transect, the random area zoomed in, each random quadrat in the colour of its chi-squared group,
+the limpet counts of the challenge, and the temperature and cover beside each transect quadrat. After each
+piece of theory a **Quick check** asks a typed or multiple-choice question (options in a new random order
+each time, of similar length); in part 5, each table opens only after its quick check. Part 10 lists what to
+do on the shore, step by step.
+
 IB Biology guide (first assessment 2025): B4.1.4, C4.1.3, C4.1.4, C4.1.15, B4.2.12–13.
 
 ## For the teacher: how each student is doing
