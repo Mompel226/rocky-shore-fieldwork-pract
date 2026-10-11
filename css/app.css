@@ -44,6 +44,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);f
 a{color:var(--sea-ink)}
 .top{max-width:1360px;margin:0 auto;padding:26px 22px 0}
 .upbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px}
+.upbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .themebtn{font:500 12.5px/1 var(--sans);color:var(--ink2);background:var(--surface);border:1px solid var(--rule);border-radius:100px;padding:7px 12px;cursor:pointer}
 .themebtn:hover,.themebtn:focus-visible{color:var(--ink);border-color:var(--ink3)}
 .up{display:inline-block;margin:0;font-size:12.5px;line-height:1;color:var(--ink3);text-decoration:none}
@@ -249,6 +250,7 @@ footer a{color:var(--ink3)}
   .ov .stn text{font-size:46px}
 }
 @media (max-width:520px){
+  #btnRestart .lg{display:none}
   .choices{grid-template-columns:1fr}
   .tabs button{padding:8px 10px;font-size:13px}
   .quad .row{grid-template-columns:1fr 80px 62px}

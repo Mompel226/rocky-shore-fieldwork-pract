@@ -12,6 +12,9 @@
     return d;
   }
 
+  /* ↺ Start again: clears one set of questions so the pupil can try it from the beginning (Daniel, 11 Oct). */
+  const again = fn => { const b = h('button', { class: 'btn ghost again', type: 'button' }, '↺ Start again'); b.addEventListener('click', fn); return b; };
+
   /* A typed gap. Daniel (11 Oct): IB pupils type every word, never choose it from a list. data-acc holds every accepted
      answer (the first is the one shown); a number gap holds its value and tolerance. Capital letters, a leading "the"
      and a final full stop do not matter; spelling does. */
@@ -53,7 +56,11 @@
     });
     box.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('input.gapin')) { e.preventDefault(); b.click(); } });
     box.addEventListener('input', e => { if (e.target.matches('input.gapin')) e.target.classList.remove('right', 'wrong'); });
-    box.appendChild(b); box.appendChild(show); box.appendChild(out);
+    const restart = again(() => {
+      $$('input.gapin', box).forEach(i => { i.value = ''; i.classList.remove('right', 'wrong'); });
+      $$('.ans', box).forEach(a => a.remove()); tries = 0; show.hidden = true; out.innerHTML = '';
+    });
+    box.appendChild(b); box.appendChild(show); box.appendChild(restart); box.appendChild(out);
   }
 
   /* A model answer opens only after the pupil has written their own (at least 30 words). */
@@ -154,7 +161,7 @@
         if (!wroteEnough(d, out)) return;
         out.innerHTML = `<div class="box sea"><div class="k">A model answer</div><p>${t.model}</p><p class="note">Tick what your answer has:</p>${t.check.map(c => `<label class="tick"><input type="checkbox"> ${c}</label>`).join('')}</div>`;
       });
-      d.appendChild(b); d.appendChild(out);
+      d.appendChild(b); d.appendChild(again(() => { $('textarea', d).value = ''; out.innerHTML = ''; })); d.appendChild(out);
     });
   }
 
@@ -196,14 +203,14 @@
           out.innerHTML = `<span class="bad">✗ Not yet.</span> Try again.` + (wrong >= 2 ? ` Or <button class="linkish" type="button">show the working</button>.` : '');
           const l = out.querySelector('.linkish'); if (l) l.addEventListener('click', () => { out.innerHTML = why; });
         });
-        d.appendChild(inp); d.appendChild(b);
+        d.appendChild(inp); d.appendChild(b); d.appendChild(again(() => { inp.value = ''; wrong = 0; out.innerHTML = ''; }));
       } else if (c.type === 'mcq') {
-        A.mcq(d, c, 31 + i * 5); return;
+        const reset = A.mcq(d, c, 31 + i * 5); d.appendChild(again(reset)); return;
       } else {
         d.insertAdjacentHTML('beforeend', '<textarea rows="6" aria-label="Your answer"></textarea>');
         const b = h('button', { class: 'btn ghost', type: 'button' }, 'Show a model answer');
         b.addEventListener('click', () => { if (!wroteEnough(d, out)) return; out.innerHTML = `<div class="box sea"><div class="k">A model answer</div><p>${c.model}</p><p class="note">Tick what your answer has:</p>${c.check.map(x => `<label class="tick"><input type="checkbox"> ${x}</label>`).join('')}</div>`; });
-        d.appendChild(b);
+        d.appendChild(b); d.appendChild(again(() => { $('textarea', d).value = ''; out.innerHTML = ''; }));
       }
       d.appendChild(out);
     });

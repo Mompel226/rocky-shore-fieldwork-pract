@@ -68,6 +68,13 @@
     block.after(d);
   });
 
+  /* ↺ Start the whole page again: deletes this page's saved records (transect, random quadrats) and every answer. */
+  $('#btnRestart').addEventListener('click', () => {
+    if (!confirm('Start the whole page again? Your transect estimates, your random quadrats and every answer on this page will be deleted.')) return;
+    try { Object.keys(localStorage).filter(k => k.indexOf('rocky-shore.') === 0).forEach(k => localStorage.removeItem(k)); } catch (e) { /* private window: nothing was saved */ }
+    location.replace(location.pathname);
+  });
+
   /* ☀ Bright / ☾ Dark: the computer's own setting until the reader chooses; the choice is the site's own key,
      biology.theme (the Cells Lab and the hub's teacher pages use it too). The <head> script applies it before the first paint. */
   (function () {
@@ -485,8 +492,9 @@
     // the wrong options in a shuffled order, the right one at a position that changes from question to question
     const opts = shuffle(it.a.map((txt, i) => [txt, i]).filter(([, i]) => i !== it.c), seed);
     opts.splice((seed * 7 + 3) % it.a.length, 0, [it.a[it.c], it.c]);
+    const bs = [];
     opts.forEach(([txt, i]) => {
-      const b = h('button', { class: 'btn ghost', type: 'button' }, txt);
+      const b = h('button', { class: 'btn ghost', type: 'button' }, txt); bs.push(b);
       b.addEventListener('click', () => {
         b.classList.add(i === it.c ? 'chosen-right' : 'chosen-wrong');
         out.innerHTML = i === it.c ? '<span class="ok">✓ Correct.</span> ' + it.why : '<span class="bad">✗ Not this one.</span> Think again, then try another answer.';
@@ -494,6 +502,7 @@
       d.appendChild(b);
     });
     d.appendChild(out);
+    return () => { bs.forEach(b => b.classList.remove('chosen-right', 'chosen-wrong')); out.innerHTML = ''; };   // start again
   }
   const QUIZ = {
     q1: [{ q: 'Barnacle X lives only on the upper shore. When barnacle Y is removed from the middle shore, X extends down into the middle shore, but X never extends into the lower shore. Which conclusion is best supported?',
@@ -521,10 +530,12 @@
   $$('.quiz').forEach(box => {
     const set = QUIZ[box.dataset.quiz]; if (!set) return;
     box.innerHTML = '<h3>Check yourself</h3>';
-    set.forEach((it, n) => {
+    const resets = set.map((it, n) => {
       const d = h('div', { class: 'box' }); d.innerHTML = `<p><b>${n + 1}.</b> ${it.q}</p>`;
-      mcq(d, it, 11 + n * 7 + box.dataset.quiz.length); box.appendChild(d);
+      box.appendChild(d); return mcq(d, it, 11 + n * 7 + box.dataset.quiz.length);
     });
+    const b = h('button', { class: 'btn ghost again', type: 'button' }, '↺ Start these questions again');
+    b.addEventListener('click', () => resets.forEach(r => r())); box.appendChild(b);
   });
 
   /* ---------------- parts: one open at a time ---------------- */
