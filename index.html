@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Dr Daniel Mompel Riera">
+<meta name="description" content="Rocky shore fieldwork for IB Biology: transects, quadrats, percentage cover, chi-squared and correlation, practised on a virtual shore, then done in Google Sheets or R.">
+<title>Rocky shore fieldwork · IB Biology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Spectral:ital,wght@0,600;1,400&display=swap">
+<link rel="stylesheet" href="css/app.css?v=15">
+<!-- Bright or dark: the reader's choice for the whole site (biology.theme), else the computer's setting. Set before
+     the first paint so the page never flashes the other version. -->
+<script>(function () { try { var t = localStorage.getItem('biology.theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();</script>
+</head>
+<body>
+<div class="top">
+  <div class="upbar"><a class="up" href="https://nlcsbiology.com/biology-hub/">← Biology Hub</a><button class="themebtn" id="btnTheme" type="button" hidden></button></div>
+  <div class="eyebrow">IB Biology · B4.1.4 · C4.1.3 · C4.1.15 · B4.2.12</div>
+  <h1>Rocky shore fieldwork</h1>
+  <p class="by">Practise the field trip on a virtual shore, then analyse the data in Google Sheets or R · <a class="by-me" href="https://github.com/Mompel226" target="_blank" rel="noopener">Dr Daniel Mompel Riera</a></p>
+  <p class="note">Parts 1–7 take about 45 minutes: each part says how long. Part 8 is for any time you have left, part 9 (R) is extra, and part 10 gets you ready for the shore.</p>
+</div>
+
+<div class="layout">
+  <figure class="stage">
+    <div class="photo" id="photo">
+      <img src="img/shore.jpg" width="1600" height="1350" alt="A rocky shore at low tide photographed from straight above by a drone. The sea is at the top. Below it, a band of brown and bright green seaweed with dark rock pools, then a wide area of green seaweed and pale rock, then pale rock with small pools at the bottom.">
+      <svg class="ov" id="ov" viewBox="0 0 1600 1350" aria-hidden="false" role="group" aria-label="Drawing on the photograph"></svg>
+    </div>
+    <figcaption id="cap">A rocky shore at low tide, seen from straight above. The sea is at the top. Photograph: Boris Izmaylov, <a href="https://unsplash.com/photos/vibrant-blue-ocean-meets-a-rocky-moss-covered-coastline-UFHcOip6GJA" target="_blank" rel="noopener">Unsplash</a>. The tape, the quadrats and all the data are a simulation made for this page.</figcaption>
+  </figure>
+
+  <main>
+    <div class="tabs" role="tablist" aria-label="Parts of the practical">
+      <button role="tab" id="tab-1" aria-controls="part-1" aria-selected="true"><span class="n">1</span>The shore</button>
+      <button role="tab" id="tab-2" aria-controls="part-2" aria-selected="false"><span class="n">2</span>Methods</button>
+      <button role="tab" id="tab-3" aria-controls="part-3" aria-selected="false"><span class="n">3</span>Transect</button>
+      <button role="tab" id="tab-4" aria-controls="part-4" aria-selected="false"><span class="n">4</span>Random quadrats</button>
+      <button role="tab" id="tab-5" aria-controls="part-5" aria-selected="false"><span class="n">5</span>Chi-squared</button>
+      <button role="tab" id="tab-6" aria-controls="part-6" aria-selected="false"><span class="n">6</span>Correlation</button>
+      <button role="tab" id="tab-7" aria-controls="part-7" aria-selected="false"><span class="n">7</span>Write it up</button>
+      <button role="tab" id="tab-8" aria-controls="part-8" aria-selected="false"><span class="n">8</span>Challenge</button>
+      <button role="tab" id="tab-9" aria-controls="part-9" aria-selected="false"><span class="n">9</span>R (extra)</button>
+      <button role="tab" id="tab-10" aria-controls="part-10" aria-selected="false"><span class="n">10</span>On the shore</button>
+    </div>
+
+    <!-- 1 ------------------------------------------------------------------ -->
+    <section class="part open" id="part-1" role="tabpanel" aria-labelledby="tab-1" data-mode="zones" data-pin>
+      <h2>Read the shore from above</h2>
+      <p class="sub">About 5 minutes. A drone took this photograph from straight above a rocky shore at low tide. The sea is at the top; the land is at the bottom.</p>
+      <p>Different organisms live in different bands across the shore. This pattern is called <button class="term" data-t="zonation">zonation</button>. Press each band to see it on the photograph.</p>
+      <div class="choices" id="zone-choices">
+        <button data-zone="upper" aria-pressed="true">Upper shore<small>pale rock</small></button>
+        <button data-zone="middle" aria-pressed="false">Middle shore<small>green seaweed</small></button>
+        <button data-zone="lower" aria-pressed="false">Lower shore<small>brown seaweed</small></button>
+        <button data-zone="pools" aria-pressed="false">Rock pools<small>dark patches</small></button>
+      </div>
+      <div class="box choice-text" id="zone-text" aria-live="polite"></div>
+
+      <p class="note">Scale: the tape in part 3 is 10 m long. It is estimated from two people standing on this shore in the full photograph.</p>
+
+      <details class="fold"><summary><span class="fk">Read</span><span class="ft">Why are there bands? <small>B4.1.4 · B4.2.12</small></span></summary><div class="fold-in">
+        <p>Each species has a <button class="term" data-t="tolerance">range of tolerance</button> for each <button class="term" data-t="abiotic">abiotic variable</button>. On a shore the main abiotic variable is the time out of the water. Higher on the shore, the rock is out of the water for longer at each low tide, so it becomes <u>hotter and drier</u>.</p>
+        <p>The <u>upper limit</u> of a species on the shore is often set by an abiotic variable, such as drying out (desiccation). Its <u>lower limit</u> is often set by <button class="term" data-t="biotic">biotic interactions</button>: <button class="term" data-t="competition">interspecific competition</button>, grazing or predation.</p>
+        <p>So the band where a species lives shows its <button class="term" data-t="realized">realized niche</button>. With no competitors, grazers or predators it could often live in a wider band: its <button class="term" data-t="fundamental">fundamental niche</button>. In a famous experiment on a Scottish shore, Connell (1961) removed one barnacle species (<i>Balanus</i>); another barnacle (<i>Chthamalus</i>) then lived lower on the shore than before.</p>
+      </div></details>
+      <details class="fold"><summary><span class="fk">Words</span><span class="ft">Words you need on the field trip</span></summary><div class="fold-in">
+        <p class="note">Press a word to open its meaning.</p>
+      <div class="words">
+        <button class="term" data-t="transect">transect</button>
+        <button class="term" data-t="quadrat">quadrat</button>
+        <button class="term" data-t="sessile">sessile</button>
+        <button class="term" data-t="motile">motile</button>
+        <button class="term" data-t="cover">percentage cover</button>
+        <button class="term" data-t="abundance">abundance</button>
+        <button class="term" data-t="abiotic">abiotic variable</button>
+        <button class="term" data-t="biotic">biotic interaction</button>
+        <button class="term" data-t="tolerance">range of tolerance</button>
+        <button class="term" data-t="zonation">zonation</button>
+        <button class="term" data-t="fundamental">fundamental niche</button>
+        <button class="term" data-t="realized">realized niche</button>
+        <button class="term" data-t="competition">interspecific competition</button>
+        <button class="term" data-t="association">association</button>
+        <button class="term" data-t="correlation">correlation</button>
+        <button class="term" data-t="null">null hypothesis</button>
+        <button class="term" data-t="gradient">gradient</button>
+        <button class="term" data-t="bias">bias</button>
+        <button class="term" data-t="significant">significant</button>
+        <button class="term" data-t="critical">critical value</button>
+        <button class="term" data-t="sd">standard deviation</button>
+        <button class="term" data-t="density">density</button>
+        <button class="term" data-t="exclusion">competitive exclusion</button>
+      </div>
+      </div></details>
+      <details class="fold"><summary><span class="fk">Check</span><span class="ft">Check yourself</span></summary><div class="fold-in">
+        <div class="quiz" data-quiz="q1"></div>
+      </div></details>
+      <details class="fold"><summary><span class="fk">Practise</span><span class="ft">Practise the words</span></summary><div class="fold-in">
+        <div class="practice" data-p="match1"></div>
+      </div></details>
+    </section>
+
+    <!-- 2 ------------------------------------------------------------------ -->
+    <section class="part" id="part-2" role="tabpanel" aria-labelledby="tab-2" data-mode="method" data-pin>
+      <h2>Choose a sampling method</h2>
+      <p class="sub">About 5 minutes. You cannot count every organism on a shore, so you take samples. Press each method to see it on the photograph.</p>
+      <div class="choices" id="method-choices">
+        <button data-m="line" aria-pressed="true">Line transect<small>a tape, points along it</small></button>
+        <button data-m="cont" aria-pressed="false">Belt transect: continuous<small>quadrats side by side</small></button>
+        <button data-m="inter" aria-pressed="false">Belt transect: interrupted<small>a quadrat every 1 m</small></button>
+        <button data-m="random" aria-pressed="false">Random quadrats<small>random positions in one area</small></button>
+      </div>
+      <div class="box choice-text" id="method-text" aria-live="polite"></div>
+
+      <details class="fold"><summary><span class="fk">Read</span><span class="ft">Transect or random quadrats?</span></summary><div class="fold-in">
+        <p><b>Along a <button class="term" data-t="gradient">gradient</button></b> (from the sea to the land, conditions change): use a <u>transect</u>. This is systematic sampling: the positions follow a rule.</p>
+        <p><b>Inside one zone</b> (conditions about the same everywhere): use <u>random quadrats</u>. Random positions avoid <button class="term" data-t="bias">bias</button>: you do not choose the "interesting" spots.</p>
+      </div></details>
+      <details class="fold"><summary><span class="fk">Read</span><span class="ft">Which organisms can you sample with a quadrat?</span></summary><div class="fold-in">
+        <p>Quadrats work for <button class="term" data-t="sessile">sessile</button> organisms, which stay fixed to the rock: barnacles and seaweeds. They also work for slow-moving animals at low tide: limpets clamp to the rock until the sea returns.</p>
+        <p>Crabs, shrimps and fish move away from you. Estimate the size of a population of <button class="term" data-t="motile">motile</button> animals with capture–mark–release–recapture and the Lincoln index (C4.1.4).</p>
+      </div></details>
+      <details class="fold"><summary><span class="fk">Read</span><span class="ft">Percentage cover or a count?</span></summary><div class="fold-in">
+        <p><b>Percentage cover</b>: for organisms you cannot count one by one, such as a sheet of seaweed or a crowd of barnacles.</p>
+        <p><b>A count</b> (the <button class="term" data-t="abundance">abundance</button>): for individuals you can see separately, such as limpets.</p>
+        <p class="note">Some field guides use the ACFOR scale (abundant, common, frequent, occasional, rare). These are ranks, not measurements.</p>
+      </div></details>
+      <details class="fold"><summary><span class="fk">Check</span><span class="ft">Check yourself</span></summary><div class="fold-in">
+        <div class="quiz" data-quiz="q2"></div>
+      </div></details>
+      <details class="fold"><summary><span class="fk">Practise</span><span class="ft">Fill the gaps</span></summary><div class="fold-in">
+        <div class="practice" data-p="gap2"></div>
+      </div></details>
+    </section>
+
+    <!-- 3 ------------------------------------------------------------------ -->
+    <section class="part" id="part-3" role="tabpanel" aria-labelledby="tab-3" data-mode="transect" data-pin>
+      <h2>Record the transect</h2>
+      <p class="sub">About 10 minutes. An interrupted belt transect: 11 quadrats, 1 m apart, from the top of the shore (0 m) to near the sea (10 m). <u>Estimate at least four quadrats yourself</u> (for example 0, 3, 7 and 10 m), then press <b>Fill the empty rows with our counts</b>.</p>
+      <ol>
+        <li>Press a quadrat's number: beside the yellow tape on the photograph, or in the row below. Its quadrat opens.</li>
+        <li>Estimate the percentage cover of each species. The quadrat is 0.5 m × 0.5 m and divided into 100 small squares. <u>Count the squares that are at least half covered</u>: each one is 1 %.</li>
+        <li>Press <b>Lift the seaweed</b>. Barnacles and limpets often live under seaweed. Estimate the barnacle cover and count the limpets with the seaweed lifted.</li>
+        <li>The rock temperature is read from a temperature probe on the rock.</li>
+      </ol>
+      <div class="qpick" id="t-pick" role="group" aria-label="Open a quadrat"></div>
+      <div class="box amber">
+        <div class="k">Two things that surprise people</div>
+        <p>The covers in one quadrat can add up to <u>more than 100 %</u>: seaweed lies on top of barnacles.</p>
+        <p>Two people estimating the same quadrat often differ by 5–10 %. On the shore, the same person should estimate the cover in every quadrat, so that the estimates are consistent.</p>
+      </div>
+      <div class="tablewrap"><table class="data" id="t-table"></table></div>
+      <button class="btn" id="t-copy">Copy the table for Google Sheets</button>
+      <button class="btn ghost" id="t-csv">Download as CSV</button>
+      <button class="btn ghost" id="t-fill">Fill the empty rows with our counts</button>
+      <button class="btn ghost" id="t-clear">Clear my data</button>
+      <p class="note" id="t-msg" aria-live="polite"></p>
+      <p class="note">Your entries stay in this browser only. Nothing is sent anywhere.</p>
+    </section>
+
+    <!-- 4 ------------------------------------------------------------------ -->
+    <section class="part" id="part-4" role="tabpanel" aria-labelledby="tab-4" data-mode="random" data-pin>
+      <h2>Random quadrats in one area</h2>
+      <p class="sub">About 5 minutes. The red square on the photograph is a 5 m × 5 m area inside the middle shore. Sample it with 30 random quadrats, and record whether limpets and sea lettuce are present in each one. <u>Record at least ten yourself</u>, then press <b>Fill the rest with our records</b>.</p>
+      <div class="box">
+        <div class="k">How to choose a random position</div>
+        <p>The area is a grid of 10 × 10 squares, each 0.5 m × 0.5 m. Two random numbers from 0 to 9 give one square: the first counts across, the second counts down. In Google Sheets, <kbd>=RANDBETWEEN(0,9)</kbd> gives a random whole number from 0 to 9. If a square appears twice, or more than half of it is in a rock pool, take new numbers.</p>
+      </div>
+      <p><button class="btn" id="r-next">Next random quadrat</button> <button class="btn ghost" id="r-fill">Fill the rest with our records</button> <button class="btn ghost" id="r-clear">Start again</button></p>
+      <p id="r-status" aria-live="polite"></p>
+      <h3>Number of quadrats in each group</h3>
+      <div class="tablewrap"><table class="data" id="r-two"></table></div>
+      <p class="note">For chi-squared you only need to know whether each species is in the quadrat or not. Present and absent are categories, so the test counts categories: it is not about how many limpets there are.</p>
+      <button class="btn ghost" id="r-csv">Download all 30 quadrats as CSV</button>
+      <details class="box"><summary>All the quadrats you have recorded</summary><div class="tablewrap"><table class="data" id="r-table"></table></div></details>
+    </section>
+
+    <!-- 5 ------------------------------------------------------------------ -->
+    <section class="part" id="part-5" role="tabpanel" aria-labelledby="tab-5" data-mode="random">
+      <h2>Test for an association: chi-squared</h2>
+      <p class="sub">About 7 minutes. C4.1.15 · Are limpets and sea lettuce found together more often, or less often, than chance would give?</p>
+      <p class="note" id="c-source"></p>
+      <div class="steps" id="c-steps"></div>
+      <div class="stepbody" id="c-body" aria-live="polite"></div>
+      <p><button class="btn ghost" id="c-prev">Back</button> <button class="btn" id="c-next">Next step</button></p>
+    </section>
+
+    <!-- 6 ------------------------------------------------------------------ -->
+    <section class="part" id="part-6" role="tabpanel" aria-labelledby="tab-6" data-mode="transect">
+      <h2>Correlate a species with an abiotic variable</h2>
+      <p class="sub">About 7 minutes. B4.1.4 · Does the percentage cover of a species change with the rock temperature along the transect?</p>
+      <p class="note" id="k-source"></p>
+      <div class="choices" id="k-choices">
+        <button data-sp="barn" aria-pressed="true">Barnacles</button>
+        <button data-sp="brown" aria-pressed="false">Brown seaweed</button>
+        <button data-sp="green" aria-pressed="false">Sea lettuce</button>
+        <button data-sp="limp" aria-pressed="false">Limpets</button>
+      </div>
+      <svg class="chart" id="k-chart" viewBox="0 0 560 340" role="img" aria-label="Scatter graph"></svg>
+      <div class="box" id="k-text" aria-live="polite"></div>
+      <h3>The whole transect: a kite diagram</h3>
+      <svg class="chart" id="kite" viewBox="0 0 560 300" role="img" aria-label="Kite diagram of the transect"></svg>
+      <p class="note">The width of each kite at a distance shows the percentage cover there. The bar at the right shows 100&nbsp;%.</p>
+      <details class="fold"><summary><span class="fk">Sheets</span><span class="ft">Do it in Google Sheets</span></summary><div class="fold-in">
+        <ol>
+          <li>Paste your transect table (part 3, <b>Copy the table for Google Sheets</b>) into cell A1 of a new sheet.</li>
+          <li>Select the temperature column and one species column. Hold <kbd>Ctrl</kbd> (<kbd>⌘</kbd> on a Mac) to select two columns that are not next to each other.</li>
+          <li><b>Insert ▸ Chart</b>. In the Chart editor, <b>Setup ▸ Chart type ▸ Scatter chart</b>. The abiotic variable must be on the x-axis.</li>
+          <li><b>Customise ▸ Series</b>: tick <b>Trendline</b>, set <b>Label</b> to <b>Use equation</b>, and tick <b>Show R²</b>.</li>
+          <li>In an empty cell type <kbd>=CORREL(B2:B12, C2:C12)</kbd>. Change the ranges to your two columns. This gives Pearson's r.</li>
+          <li>Compare the size of r (ignore the sign) with the critical value for your number of quadrats in the table below.</li>
+        </ol>
+        <p class="note">If your Google account is in Korean, the menus are in Korean: 삽입 ▸ 차트; 차트 유형 ▸ 분산형 차트; 맞춤설정 ▸ 계열 ▸ 추세선. The function names (CORREL, CHISQ.TEST) stay in English.</p>
+      </div></details>
+      <details class="fold"><summary><span class="fk">Table</span><span class="ft">Critical values of Pearson's r</span></summary><div class="fold-in">
+      <div class="tablewrap"><table class="data" id="crit-r"></table></div>
+      <p class="note">Critical values of Pearson's r at p = 0.05 (two-tailed). If your r is further from 0 than the critical value, the correlation is significant.</p>
+      </div></details>
+    </section>
+
+    <!-- 7 ------------------------------------------------------------------ -->
+    <section class="part" id="part-7" role="tabpanel" aria-labelledby="tab-7" data-mode="transect">
+      <h2>Write about your data</h2>
+      <p class="sub">About 8 minutes. Exam answers about data use the same sentence patterns again and again. Build each sentence by choosing the right words, then press <b>Check</b>. The numbers come from your tables in parts 3 and 4.</p>
+      <div class="practice" data-p="frames"></div>
+      <div class="practice" data-p="write"></div>
+      <details class="fold"><summary><span class="fk">Words</span><span class="ft">Useful words for data</span></summary><div class="fold-in">
+        <ul>
+          <li><b>Trend:</b> increases, decreases, rises steeply, falls gradually, stays constant, reaches a peak at …</li>
+          <li><b>Strength:</b> a strong / moderate / weak positive / negative correlation; no correlation</li>
+          <li><b>Comparing:</b> higher than, lower than, whereas, both, similarly, in contrast</li>
+          <li><b>Evidence:</b> r = …, p &lt; 0.05, χ² = … (greater than the critical value of …)</li>
+          <li><b>Careful claims:</b> suggests, may, is associated with, is correlated with (not "proves")</li>
+        </ul>
+      </div></details>
+    </section>
+
+    <!-- 8 ------------------------------------------------------------------ -->
+    <section class="part" id="part-8" role="tabpanel" aria-labelledby="tab-8" data-mode="random">
+      <h2>Challenge</h2>
+      <p class="sub">For any time you have left, and for anyone who wants a harder challenge. Use a calculator or Google Sheets. Give numbers to the precision asked.</p>
+      <p>On the shore, your team also counted the limpets in each of the 30 random quadrats:</p>
+      <p class="formula" id="limp-list"></p>
+      <div class="practice" data-p="challenge"></div>
+    </section>
+
+    <!-- 9 ------------------------------------------------------------------ -->
+    <section class="part" id="part-9" role="tabpanel" aria-labelledby="tab-9" data-mode="transect">
+      <h2>Extra: the same analysis in R</h2>
+      <p class="sub">For when you have finished parts 1–8. R is the free program many biologists use for their data. Follow the steps in RStudio, or in your browser on Learn R.</p>
+      <div class="box ib"><div class="k">No RStudio on your laptop?</div><p><a href="https://nlcsbiology.com/learn-r/ib.html">Learn R · Statistics in R</a> runs real R in your browser. Its chi-squared and correlation stages use the same commands as below.</p></div>
+      <div class="practice" data-p="rsteps"></div>
+      <a class="card" href="downloads/fieldwork.R" download><div class="t">fieldwork.R: every step in one file</div><div class="d">Save it in the same folder as your two CSV files (parts 3 and 4). In RStudio: Session ▸ Set Working Directory ▸ To Source File Location, then press Source. With no CSV files, it uses this page's data.</div></a>
+    </section>
+
+    <!-- 10 ----------------------------------------------------------------- -->
+    <section class="part" id="part-10" role="tabpanel" aria-labelledby="tab-10" data-mode="none">
+      <h2>Get ready for the shore</h2>
+      <p class="sub">Your teacher gives you real IB questions on transects and chi-squared to answer on paper, and then their IB mark scheme to mark your answers.</p>
+      <a class="card" href="downloads/fieldwork-recording-sheet.docx" download><div class="t">The recording sheet (Word)</div><div class="d">For the shore: one row for each quadrat, with the time, the rock temperature and each species. Print it, or copy its columns into your notebook.</div></a>
+      <a class="card" href="downloads/fieldwork-workbook.xlsx" download><div class="t">The workbook (opens in Google Sheets)</div><div class="d">Upload it to Google Drive and open it with Google Sheets. Yellow cells are for your data; chi-squared, r and R² are calculated for you, and every formula is shown so you can build it yourself.</div></a>
+      <h3>Bring</h3>
+      <ul class="check">
+        <li>A tape measure (at least 10 m) and a 0.5 m × 0.5 m quadrat divided into 100 squares</li>
+        <li>A temperature probe or thermometer, for the rock surface</li>
+        <li>A pencil and the recording sheet in a plastic bag (paper gets wet), or a phone with Google Sheets</li>
+        <li>A phone to photograph every quadrat: you can check your estimates later</li>
+        <li>Shoes with a good grip, a hat, sun cream and water</li>
+      </ul>
+      <h3>Record</h3>
+      <ul>
+        <li>The distance along the tape for every quadrat, and the time.</li>
+        <li>The percentage cover of each sessile species, and the number of limpets, with the seaweed lifted.</li>
+        <li>The abiotic variable at every quadrat (rock temperature), with its unit. Measure every quadrat within a short time: the rock heats up during the low tide.</li>
+        <li>Anything unusual: a rock pool, sand, a quadrat you could not reach.</li>
+      </ul>
+      <div class="box amber">
+        <div class="k">Safety</div>
+        <ul>
+          <li>Check the tide time. Start as the tide goes out and finish before it comes back in.</li>
+          <li>Wet rock and seaweed are slippery. Walk; do not run or jump between rocks.</li>
+          <li>Never turn your back to the sea. Stay with your group and within sight of your teacher.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <div class="k">Care for the shore</div>
+        <p>Turn every rock back the way it was. Do not pull limpets off the rock: their muscle is easily damaged and they may not reattach. Leave every organism where you found it.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog class="quad" id="quad" aria-labelledby="quad-title">
+  <div class="quad-in">
+    <div class="quad-img"><img id="quad-img" alt=""><span class="tag" id="quad-tag"></span></div>
+    <div>
+      <button class="close-x" id="quad-close" aria-label="Close">×</button>
+      <h2 id="quad-title"></h2>
+      <p class="note" id="quad-sub"></p>
+      <p><button class="btn ghost" id="quad-lift" aria-pressed="false">Lift the seaweed</button></p>
+      <form id="quad-form" autocomplete="off"></form>
+      <p id="quad-msg" aria-live="polite"></p>
+      <p><button class="btn" id="quad-check">Check</button> <button class="btn ghost" id="quad-nextq">Next quadrat</button></p>
+    </div>
+  </div>
+</dialog>
+
+<footer>
+  Something wrong, or a suggestion? Please contact me: <a href="mailto:dmompelriera@nlcsjeju.kr">dmompelriera@nlcsjeju.kr</a>.<br>
+  Checked against the IB Biology guide (first assessment 2025): B4.1.4, C4.1.3, C4.1.4, C4.1.15, B4.2.12–13.<br>
+  Pictures: <span id="credits"></span>. The tape, the quadrats and all the data are a simulation made for this page.<br>
+  Code: AGPL-3.0 · Teaching material: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> — free for teaching, not for selling. Pictures keep their own licences.
+</footer>
+
+<script src="js/shore-data.js?v=15"></script>
+<script src="js/app.js?v=15"></script>
+<script src="js/practice.js?v=15"></script>
+</body>
+</html>
