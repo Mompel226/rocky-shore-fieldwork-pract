@@ -11,8 +11,8 @@ shore at low tide, with a 10 m transect and a 5 m × 5 m random-quadrat area dra
 opens as a close-up whose seaweed patches follow the photograph at that spot; they estimate percentage
 cover, lift the seaweed, count limpets, and then analyse their own numbers: a chi-squared test for
 association (limpets and sea lettuce), Pearson correlation with rock temperature (three species, three
-lessons: a straight line, a curve, a hump), a kite diagram, sentence frames for writing about data, harder
-challenge questions (including the Lincoln index) and an R extension. Parts 1–7 take about 45 minutes; part 8
+lessons: a straight line, a curve, a hump), a kite diagram, sentence frames for writing about data (every word and number typed, never chosen), harder
+challenge questions (including the Lincoln index) and an R extension. Parts 1–7 take about 50 minutes; part 8
 fills any time left; then about 20 minutes of real IB questions on paper, which the teacher hands out
 (IB copyright, so they are not in this repository).
 

@@ -477,30 +477,53 @@
   }
 
   /* ---------------- quick checks ---------------- */
+  // Options are shown in a fixed shuffled order, so the right answer is never always first.
+  const shuffle = (a, seed) => { const b = a.slice(); let s = seed || 7; for (let i = b.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+  // Multiple choice: a wrong choice says only "not this one"; the reason appears with the right answer (effort first).
+  function mcq(d, it, seed) {
+    const out = h('p', { 'aria-live': 'polite' });
+    // the wrong options in a shuffled order, the right one at a position that changes from question to question
+    const opts = shuffle(it.a.map((txt, i) => [txt, i]).filter(([, i]) => i !== it.c), seed);
+    opts.splice((seed * 7 + 3) % it.a.length, 0, [it.a[it.c], it.c]);
+    opts.forEach(([txt, i]) => {
+      const b = h('button', { class: 'btn ghost', type: 'button' }, txt);
+      b.addEventListener('click', () => {
+        b.classList.add(i === it.c ? 'chosen-right' : 'chosen-wrong');
+        out.innerHTML = i === it.c ? '<span class="ok">✓ Correct.</span> ' + it.why : '<span class="bad">✗ Not this one.</span> Think again, then try another answer.';
+      });
+      d.appendChild(b);
+    });
+    d.appendChild(out);
+  }
   const QUIZ = {
-    q1: [{ q: 'Why is the rock on the upper shore hotter and drier at low tide?', a: ['It is out of the water for longer at each low tide.', 'It is closer to the land, which is always warmer.', 'Barnacles produce heat.'], c: 0,
-      why: 'Higher on the shore, the sea covers the rock for less of each day, so the rock is exposed to the sun and the air for longer.' },
-    { q: 'Barnacle B can live on the whole middle shore in an experiment with no other barnacles, but on the real shore it lives only in the top half. The top half is its…', a: ['realized niche', 'fundamental niche', 'range of tolerance'], c: 0,
-      why: 'Where it actually lives, with competitors present, is its realized niche. The whole middle shore is its fundamental niche.' }],
-    q2: [{ q: 'You want to know how seaweed cover changes from the sea to the top of the shore. Which method?', a: ['A belt transect', 'Random quadrats', 'Capture–mark–release–recapture'], c: 0,
-      why: 'Conditions change along a gradient from the sea to the land, so sample systematically along a transect.' },
-    { q: 'Which organism is NOT suitable for sampling with a quadrat?', a: ['A shore crab', 'A barnacle', 'Sea lettuce'], c: 0,
-      why: 'Crabs are motile: they move away. Barnacles and seaweeds are sessile.' },
-    { q: 'How many quadrats does an interrupted belt transect need on a 10 m tape, with a quadrat every 2 m?', a: ['6', '5', '20'], c: 0,
-      why: 'Quadrats at 0, 2, 4, 6, 8 and 10 m: 6 quadrats. Remember the one at 0 m.' }]
+    q1: [{ q: 'Barnacle X lives only on the upper shore. When barnacle Y is removed from the middle shore, X extends down into the middle shore, but X never extends into the lower shore. Which conclusion is best supported?',
+      a: ['The fundamental niche of X includes the middle shore; competition with Y restricts its realized niche to the upper shore.', 'The fundamental niche of X is the upper shore only.', 'X is absent from the lower shore because of desiccation.', 'The realized niche of X is larger than its fundamental niche.'], c: 0,
+      why: 'X can live on the middle shore when Y is absent, so the middle shore is inside its fundamental niche. With Y present, X is restricted to the upper shore: its realized niche. Something else (another species, or an abiotic variable) excludes X from the lower shore, but it cannot be desiccation: the lower shore is the wettest part.' },
+    { q: 'Along the transect, sea lettuce is absent from the top 2 m and from the bottom 3 m. Which pair of explanations is most consistent with B4.1.4 and B4.2.12?',
+      a: ['Top: outside its range of tolerance for desiccation. Bottom: competition, for example with brown seaweed.', 'Top: competition with brown seaweed. Bottom: desiccation.', 'Both ends: grazing by limpets only.', 'Both ends: the rock temperature is outside its range of tolerance.'], c: 0,
+      why: 'The upper limit of a species is usually set by an abiotic variable (drying out high on the shore); the lower limit is often set by biotic interactions, such as competition with the brown seaweed that covers the lower shore.' },
+    { q: 'At low tide the rock on the upper shore reaches 34 °C. A seaweed survives rock temperatures from 5 °C to 30 °C. Which prediction is best supported?',
+      a: ['Its upper limit on the shore is set by an abiotic variable: it can grow only where the rock stays below about 30 °C.', 'It would grow on the upper shore if there were no limpets there.', 'Its realized niche reaches higher on the shore than its fundamental niche.', 'It would survive at 34 °C if competitors were removed.'], c: 0,
+      why: '34 °C is outside its range of tolerance, so removing competitors or grazers cannot make the upper shore part of its niche. A realized niche is never larger than the fundamental niche.' }],
+    q2: [{ q: 'To save time, a student places quadrats only where seaweed is growing. What is the main effect on the estimate of mean seaweed cover for the area?',
+      a: ['It is biased upwards: the quadrats are not a random sample of the area.', 'It is less precise, but not biased.', 'It cannot be calculated, because percentage cover needs a continuous belt transect.', 'It is unaffected, because every quadrat has 100 squares.'], c: 0,
+      why: 'Choosing "interesting" spots is bias: bare rock is never sampled, so the mean cover is too high. Random positions give every point an equal chance.' },
+    { q: 'A 20 m interrupted belt transect has a quadrat every 2 m, starting at 0 m, and each quadrat takes 3 minutes to record. How long does the recording take, and how many 0.5 m quadrats would a continuous belt transect of the same tape need?',
+      a: ['33 minutes; 40 quadrats', '30 minutes; 40 quadrats', '33 minutes; 20 quadrats', '30 minutes; 20 quadrats'], c: 0,
+      why: 'Quadrats at 0, 2, 4 … 20 m: 11 quadrats, 11 × 3 = 33 minutes (remember the one at 0 m). A continuous belt needs 20 ÷ 0.5 = 40 quadrats.' },
+    { q: 'Why is percentage cover not a good way to estimate the population density of limpets?',
+      a: ['Limpets are separate individuals that can be counted, and density is a number of individuals per unit area.', 'Limpets move too fast to be inside a quadrat.', 'Percentage cover can be used only on a continuous belt transect.', 'A limpet is smaller than one small square of the quadrat.'], c: 0,
+      why: 'Cover measures area, not the number of individuals. Count the limpets and divide by the area sampled (per m²).' },
+    { q: 'In a capture–mark–release–recapture study of shore crabs, which of these would make the Lincoln index estimate of the population too HIGH?',
+      a: ['Some crabs lose their marks before the second sample.', 'Marked crabs are easier to catch than unmarked crabs.', 'The second sample is larger than the first.', 'No crabs are born or die between the two samples.'], c: 0,
+      why: 'Population ≈ (number marked × number in the second sample) ÷ number marked in the second sample. Lost marks make the last number too small, so the estimate is too large. Marked crabs that are easier to catch make it too small.' }]
   };
   $$('.quiz').forEach(box => {
     const set = QUIZ[box.dataset.quiz]; if (!set) return;
     box.innerHTML = '<h3>Check yourself</h3>';
     set.forEach((it, n) => {
       const d = h('div', { class: 'box' }); d.innerHTML = `<p><b>${n + 1}.</b> ${it.q}</p>`;
-      const out = h('p', { 'aria-live': 'polite' });
-      it.a.forEach((txt, i) => {
-        const b = h('button', { class: 'btn ghost', type: 'button' }, txt);
-        b.addEventListener('click', () => { out.innerHTML = (i === it.c ? '<span class="ok">✓ Correct.</span> ' : '<span class="bad">✗ Not this one.</span> ') + it.why; });
-        d.appendChild(b);
-      });
-      d.appendChild(out); box.appendChild(d);
+      mcq(d, it, 11 + n * 7 + box.dataset.quiz.length); box.appendChild(d);
     });
   });
 
@@ -540,7 +563,7 @@
   window.addEventListener('resize', stageH);
   if (PHONE.addEventListener) PHONE.addEventListener('change', () => { const n = +((/#part-(\d+)/.exec(location.hash) || [0, 1])[1]); if ($('#part-' + n).dataset.mode === 'transect') drawTransect(); });
   $('#credits').innerHTML = D.credits.map(c => `${c.what}: ${c.who}, <a href="${c.url}" target="_blank" rel="noopener">${c.licence}</a>`).join(' · ');
-  window.ShoreApp = { series, chi, pearson, ranks, fmt, store, h };
+  window.ShoreApp = { series, chi, pearson, ranks, fmt, store, h, mcq };
   tableT(); tableR();
   const m0 = /#part-(\d+)/.exec(location.hash);
   show(m0 ? +m0[1] : 1, true);

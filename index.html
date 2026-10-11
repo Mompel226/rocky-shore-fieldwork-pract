@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Spectral:ital,wght@0,600;1,400&display=swap">
-<link rel="stylesheet" href="css/app.css?v=15">
+<link rel="stylesheet" href="css/app.css?v=17">
 <!-- Bright or dark: the reader's choice for the whole site (biology.theme), else the computer's setting. Set before
      the first paint so the page never flashes the other version. -->
 <script>(function () { try { var t = localStorage.getItem('biology.theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();</script>
@@ -20,7 +20,7 @@
   <div class="eyebrow">IB Biology · B4.1.4 · C4.1.3 · C4.1.15 · B4.2.12</div>
   <h1>Rocky shore fieldwork</h1>
   <p class="by">Practise the field trip on a virtual shore, then analyse the data in Google Sheets or R · <a class="by-me" href="https://github.com/Mompel226" target="_blank" rel="noopener">Dr Daniel Mompel Riera</a></p>
-  <p class="note">Parts 1–7 take about 45 minutes: each part says how long. Part 8 is for any time you have left, part 9 (R) is extra, and part 10 gets you ready for the shore.</p>
+  <p class="note">Parts 1–7 take about 50 minutes: each part says how long. Part 8 is for any time you have left, part 9 (R) is extra, and part 10 gets you ready for the shore.</p>
 </div>
 
 <div class="layout">
@@ -49,7 +49,7 @@
     <!-- 1 ------------------------------------------------------------------ -->
     <section class="part open" id="part-1" role="tabpanel" aria-labelledby="tab-1" data-mode="zones" data-pin>
       <h2>Read the shore from above</h2>
-      <p class="sub">About 5 minutes. A drone took this photograph from straight above a rocky shore at low tide. The sea is at the top; the land is at the bottom.</p>
+      <p class="sub">About 7 minutes. A drone took this photograph from straight above a rocky shore at low tide. The sea is at the top; the land is at the bottom.</p>
       <p>Different organisms live in different bands across the shore. This pattern is called <button class="term" data-t="zonation">zonation</button>. Press each band to see it on the photograph.</p>
       <div class="choices" id="zone-choices">
         <button data-zone="upper" aria-pressed="true">Upper shore<small>pale rock</small></button>
@@ -97,7 +97,7 @@
       <details class="fold"><summary><span class="fk">Check</span><span class="ft">Check yourself</span></summary><div class="fold-in">
         <div class="quiz" data-quiz="q1"></div>
       </div></details>
-      <details class="fold"><summary><span class="fk">Practise</span><span class="ft">Practise the words</span></summary><div class="fold-in">
+      <details class="fold"><summary><span class="fk">Type</span><span class="ft">Type the words</span></summary><div class="fold-in">
         <div class="practice" data-p="match1"></div>
       </div></details>
     </section>
@@ -105,7 +105,7 @@
     <!-- 2 ------------------------------------------------------------------ -->
     <section class="part" id="part-2" role="tabpanel" aria-labelledby="tab-2" data-mode="method" data-pin>
       <h2>Choose a sampling method</h2>
-      <p class="sub">About 5 minutes. You cannot count every organism on a shore, so you take samples. Press each method to see it on the photograph.</p>
+      <p class="sub">About 7 minutes. You cannot count every organism on a shore, so you take samples. Press each method to see it on the photograph.</p>
       <div class="choices" id="method-choices">
         <button data-m="line" aria-pressed="true">Line transect<small>a tape, points along it</small></button>
         <button data-m="cont" aria-pressed="false">Belt transect: continuous<small>quadrats side by side</small></button>
@@ -130,7 +130,7 @@
       <details class="fold"><summary><span class="fk">Check</span><span class="ft">Check yourself</span></summary><div class="fold-in">
         <div class="quiz" data-quiz="q2"></div>
       </div></details>
-      <details class="fold"><summary><span class="fk">Practise</span><span class="ft">Fill the gaps</span></summary><div class="fold-in">
+      <details class="fold"><summary><span class="fk">Type</span><span class="ft">Fill the gaps</span></summary><div class="fold-in">
         <div class="practice" data-p="gap2"></div>
       </div></details>
     </section>
@@ -223,7 +223,7 @@
     <!-- 7 ------------------------------------------------------------------ -->
     <section class="part" id="part-7" role="tabpanel" aria-labelledby="tab-7" data-mode="transect">
       <h2>Write about your data</h2>
-      <p class="sub">About 8 minutes. Exam answers about data use the same sentence patterns again and again. Build each sentence by choosing the right words, then press <b>Check</b>. The numbers come from your tables in parts 3 and 4.</p>
+      <p class="sub">About 10 minutes. Exam answers about data use the same sentence patterns again and again. Type the missing word or number in each gap, then press <b>Check</b>. Spelling counts. The numbers come from your tables in parts 3 and 4.</p>
       <div class="practice" data-p="frames"></div>
       <div class="practice" data-p="write"></div>
       <details class="fold"><summary><span class="fk">Words</span><span class="ft">Useful words for data</span></summary><div class="fold-in">
@@ -314,8 +314,8 @@
   Code: AGPL-3.0 · Teaching material: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> — free for teaching, not for selling. Pictures keep their own licences.
 </footer>
 
-<script src="js/shore-data.js?v=15"></script>
-<script src="js/app.js?v=15"></script>
-<script src="js/practice.js?v=15"></script>
+<script src="js/shore-data.js?v=17"></script>
+<script src="js/app.js?v=17"></script>
+<script src="js/practice.js?v=17"></script>
 </body>
 </html>

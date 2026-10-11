@@ -186,9 +186,14 @@ a.card .d{font-size:14px;color:var(--ink2);margin-top:3px}
 .check li::before{content:"";position:absolute;left:2px;top:5px;width:13px;height:13px;border:2px solid var(--sea);border-radius:3px}
 
 /* practice: gaps, frames, answers */
-select.gap{font:600 14.5px/1.2 var(--sans);color:var(--ink);background:var(--paper);border:1.5px solid var(--sea);border-radius:7px;padding:4px 6px;margin:2px 2px;max-width:100%}
-select.gap.right{border-color:var(--ok);background:var(--ok-soft)}
-select.gap.wrong{border-color:var(--bad);background:var(--bad-soft)}
+input.gapin{font:600 14.5px/1.2 var(--sans);color:var(--ink);background:var(--paper);border:1.5px solid var(--sea);border-radius:7px;padding:4px 7px;margin:2px 2px;max-width:100%;width:auto}
+input.gapin:focus{outline:2px solid var(--sea);outline-offset:1px}
+input.gapin.right{border-color:var(--ok);background:var(--ok-soft)}
+input.gapin.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.ans{font:600 13px/1.2 var(--sans);color:var(--ok);margin:0 4px}
+.ans::before{content:'→ '}
+.btn.ghost.chosen-wrong{border-color:var(--bad);color:var(--bad)}
+.btn.ghost.chosen-right{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
 .mrow{margin:9px 0;line-height:2.1}
 .frame-s{line-height:2.25;font-size:15.5px}
 .box.frame{background:var(--paper)}
