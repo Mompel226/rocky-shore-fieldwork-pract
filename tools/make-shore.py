@@ -31,17 +31,21 @@ WATER = binary_dilation(WATER, iterations=4).astype(float)
 CROP = (int(.55 * AW), int(.40 * AH), int(.95 * AW), AH)        # the part of the photo shown on the page
 
 # ---------- shapes: a smooth patch, its outline as an SVG path, and the grid count of what is drawn
-def cells(m):
-    """the fraction of each of the 100 small squares (inside the frame) that a mask covers"""
-    return m[M:M + S, M:M + S].reshape(10, S // 10, 10, S // 10).mean(axis=(1, 3))
-def count(m): return int((cells(m) >= .5).sum())
+def cells(m, n=10):
+    """the fraction of each of the n x n squares inside the frame that a mask covers"""
+    return m[M:M + S, M:M + S].reshape(n, S // n, n, S // n).mean(axis=(1, 3))
+def count(m, n=10): return int((cells(m, n) >= .5).sum())
+G = 5               # a transect quadrat is strung 5 x 5, as many school quadrats are: each square 4 % (12 Oct 2026)
 def outline(mask):
     """the mask's edge as closed polygons (holes included), smoothed a little"""
     f = gaussian_filter(np.pad(mask.astype(float), 2), 1.5)
     polys = []
     for c in find_contours(f, .5):
         c = approximate_polygon(c - 2, tolerance=1.6)
-        if len(c) >= 4: polys.append([(float(x), float(y)) for y, x in c])
+        if len(c) < 4: continue
+        x, y = c[:, 1], c[:, 0]
+        if abs(np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1))) / 2 < 900: continue     # no specks under 1.5 cm across
+        polys.append([(float(x_), float(y_)) for y_, x_ in c])
     return polys
 def drawn(polys):
     """what the outline covers when drawn with the even-odd rule: the mask the count is taken from"""
@@ -70,6 +74,33 @@ def patch(target, sigma, rng, bias=None, keep_out=None, under=None):
             if g == target: return polys, m
             lo, hi = (mid, hi) if g > target else (lo, mid)
     raise SystemExit(f"no patch of exactly {target} squares")
+
+LO, HI = .3, .7     # a square a pupil must press is at least 70 % covered; any other square at most 30 % (12 Oct 2026)
+def clear_squares(frac, chosen):
+    """True when every chosen square is clearly covered and every other square clearly not"""
+    return bool((frac[chosen] >= HI).all() and (frac[~chosen] <= LO).all())
+def cell_patch(target, rng, bias=None, allowed=None, under=None):
+    """A patch for a TRANSECT quadrat, where pupils press the squares at least half covered (Daniel, 12 Oct 2026: "make
+    sure that it is very, very clear when a square is half covered … for all of the species"). `target` squares are
+    chosen (clustered, following the drone photo where `bias` is given, only where `allowed`); the outline follows them
+    with soft, wavy edges, and is kept only if each chosen square is at least 70 % covered and each other square at
+    most 30 % (seen from above: minus `under`, the sea lettuce lying over it). Returns (polygons, mask)."""
+    if target <= 0: return [], np.zeros((C, C))
+    hide = under if under is not None else np.zeros((C, C))
+    for attempt in range(400):
+        sc = gaussian_filter(rng.normal(size=(G, G)), .8); sc = (sc - sc.mean()) / sc.std()
+        if bias is not None and bias.std() > .02: b = cells(bias, G); sc = sc + 1.2 * (b - b.mean()) / (b.std() + 1e-9)
+        if allowed is not None: sc = np.where(allowed, sc, -99)
+        order = np.argsort(-sc.ravel()); chosen = np.zeros(G * G, bool); chosen[order[:target]] = True; chosen = chosen.reshape(G, G)
+        if allowed is not None and not (chosen <= allowed).all(): raise SystemExit("not enough room for the patch")
+        I = np.kron(chosen.astype(float), np.ones((S // G, S // G)))
+        I = np.pad(I, M, mode="edge")                                   # the patch carries on under the frame and beyond
+        amp = .16 if attempt < 200 else .10
+        n = gaussian_filter(rng.normal(size=(C, C)), 20); n = n / n.std() * amp
+        f = gaussian_filter(I, 22) + n
+        polys = outline(f > .5); m = drawn(polys)
+        if clear_squares(cells(m * (1 - hide), G), chosen): return polys, m
+    raise SystemExit(f"no clear patch of {target} squares")
 
 # ---------- the drawings, in one field-guide style: muted natural colours, a thin dark outline, one highlight
 def _limpet_symbol():
@@ -161,16 +192,18 @@ def svg(body, title):
 # ---------- the transect: 10 m from the top of the shore (0 m) to the water's edge, a quadrat every 1 m
 X = int(.70 * AW); Y0 = int(.965 * AH)
 TEMP = [33.6, 32.9, 31.4, 31.0, 29.4, 28.9, 27.7, 26.9, 25.6, 25.0, 24.2]      # rock-surface temperature at low tide / °C
-BARN_T = [56, 50, 45, 30, 34, 20, 24, 10, 13, 5, 1]                            # barnacle cover with the seaweed lifted
-GREEN_T = [0, 0, 89, 89, 100, 100, 100, 29, 0, 0, 0]                           # sea lettuce cover
-BROWN_T = [2, 6, 0, 0, 0, 0, 0, 26, 64, 84, 85]                                # brown seaweed cover, as seen from above
-def flags(m): return "".join("1" if v >= .5 else "0" for v in cells(m).ravel())
+BARN_T = [14, 13, 11, 8, 8, 5, 6, 3, 3, 1, 0]          # barnacle squares (of 25) with the seaweed lifted: x 4 = % cover
+GREEN_T = [0, 0, 22, 22, 25, 25, 25, 7, 0, 0, 0]        # sea lettuce squares
+BROWN_T = [1, 0, 0, 0, 0, 0, 0, 7, 16, 21, 21]          # brown seaweed squares, as seen from above (Spearman's rho
+#   -0.71, clearly significant: [1, 1, …] gave -0.613 against a critical value of 0.618, with R's p = 0.045)
+def flags(m): return "".join("1" if v >= .5 else "0" for v in cells(m, G).ravel())
 stations = []
 for k in range(11):
     rng = np.random.default_rng(3000 + k); cx, cy = X, Y0 - k * PX
-    pb, mb = patch(BARN_T[k], 34, rng)
-    pg, mg = patch(GREEN_T[k], 42, rng, aerial_bias(GREEN, cx, cy))
-    pr, mr = patch(BROWN_T[k], 40, rng, aerial_bias(BROWN, cx, cy), under=mg if GREEN_T[k] else None)
+    pb, mb = cell_patch(BARN_T[k], rng)
+    pg, mg = cell_patch(GREEN_T[k], rng, aerial_bias(GREEN, cx, cy))
+    free = cells(mg, G) <= .02                                              # brown seen from above only where no sea lettuce lies
+    pr, mr = cell_patch(BROWN_T[k], rng, aerial_bias(BROWN, cx, cy), allowed=free, under=mg)
     vis_r = mr * (1 - mg)
     body = ""
     if pb: body += '<g class="q-barn">' + barnacles(pb, mb, rng) + "</g>"
@@ -178,10 +211,12 @@ for k in range(11):
     if weed: body += f'<g class="q-weed">{weed}</g>'
     body += frame()
     open(f"{OUT}/quad/t{k:02d}.svg", "w").write(svg(body, f"Quadrat at {k} m"))
-    st = {"d": k, "temp": TEMP[k], "barn": count(mb), "green": count(mg), "brown": count(vis_r), "lifted": bool(pg or pr),
+    st = {"d": k, "temp": TEMP[k], "barn": 4 * count(mb, G), "green": 4 * count(mg, G), "brown": 4 * count(vis_r, G), "lifted": bool(pg or pr),
           "x": round((cx - CROP[0]) / (CROP[2] - CROP[0]), 4), "y": round((cy - CROP[1]) / (CROP[3] - CROP[1]), 4),
           "sq": {"barn": flags(mb), "green": flags(mg), "brown": flags(vis_r)}}
-    assert (st["barn"], st["green"], st["brown"]) == (BARN_T[k], GREEN_T[k], BROWN_T[k]), st
+    assert (st["barn"], st["green"], st["brown"]) == (4 * BARN_T[k], 4 * GREEN_T[k], 4 * BROWN_T[k]), st
+    for m_ in (mb, mg, vis_r):                                           # no square in between, for any species
+        fr = cells(m_, G); assert ((fr <= LO) | (fr >= HI)).all(), (k, fr[(fr > LO) & (fr < HI)])
     stations.append(st); print("station", k, st["barn"], st["green"], st["brown"])
 
 # ---------- random quadrats: a 5 m x 5 m area, 10 x 10 grid of 0.5 m squares; 30 random squares (a rock pool is skipped)
@@ -263,7 +298,7 @@ crop.save(f"{OUT}/shore.jpg", quality=86, optimize=True, progressive=True)
 area = {"x0": round((AX0 - CROP[0]) / (CROP[2] - CROP[0]), 4), "y0": round((AY0 - CROP[1]) / (CROP[3] - CROP[1]), 4),
         "w": round(500 / (CROP[2] - CROP[0]), 4), "h": round(500 / (CROP[3] - CROP[1]), 4), "metres": 5, "cells": 10}
 CREDITS = [("Drone photograph of the shore", "Boris Izmaylov", "Unsplash Licence", "https://unsplash.com/photos/vibrant-blue-ocean-meets-a-rocky-moss-covered-coastline-UFHcOip6GJA")]
-data = {"stations": stations, "random": rand, "area": area, "quad": {"canvas": C, "frame": M, "inside": S},
+data = {"stations": stations, "random": rand, "area": area, "quad": {"canvas": C, "frame": M, "inside": S, "grid": G},
         "credits": [{"what": a, "who": b, "licence": c, "url": d} for a, b, c, d in CREDITS]}
 open(f"{OUT}/shore-data.js", "w").write("/* The virtual shore: generated by tools/make-shore.py; do not edit by hand. */\nwindow.SHORE = " + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";\n")
 q = [r for r in rand if not r.get("skip")]

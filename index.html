@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Spectral:ital,wght@0,600;1,400&display=swap">
-<link rel="stylesheet" href="css/app.css?v=25">
+<link rel="stylesheet" href="css/app.css?v=26">
 <!-- Bright or dark: the reader's choice for the whole site (biology.theme), else the computer's setting. Set before
      the first paint so the page never flashes the other version. -->
 <script>(function () { try { var t = localStorage.getItem('biology.theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();</script>
@@ -21,7 +21,7 @@
   <div class="eyebrow">IB Biology · B4.1.4 · C4.1.3 · C4.1.15 · B4.2.12</div>
   <h1>Rocky shore fieldwork</h1>
   <p class="by">Practise the skills of the field trip on a practice shore, then analyse its data in Google Sheets or R · <a class="by-me" href="https://github.com/Mompel226" target="_blank" rel="noopener">Dr Daniel Mompel Riera</a></p>
-  <p class="note">Parts 1–7 take about 50 minutes: each part says how long. Part 8 is for any time you have left, part 9 (R) is extra, and part 10 is about your own field trip.</p>
+  <p class="note top-note">Parts 1–7: about 50 minutes. Part 8 for time left · part 9 (R) extra · part 10 your field trip.</p>
 </div>
 
 <nav class="partbar" id="partbar" aria-label="Parts of the practical">
@@ -68,6 +68,7 @@
     <section class="part open" id="part-1" role="tabpanel" aria-labelledby="tab-1" data-mode="zones" data-pin>
       <h2>Read the shore from above</h2>
       <p class="sub">About 7 minutes. A drone took this photograph from straight above a rocky shore at low tide. The sea is at the top; the land is at the bottom.</p>
+      <div class="task" data-task="1"><div><span class="task__k">Your task</span><p>Press each of the four bands on the photograph. Answer the two quick checks, then open <b>Check yourself</b> and <b>Type the words</b>.</p></div><span class="task__n" aria-live="polite"></span></div>
       <p>Different organisms live in different bands across the shore. This pattern is called <button class="term" data-t="zonation">zonation</button>. Press each band to see it on the photograph.</p>
       <div class="choices" id="zone-choices">
         <button data-zone="upper" aria-pressed="true">Upper shore<small>pale rock</small></button>
@@ -126,6 +127,7 @@
     <section class="part" id="part-2" role="tabpanel" aria-labelledby="tab-2" data-mode="method" data-pin>
       <h2>Choose a sampling method</h2>
       <p class="sub">About 7 minutes. You cannot count every organism on a shore, so you take samples. Press each method to see it on the photograph.</p>
+      <div class="task" data-task="2"><div><span class="task__k">Your task</span><p>Press each of the four methods. Answer the two quick checks, then open <b>Check yourself</b> and <b>Fill the gaps</b>.</p></div><span class="task__n" aria-live="polite"></span></div>
       <div class="choices" id="method-choices">
         <button data-m="line" aria-pressed="true">Line transect<small>a tape, points along it</small></button>
         <button data-m="cont" aria-pressed="false">Belt transect: continuous<small>quadrats side by side</small></button>
@@ -160,34 +162,34 @@
     <!-- 3 ------------------------------------------------------------------ -->
     <section class="part" id="part-3" role="tabpanel" aria-labelledby="tab-3" data-mode="transect" data-pin>
       <h2>Record the transect</h2>
-      <p class="sub">About 10 minutes. An interrupted belt transect: 11 quadrats, 1 m apart, from the top of the shore (0 m) to near the sea (10 m). In each quadrat you measure the <button class="term" data-t="cover">percentage cover</button> of three species. <u>Do at least four quadrats yourself</u> (for example 0, 3, 7 and 10 m), then press <b>Fill the empty rows with our counts</b>.</p>
+      <p class="sub">About 10 minutes. An interrupted belt transect: 11 quadrats, 1 m apart, from the top of the shore (0 m) to near the sea (10 m). In each quadrat you measure the <button class="term" data-t="cover">percentage cover</button> of three species.</p>
+      <div class="task" data-task="3"><div><span class="task__k">Your task</span><p>Record at least <b>4 quadrats</b> yourself, for example 0, 3, 7 and 10 m. Then press <b>Fill the empty rows with our counts</b>.</p></div><span class="task__n" aria-live="polite"></span></div>
       <ol>
         <li>Press a quadrat's number: beside the yellow tape on the photograph, or in the row below. Its quadrat opens, with a key to what is drawn in it.</li>
-        <li>The quadrat is 0.5 m × 0.5 m. The page lays a grid of 100 small squares over it. Choose a species, then press every square that is <u>at least half covered</u> by it. Each square is 1 %: the page adds them up.</li>
-        <li>Press <b>Lift the seaweed</b>: barnacles also grow under seaweed. Choose Barnacles and press their squares with the seaweed lifted.</li>
-        <li>Press <b>Check</b>. Within 5 % of our count is a good estimate; <b>Show our squares</b> lets you compare square by square. The rock temperature is read from a temperature probe on the rock.</li>
+        <li>The quadrat is 0.5 m × 0.5 m, strung into <b>25 squares</b>, so each square is <b>4 %</b> of it. For each species, count the squares that are <u>at least half covered</u> by it, then type its percentage cover: squares × 4.</li>
+        <li>Press <b>Lift the seaweed</b>: barnacles also grow under seaweed. Count their squares with the seaweed lifted.</li>
+        <li>Press <b>Check</b>. After a second wrong try, our count shows, and <b>Show our squares</b> lets you compare square by square. The rock temperature is read from a temperature probe on the rock.</li>
       </ol>
-      <div data-qc="p3-qc-1"></div>
       <div class="qpick" id="t-pick" role="group" aria-label="Open a quadrat"></div>
+      <div class="tablewrap"><table class="data" id="t-table"></table></div>
+      <p class="tbtns"><button class="btn ghost" id="t-fill">Fill the empty rows with our counts</button> <button class="btn" id="t-copy">Copy the table for Google Sheets</button></p>
+      <p class="tlinks"><button class="linkish" id="t-csv" type="button">Download as CSV</button> · <button class="linkish" id="t-clear" type="button">Clear my data</button></p>
+      <p class="note" id="t-msg" aria-live="polite"></p>
+      <p class="note">Your table stays in this browser. If you are signed in, each Check is also kept for your teacher.</p>
       <div class="box amber">
         <div class="k">Two things that surprise people</div>
         <p>The covers in one quadrat can add up to <u>more than 100 %</u>: seaweed lies on top of barnacles.</p>
         <p>Two people estimating the same quadrat often differ by 5–10 %. On the shore, the same person should estimate the cover in every quadrat, so that the estimates are consistent.</p>
       </div>
+      <div data-qc="p3-qc-1"></div>
       <div data-qc="p3-qc-2"></div>
-      <div class="tablewrap"><table class="data" id="t-table"></table></div>
-      <button class="btn" id="t-copy">Copy the table for Google Sheets</button>
-      <button class="btn ghost" id="t-csv">Download as CSV</button>
-      <button class="btn ghost" id="t-fill">Fill the empty rows with our counts</button>
-      <button class="btn ghost" id="t-clear">Clear my data</button>
-      <p class="note" id="t-msg" aria-live="polite"></p>
-      <p class="note">Your entries stay in this browser only. Nothing is sent anywhere.</p>
     </section>
 
     <!-- 4 ------------------------------------------------------------------ -->
     <section class="part" id="part-4" role="tabpanel" aria-labelledby="tab-4" data-mode="random" data-pin>
       <h2>Random quadrats in one area</h2>
-      <p class="sub">About 5 minutes. The red square on the photograph is a 5 m × 5 m area inside the middle shore. Sample it with 30 random quadrats. In each one, <u>count the limpets</u> (press each one as you count it) and record whether sea lettuce is present. <u>Record at least ten yourself</u>, then press <b>Fill the rest with our records</b>.</p>
+      <p class="sub">About 5 minutes. The red square on the photograph is a 5 m × 5 m area inside the middle shore. Sample it with 30 random quadrats. In each one, <u>count the limpets</u> (press each one as you count it) and record whether sea lettuce is present.</p>
+      <div class="task" data-task="4"><div><span class="task__k">Your task</span><p>Record at least <b>10 random quadrats</b> yourself. Then press <b>Fill the rest with our records</b>.</p></div><span class="task__n" aria-live="polite"></span></div>
       <div class="box">
         <div class="k">How to choose a random position</div>
         <p>The area is a grid of 10 × 10 squares, each 0.5 m × 0.5 m. Two random numbers from 0 to 9 give one square: the first counts across, the second counts down. In Google Sheets, <kbd>=RANDBETWEEN(0,9)</kbd> gives a random whole number from 0 to 9. If a square appears twice, or more than half of it is in a rock pool, take new numbers.</p>
@@ -206,6 +208,7 @@
     <section class="part" id="part-5" role="tabpanel" aria-labelledby="tab-5" data-mode="chi" data-pin>
       <h2>Test for an association: chi-squared</h2>
       <p class="sub">About 7 minutes. C4.1.15 · Are limpets and sea lettuce found together more often, or less often, than chance would give?</p>
+      <div class="task" data-task="5"><div><span class="task__k">Your task</span><p>Go through the <b>9 steps</b> with <b>Next step</b>. Three of them have a quick check.</p></div><span class="task__n" aria-live="polite"></span></div>
       <p class="note" id="c-source"></p>
       <div class="catkey" id="c-key" aria-label="Colours on the photograph"></div>
       <div class="steps" id="c-steps"></div>
@@ -217,6 +220,7 @@
     <section class="part" id="part-6" role="tabpanel" aria-labelledby="tab-6" data-mode="corr" data-pin>
       <h2>Correlate a species with an abiotic variable</h2>
       <p class="sub">About 7 minutes. B4.1.4 · Does the percentage cover of a species change with the rock temperature along the transect?</p>
+      <div class="task" data-task="6"><div><span class="task__k">Your task</span><p>Press each species and read its graph. Answer the two quick checks. If you have time, do it in Google Sheets.</p></div><span class="task__n" aria-live="polite"></span></div>
       <p class="note" id="k-source"></p>
       <div class="choices" id="k-choices">
         <button data-sp="barn" aria-pressed="true">Barnacles</button>
@@ -252,6 +256,7 @@
     <section class="part" id="part-7" role="tabpanel" aria-labelledby="tab-7" data-mode="write">
       <h2>Write about your data</h2>
       <p class="sub">About 10 minutes. Exam answers about data use the same sentence patterns again and again. Type the missing word or number in each gap, then press <b>Check</b>. Spelling counts. The numbers come from your tables in parts 3 and 4.</p>
+      <div class="task" data-task="7"><div><span class="task__k">Your task</span><p>Complete frames <b>A–F</b>: type every gap, then press <b>Check</b>. Then write the two answers.</p></div><span class="task__n" aria-live="polite"></span></div>
       <div class="practice" data-p="frames"></div>
       <div class="practice" data-p="write"></div>
       <details class="fold"><summary><span class="fk">Words</span><span class="ft">Useful words for data</span></summary><div class="fold-in">
@@ -269,6 +274,7 @@
     <section class="part" id="part-8" role="tabpanel" aria-labelledby="tab-8" data-mode="counts" data-pin>
       <h2>Challenge</h2>
       <p class="sub">For any time you have left, and for anyone who wants a harder challenge. Use a calculator or Google Sheets. Give numbers to the precision asked.</p>
+      <div class="task" data-task="8"><div><span class="task__k">Your task</span><p>For any time you have left: as many questions as you can, in any order.</p></div><span class="task__n" aria-live="polite"></span></div>
       <p>These are our counts of the limpets in the 30 random quadrats of part 4:</p>
       <p class="formula" id="limp-list"></p>
       <div class="practice" data-p="challenge"></div>
@@ -278,6 +284,7 @@
     <section class="part" id="part-9" role="tabpanel" aria-labelledby="tab-9" data-mode="transect">
       <h2>Extra: the same analysis in R</h2>
       <p class="sub">For when you have finished parts 1–8. R is the free program many biologists use for their data. Follow the steps in RStudio, or in your browser on Learn R.</p>
+      <div class="task" data-task="9"><div><span class="task__k">Your task</span><p>Extra: follow the steps in RStudio or on Learn R, and answer the quick check.</p></div><span class="task__n" aria-live="polite"></span></div>
       <div class="box ib"><div class="k">No RStudio on your laptop?</div><p><a href="https://nlcsbiology.com/learn-r/ib.html">Learn R · Statistics in R</a> runs real R in your browser. Its chi-squared and correlation stages use the same commands as below.</p></div>
       <div class="practice" data-p="rsteps"></div>
       <div data-qc="p9-qc-1"></div>
@@ -287,6 +294,7 @@
     <section class="part" id="part-10" role="tabpanel" aria-labelledby="tab-10" data-mode="trip">
       <h2>Your field trip</h2>
       <p class="sub">Parts 1–9 use a practice shore. On the field trip you sample a real rocky shore: dark volcanic rock, with shallow pools at low tide. What you study there depends on what you find, and your research question is your own. Your teacher’s workbook gives this year’s details: the place, the species and the deadline.</p>
+      <div class="task" data-task="10"><div><span class="task__k">Your task</span><p>Read this part before the trip, and answer its three quick checks.</p></div><span class="task__n" aria-live="polite"></span></div>
 
       <p class="blk">Before the trip · learn</p>
       <h3>What you may find</h3>
@@ -386,6 +394,7 @@
     <div class="quad-side">
       <button class="close-x" id="quad-close" aria-label="Close">×</button>
       <h2 id="quad-title"></h2>
+      <div class="qstrip" id="quad-strip"></div>
       <p class="note" id="quad-sub"></p>
       <p class="quad-how" id="quad-how"></p>
       <p><button class="btn ghost" id="quad-lift" aria-pressed="false">Lift the seaweed</button></p>
@@ -405,11 +414,11 @@
 </footer>
 
 <script src="https://accounts.google.com/gsi/client?hl=en-GB" async defer></script>
-<script src="js/config.js?v=25"></script>
-<script src="js/signin.js?v=25"></script>
-<script src="js/lesson.js?v=25"></script>
-<script src="js/shore-data.js?v=25"></script>
-<script src="js/app.js?v=25"></script>
-<script src="js/practice.js?v=25"></script>
+<script src="js/config.js?v=26"></script>
+<script src="js/signin.js?v=26"></script>
+<script src="js/lesson.js?v=26"></script>
+<script src="js/shore-data.js?v=26"></script>
+<script src="js/app.js?v=26"></script>
+<script src="js/practice.js?v=26"></script>
 </body>
 </html>

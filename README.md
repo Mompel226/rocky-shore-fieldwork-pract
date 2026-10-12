@@ -8,9 +8,10 @@ ecology field trip — listed under the IB toggle of the [Biology Hub](https://n
 
 Students practise the skills of the field trip on a practice shore before they go (not the shore of their trip): a real drone photograph of a rocky
 shore at low tide, with a 10 m transect and a 5 m × 5 m random-quadrat area drawn on it. Each quadrat
-opens as a diagram of a 0.5 m frame on the rock, with a key. In a transect quadrat they measure percentage
-cover by pressing every square of a 10 × 10 grid that is at least half covered (the page adds them up; Check,
-then "Show our squares"), lifting the seaweed for the barnacles. In a random quadrat they count the limpets
+opens as a diagram of a 0.5 m frame on the rock, with a key. A transect quadrat is strung 5 × 5, as many
+school quadrats are: they count the squares at least half covered by each species and type its percentage cover
+(squares × 4); every square is drawn clearly covered (at least 70 %) or clearly not (at most 30 %). After a
+second wrong try, our count and "Show our squares" appear. They lift the seaweed to count the barnacles. In a random quadrat they count the limpets
 by pressing each one (a periwinkle is not a limpet; a limpet on the frame counts only if more than half is
 inside) and say whether sea lettuce is present. Then they analyse their own numbers: a chi-squared test for
 association (limpets and sea lettuce), Pearson correlation with rock temperature (three species, three
@@ -19,7 +20,7 @@ challenge questions (including the Lincoln index) and an R extension. Parts 1–
 fills any time left; then about 20 minutes of real IB questions on paper, which the teacher hands out
 (IB copyright, so they are not in this repository).
 
-The ten parts are tabs along the top. The photograph stays on the left in every part and shows that part's
+The ten parts are tabs along the top; each tab fills with a ring as its questions are answered, and each part opens with "Your task" and a tally. The photograph stays on the left in every part and shows that part's
 results: the transect, the random area zoomed in, each random quadrat in the colour of its chi-squared group,
 the limpet counts of the challenge, and the temperature and cover beside each transect quadrat. After each
 piece of theory a **Quick check** asks a typed or multiple-choice question (options in a new random order
@@ -56,7 +57,9 @@ Simulated, and the page says so. The drone photograph is real; everything drawn 
 `tools/make-shore.py` draws every quadrat as a diagram (`img/quad/*.svg`) and writes `js/shore-data.js` (12 Oct 2026:
 the photo close-ups before it could not be read, and are in the estate's Archive). Seaweed patches follow the drone
 photograph's colours at each quadrat; the cover of each species is the grid count of what is drawn (squares at least
-half covered), and the numbers are the first build's, so every analysis on the page is unchanged. `sq` in the data is
+half covered, 4 % each), and the generator refuses a drawing with any square between 30 % and 70 % covered. The covers
+are the first build's rounded to whole squares (12 Oct 2026, version 26), so the patterns are the same: barnacles
+r = 0.98 with temperature, brown seaweed r = −0.82 (Spearman's ρ = −0.71), sea lettuce a hump. `sq` in the data is
 our grid for "Show our squares"; `an` lists each animal of a random quadrat (position, limpet or periwinkle, counted
 or not). The random quadrats were chosen so that every expected value is at least 5 (χ² = 8.17, p = 0.0043), inside one
 zone (the middle shore), as part 2 teaches. Copy and Download in part 3 give exactly the numbers the page uses, so r in

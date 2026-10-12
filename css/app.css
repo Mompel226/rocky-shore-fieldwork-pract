@@ -42,7 +42,7 @@
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--sea-ink)}
-.top{max-width:1360px;margin:0 auto;padding:26px 22px 0}
+.top{max-width:1360px;margin:0 auto;padding:16px 22px 0}
 .lessonbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:-4px 0 14px;font-size:13px;color:var(--ink2)}
 .lessonbar[hidden]{display:none}
 .lesson__who{font-weight:600;color:var(--ink)}
@@ -51,20 +51,21 @@ a{color:var(--sea-ink)}
 .lesson__out{font:500 12.5px/1 var(--sans);color:var(--ink3);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .lesson__msg{flex-basis:100%;color:var(--amber)}
 .lesson__g{display:inline-flex;min-height:32px;align-items:center}
-.upbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px}
+.upbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 8px}
 .upbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .themebtn{font:500 12.5px/1 var(--sans);color:var(--ink2);background:var(--surface);border:1px solid var(--rule);border-radius:100px;padding:7px 12px;cursor:pointer}
 .themebtn:hover,.themebtn:focus-visible{color:var(--ink);border-color:var(--ink3)}
 .up{display:inline-block;margin:0;font-size:12.5px;line-height:1;color:var(--ink3);text-decoration:none}
 .up:hover,.up:focus-visible{color:var(--ink);text-decoration:underline}
 .eyebrow{font:500 11.5px/1 var(--sans);letter-spacing:.15em;text-transform:uppercase;color:var(--sea-ink)}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,4vw,2.6rem);line-height:1.1;letter-spacing:-.015em;margin:12px 0 0}
-.by{margin:8px 0 0;font-size:14.5px;color:var(--ink2)}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,3.2vw,2.2rem);line-height:1.1;letter-spacing:-.015em;margin:8px 0 0}
+.by{margin:5px 0 0;font-size:14.5px;color:var(--ink2)}
+.top-note{margin:4px 0 0}
 .by-me{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}
 .by-me:hover,.by-me:focus-visible{border-bottom-style:solid}
 
 /* ---------- the parts as steps across the top: always in view, the one open stands out, the ones seen are ticked ---------- */
-.partbar{position:sticky;top:0;z-index:30;margin-top:18px;background:color-mix(in srgb,var(--page) 88%,transparent);
+.partbar{position:sticky;top:0;z-index:30;margin-top:10px;background:color-mix(in srgb,var(--page) 88%,transparent);
   -webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--rule);border-top:1px solid var(--rule)}
 .partbar{display:flex;align-items:center}
 .partbar .tabs{flex:1;min-width:0;max-width:1360px;margin:0 auto;padding:10px 22px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;scroll-padding:0 22px}
@@ -295,10 +296,8 @@ dialog.quad::backdrop{background:rgba(8,14,20,.72)}
 .quad-pic svg{display:block;width:100%;height:auto;border-radius:10px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .quad-pic .q-weed{transition:opacity .25s}
 .quad-pic svg.lifted .q-weed{opacity:.1}
-.qgrid rect{stroke:rgba(20,20,20,.38);stroke-width:2.5;cursor:pointer}
-.qgrid rect:hover{fill:#fff;fill-opacity:.22}
-.qgrid rect.on{stroke:rgba(20,20,20,.6)}
-.qgrid rect.key{stroke:#111;stroke-width:7;stroke-dasharray:16 10}
+.qstrings line{stroke:#1E1E1E;stroke-opacity:.72;stroke-width:4;stroke-linecap:round}
+.qkeyr{stroke:#111;stroke-width:6;stroke-dasharray:16 10}
 .qhit{fill:#fff;fill-opacity:0;cursor:pointer}
 .qhit:hover{fill-opacity:.25;stroke:#fff;stroke-width:3}
 .qbadge{fill:var(--sea);stroke:#fff;stroke-width:4;pointer-events:none}
@@ -426,4 +425,31 @@ footer a{color:var(--ink3)}
   .panel{border:0;box-shadow:none;padding:0}
   .part{display:block!important;break-inside:avoid}
   .layout{display:block}
+}
+
+/* progress in the part tabs: a ring of what is done in this round; full = green (12 Oct 2026, the layout audit) */
+.partbar .tabs button:not([aria-selected="true"]) .n.prog{border-color:transparent;background:radial-gradient(closest-side,var(--sheet) 76%,transparent 79% 100%),conic-gradient(var(--sea) calc(var(--p) * 1%),var(--rule) 0)}
+.partbar .tabs button:not([aria-selected="true"]) .n.full{background:var(--ok);border-color:var(--ok);color:#fff}
+/* "Your task" at the top of every part, with its tally */
+.task{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;background:var(--sea-soft);border-radius:12px;padding:10px 14px;margin:0 0 16px}
+.task p{margin:2px 0 0;font-size:15px;line-height:1.45}
+.task__k{font:700 11px/1.2 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--sea-ink)}
+.task__n{flex:none;font:600 12.5px/1.2 var(--sans);color:var(--sea-ink);background:var(--sheet);border:1px solid var(--sea);border-radius:100px;padding:6px 10px;white-space:nowrap}
+.task__n:empty{display:none}
+.task__n.full{background:var(--ok);border-color:var(--ok);color:#fff}
+/* part 3: one main button, the rest small */
+.tbtns{margin:10px 0 4px}
+.tlinks{margin:2px 0 8px;font-size:13.5px;color:var(--ink3)}
+/* the quadrat window: a strip to move along the transect */
+.qstrip{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:4px 0 8px}
+.qstrip button{min-width:30px;height:30px;font:600 12.5px/1 var(--sans);color:var(--ink2);background:var(--surface);border:1px solid var(--rule);border-radius:8px;cursor:pointer}
+.qstrip button.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.qstrip button.cur{background:var(--sea);border-color:var(--sea);color:#fff}
+.qstrip .note{margin-left:4px}
+.qhit:focus{outline:none}
+.qhit:focus-visible{fill:#fff;fill-opacity:.3;stroke:var(--sea);stroke-width:6}
+@media (max-width:1000px){
+  /* on a phone the drawing stays at the top of the window while the boxes are filled in */
+  .quad-img{position:sticky;top:0;z-index:3;background:var(--paper);padding-bottom:6px}
+  .task{flex-direction:column;gap:6px}
 }

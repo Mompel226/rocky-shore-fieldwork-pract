@@ -1,5 +1,5 @@
 /* Rocky shore fieldwork · the practice: key words, sentence frames, challenge questions and the R steps.
-   Every check happens in the browser; nothing is sent anywhere. */
+   Every check happens in the browser; a signed-in pupil's Checks are also kept for the teacher (js/lesson.js). */
 (function () {
   'use strict';
   const A = window.ShoreApp, $ = (s, el) => (el || document).querySelector(s), $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
@@ -232,13 +232,13 @@
       out: '[1] 0.9\n[1] 1.268994\n[1] 1.610345\n[1] 3.6', note: '<code>c()</code> joins numbers into one object. <code>&lt;-</code> gives it a name. Everything after <code>#</code> is a comment for people, not for R.' },
     { t: 'Read your transect', p: 'Download transect.csv (part 3) into the folder of your R script. Then read it and look at the first rows.',
       code: 'transect <- read.csv("transect.csv")\nhead(transect, 3)',
-      out: '  distance_m temperature_C barnacles_pct sea_lettuce_pct brown_seaweed_pct\n1          0          33.6            56               0                 2\n2          1          32.9            50               0                 6\n3          2          31.4            45              89                 0', note: 'A column is <code>transect$name</code>, for example <code>transect$barnacles_pct</code>.' },
+      out: '  distance_m temperature_C barnacles_pct sea_lettuce_pct brown_seaweed_pct\n1          0          33.6            56               0                 4\n2          1          32.9            52               0                 0\n3          2          31.4            44              88                 0', note: 'A column is <code>transect$name</code>, for example <code>transect$barnacles_pct</code>.' },
     { t: 'A scatter graph and Pearson\'s r', p: 'Plot barnacle cover against rock temperature, add the line of best fit, and test the correlation.',
       code: 'plot(transect$temperature_C, transect$barnacles_pct, pch = 19,\n     xlab = "Rock temperature / °C", ylab = "Barnacle cover / %")\nabline(lm(barnacles_pct ~ temperature_C, data = transect), lty = 2)\ncor.test(transect$temperature_C, transect$barnacles_pct)',
-      out: "\tPearson's product-moment correlation\n\nt = 11.109, df = 9, p-value = 1.481e-06\n...\n      cor \n0.9654182", note: 'p-value = 1.481e-06 means 0.000001481: much smaller than 0.05. Small p, big news.' },
+      out: "\tPearson's product-moment correlation\n\nt = 13.759, df = 9, p-value = 2.382e-07\n...\n     cor \n0.977045", note: 'p-value = 2.382e-07 means 0.0000002382: much smaller than 0.05. Small p, big news.' },
     { t: 'Spearman\'s rank for a curved pattern', p: 'Brown seaweed does not follow a straight line. Spearman\'s rank uses only the order of the values.',
       code: 'cor.test(transect$temperature_C, transect$brown_seaweed_pct,\n         method = "spearman", exact = FALSE)',
-      out: "\tSpearman's rank correlation rho\n\nS = 356.35, p-value = 0.04197\n...\n       rho \n-0.6197507", note: 'Compare with Pearson\'s r for the same data (part 6). Which one describes the graph better?' },
+      out: "\tSpearman's rank correlation rho\n\nS = 375.27, p-value = 0.01523\n...\n      rho \n-0.705778", note: 'Compare with Pearson\'s r for the same data (part 6). Which one describes the graph better?' },
     { t: 'Chi-squared for an association', p: 'Put the four observed counts into a 2 × 2 table, then test it.',
       code: 'observed <- matrix(c(4, 14, 9, 3), nrow = 2,\n   dimnames = list(Limpets = c("present", "absent"),\n                   Sea_lettuce = c("present", "absent")))\ntest <- chisq.test(observed, correct = FALSE)\ntest\ntest$expected',
       out: "\tPearson's Chi-squared test\n\nX-squared = 8.1674, df = 1, p-value = 0.004265\n\n         Sea_lettuce\nLimpets   present absent\n  present     7.8    5.2\n  absent     10.2    6.8", note: '<code>matrix()</code> fills the table column by column. <code>correct = FALSE</code> gives the χ² you calculate by hand; R\'s default adds a correction the IB does not use. Use your own counts from part 4.' }
