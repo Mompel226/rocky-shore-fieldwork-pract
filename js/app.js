@@ -13,6 +13,18 @@
     get(k, d) { try { const v = localStorage.getItem('rocky-shore.' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('rocky-shore.' + k, JSON.stringify(v)); } catch (e) { /* private window: keep going */ } }
   };
+  /* Every answer survives a reload (12 Oct 2026, Daniel: "if I have answered the questions and then I reload the website,
+     all of my answers are gone … it needs to survive a reload"). The lesson record (js/lesson.js) keeps only HOW each
+     question went, for the teacher; this keeps WHAT the pupil typed or chose, by the question's board id, in this browser
+     (rocky-shore.answers): words, numbers and written answers as they are typed, each Check's marks, each choice, an
+     answer shown. A question is drawn again exactly as it was, and nothing is told to the lesson record again. ↺ Start
+     again forgets its questions; ↺ Start the whole page again forgets them all (every rocky-shore.* key). */
+  const ANS = store.get('answers', {});
+  const ans = {
+    get: id => (ANS[id] && typeof ANS[id] === 'object') ? ANS[id] : null,
+    put: (id, o) => { if (!id) return; ANS[id] = Object.assign({}, ANS[id] || {}, o); store.set('answers', ANS); },
+    drop: ids => { (ids || []).forEach(i => { delete ANS[i]; }); store.set('answers', ANS); }
+  };
   function el(tag, attrs, parent, text) {
     const e = document.createElementNS(NS, tag);
     for (const k in attrs || {}) e.setAttribute(k, attrs[k]);
@@ -567,7 +579,7 @@
 
   /* ---------------- part 5: chi-squared, step by step ---------------- */
   const CSTEPS = ['Question', 'Hypotheses', 'Observed', 'Expected', 'χ²', 'Critical value', 'Conclusion', 'Biology', 'Google Sheets'];
-  let cstep = 0;
+  let cstep = Math.max(0, Math.min(CSTEPS.length - 1, Number(store.get('cstep', 0)) || 0));   /* the step survives a reload */
   function chi() {
     const mineAll = counts(false).n === 30;
     const c = counts(true);
@@ -588,7 +600,9 @@
       rows.map((r, ri) => '<tr>' + r.map((x, i) => i === 0 ? `<th>${x}</th>` : `<td${cats ? ` class="cat c-${cats[ri][i - 1]}"` : ''}>${x}</td>`).join('') + '</tr>').join('') + '</tbody></table></div>';
   }
   const CATS = [['yy', 'yn'], ['ny', 'nn']];
-  let chiGate = {};                                    /* the steps whose quick check is done: their table shows */
+  /* the steps whose quick check is done: their table shows (after a reload too: from the kept answers) */
+  const qcDone = id => { const s = ans.get(id); return !!(s && (s.ok || s.shown)); };
+  let chiGate = { 3: qcDone('p5-qc-1'), 4: qcDone('p5-qc-2'), 5: qcDone('p5-qc-3') };
   function renderChi() {
     const k = chi(), O = k.O, E = k.E;
     $('#c-source').textContent = !k.mineAll ? 'Part 4 is not finished, so the empty quadrats use our records. Finish part 4 to use only your own.'
@@ -641,20 +655,25 @@
     stageChi(k);
     $('#c-key').innerHTML = Object.keys(CAT).map(c => `<span class="catk"><i style="background:${CAT[c].c}"></i><b>${CAT[c].l}</b> ${CAT[c].w}: ${k.O[c[0] === 'y' ? 0 : 1][c[1] === 'y' ? 0 : 1]}</span>`).join('');
     $('#c-prev').disabled = cstep === 0; $('#c-next').disabled = cstep === CSTEPS.length - 1;
+    store.set('cstep', cstep);
     progressSoon();
   }
   /* the tables under the photograph (12 Oct 2026, Daniel: "show the table with the data … so you don't have to go back
      and forth"): the observed counts always, the expected ones once their quick check is done */
   function stageChi(k) {
     const cell = (c, v) => `<td class="cat c-${c}">${v}</td>`, O = k.O, E = k.E;
-    let t = `<p class="sd__h">Observed (O): the 30 random quadrats</p><div class="tablewrap"><table class="data"><thead><tr><th></th><th>Sea lettuce present</th><th>Sea lettuce absent</th><th>Total</th></tr></thead><tbody>` +
+    /* 12 Oct 2026, Daniel: the photo and the observed data should be seen together, with no scrolling: the two tables sit
+       side by side (columns "SL present / absent" with a key line), and the photo shrinks to leave them room (css) */
+    let t = `<div class="sd__b"><p class="sd__h">Observed (O): 30 random quadrats</p><div class="tablewrap"><table class="data"><thead><tr><th></th><th>SL present</th><th>SL absent</th><th>Total</th></tr></thead><tbody>` +
       `<tr><th>Limpets present</th>${cell('yy', O[0][0])}${cell('yn', O[0][1])}<td>${k.R[0]}</td></tr>` +
       `<tr><th>Limpets absent</th>${cell('ny', O[1][0])}${cell('nn', O[1][1])}<td>${k.R[1]}</td></tr>` +
-      `<tr><th>Total</th><td>${k.C[0]}</td><td>${k.C[1]}</td><td>${k.N}</td></tr></tbody></table></div>`;
-    if (chiGate[3]) t += `<p class="sd__h">Expected (E)</p><div class="tablewrap"><table class="data"><tbody>` +
+      `<tr><th>Total</th><td>${k.C[0]}</td><td>${k.C[1]}</td><td>${k.N}</td></tr></tbody></table></div></div>`;
+    if (chiGate[3]) t += `<div class="sd__b"><p class="sd__h">Expected (E)</p><div class="tablewrap"><table class="data"><thead><tr><th></th><th>SL present</th><th>SL absent</th></tr></thead><tbody>` +
       `<tr><th>Limpets present</th>${cell('yy', fmt(E[0][0], 2))}${cell('yn', fmt(E[0][1], 2))}</tr>` +
-      `<tr><th>Limpets absent</th>${cell('ny', fmt(E[1][0], 2))}${cell('nn', fmt(E[1][1], 2))}</tr></tbody></table></div>`;
+      `<tr><th>Limpets absent</th>${cell('ny', fmt(E[1][0], 2))}${cell('nn', fmt(E[1][1], 2))}</tr></tbody></table></div></div>`;
+    t += '<p class="sd__k">SL = sea lettuce.</p>';
     $('#stageData').innerHTML = t;
+    $('#stageData').classList.toggle('two', !!chiGate[3]);
   }
   $('#c-prev').addEventListener('click', () => { cstep = Math.max(0, cstep - 1); renderChi(); });
   $('#c-next').addEventListener('click', () => { cstep = Math.min(CSTEPS.length - 1, cstep + 1); renderChi(); });
@@ -731,8 +750,8 @@
      and on a local server the page says when that file no longer matches (practice.js, at the end). */
   const L0 = window.Lesson || { check() {}, done() {}, restart() {}, restartAll() {} };
   const L = { check: (...a) => { L0.check(...a); progressSoon(); }, done: (...a) => { L0.done(...a); progressSoon(); },
-              restart: (...a) => { L0.restart(...a); progressSoon(); }, restartAll: (...a) => { L0.restartAll(...a); progressSoon(); } };
-  /* ---------------- progress (12 Oct 2026, the layout audit): each part's tab shows a ring of what is done in this round,
+              restart: (...a) => { L0.restart(...a); ans.drop(a[0]); progressSoon(); }, restartAll: (...a) => { L0.restartAll(...a); progressSoon(); } };
+  /* ---------------- progress (12 Oct 2026, the layout audit): each part's tab shows a bar of what is done in this round,
      and each part opens with "Your task" and a tally. A question is done when its newest round is right (or written);
      ↺ Start again opens a new round, so its ring starts again too. The quadrats count as one task each part: done at the
      minimum the task asks for (4 transect quadrats, 10 random ones) or when the table is filled. */
@@ -750,7 +769,9 @@
     const rec = L0.record ? L0.record() : { q: {} };
     $$('.tabs button').forEach((b, i) => {
       const n = i + 1, p = partProgress(n, rec), c = $('.n', b), pct = p.all ? Math.round(100 * p.done / p.all) : 0;
-      c.style.setProperty('--p', pct); c.classList.toggle('prog', p.done > 0 && pct < 100); c.classList.toggle('full', p.all > 0 && pct === 100);
+      let pb = $('.pb', b);   /* the bar under the part's name (css: .pb) */
+      if (!pb) { pb = h('span', { class: 'pb', 'aria-hidden': 'true' }, '<i></i>'); b.appendChild(pb); }
+      pb.style.setProperty('--p', pct); b.classList.toggle('prog', p.done > 0 && pct < 100); c.classList.toggle('full', p.all > 0 && pct === 100);
       b.setAttribute('aria-label', `${n}. ${b.textContent.replace(/^\d+/, '').trim()}: ${p.done} of ${p.all} done`);
       const t = $(`#part-${n} .task__n`); if (!t) return;
       t.textContent = n === 3 ? (ST.every(s => tDone(s.d)) ? 'Table complete' : `Quadrats recorded: ${ownT()} of at least 4`)
@@ -780,18 +801,28 @@
   function mcq(d, it, seed, id) {
     const order = it.a.map((txt, i) => [txt, i]);
     for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
-    const list = h('div', { class: 'opts', role: 'group', 'aria-label': 'Choose one answer' }), out = h('p', { 'aria-live': 'polite' }), bs = [];
+    const list = h('div', { class: 'opts', role: 'group', 'aria-label': 'Choose one answer' }), out = h('p', { 'aria-live': 'polite' }), bs = [], byI = {};
+    const say = good => { out.innerHTML = good ? '<span class="ok">✓ Correct.</span> ' + it.why : '<span class="bad">✗ Not this one.</span> Think again, then try another answer.'; };
     order.forEach(([txt, i], k) => {
       const b = h('button', { class: 'opt', type: 'button' }, `<span class="opt__l" aria-hidden="true">${'ABCDE'[k]}</span><span class="opt__t"></span>`);
-      b.querySelector('.opt__t').textContent = txt; bs.push(b);
+      b.querySelector('.opt__t').textContent = txt; bs.push(b); byI[i] = b;
       b.addEventListener('click', () => {
         L.check(id, i === it.c, i === it.c ? [] : ['o' + i]);
         b.classList.add(i === it.c ? 'chosen-right' : 'chosen-wrong');
-        out.innerHTML = i === it.c ? '<span class="ok">✓ Correct.</span> ' + it.why : '<span class="bad">✗ Not this one.</span> Think again, then try another answer.';
+        say(i === it.c);
+        const s = ans.get(id) || {}, w = (s.w || []).slice();   /* kept by the option's place in the list, not on screen */
+        if (i !== it.c && w.indexOf(i) < 0) w.push(i);
+        ans.put(id, { w: w, ok: !!s.ok || i === it.c, last: i === it.c ? 1 : 0 });
       });
       list.appendChild(b);
     });
     d.appendChild(list); d.appendChild(out);
+    const s0 = ans.get(id);
+    if (s0) {
+      (s0.w || []).forEach(i => { if (byI[i]) byI[i].classList.add('chosen-wrong'); });
+      if (s0.ok && byI[it.c]) byI[it.c].classList.add('chosen-right');
+      if (s0.ok || (s0.w || []).length) say(!!s0.last);
+    }
     return () => { bs.forEach(b => b.classList.remove('chosen-right', 'chosen-wrong')); out.innerHTML = ''; L.restart([id]); };   // start again
   }
   /* ---------------- quick checks: a question after each piece of theory (11 Oct 2026, Daniel: "all the time that … there is
@@ -814,22 +845,37 @@
     const ok = v => q.kind === 'num' ? (() => { const x = parseFloat(String(v).replace(/[−–]/g, '-').replace(',', '.')); return !isNaN(x) && Math.abs(x - answer()) <= (q.tol || 0) + 1e-9; })()
                                      : q.acc.map(normA).includes(normA(v));
     function finish() { if (!done) { done = true; if (onDone) onDone(); } }
+    const whyT = () => typeof q.why === 'function' ? q.why() : q.why;
+    const sayRight = () => { out.innerHTML = '<span class="ok">✓ Correct.</span> ' + whyT(); };
+    const showAns = () => { out.innerHTML = '<b>' + (q.kind === 'num' ? fmt(answer(), q.dp || 0) : q.acc[0]) + '.</b> ' + whyT(); finish(); };
+    function sayWrong() {
+      out.innerHTML = '<span class="bad">✗ Not yet.</span> ' + (wrong >= 2 ? 'Or <button class="linkish" type="button">show the answer</button>.' : 'Think again and try once more.');
+      const l = out.querySelector('.linkish');
+      if (l) l.addEventListener('click', () => { showAns(); ans.put(q.id, { shown: 1 }); });
+    }
     b.addEventListener('click', () => {
       const v = inp.value.trim();
       if (!v) { out.textContent = 'Type your answer first.'; return; }
       const good = ok(v);
       L.check(q.id, good, good ? [] : [v.slice(0, 30)]);
       inp.classList.toggle('right', good); inp.classList.toggle('wrong', !good);
-      if (good) { out.innerHTML = '<span class="ok">✓ Correct.</span> ' + (typeof q.why === 'function' ? q.why() : q.why); finish(); return; }
+      if (good) { ans.put(q.id, { v: v, st: 'r', ok: 1, wrong: wrong }); sayRight(); finish(); return; }
       wrong++;
-      out.innerHTML = '<span class="bad">✗ Not yet.</span> ' + (wrong >= 2 ? 'Or <button class="linkish" type="button">show the answer</button>.' : 'Think again and try once more.');
-      const l = out.querySelector('.linkish');
-      if (l) l.addEventListener('click', () => { out.innerHTML = '<b>' + (q.kind === 'num' ? fmt(answer(), q.dp || 0) : q.acc[0]) + '.</b> ' + (typeof q.why === 'function' ? q.why() : q.why); finish(); });
+      ans.put(q.id, { v: v, st: 'w', wrong: wrong });
+      sayWrong();
     });
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); b.click(); } });
-    inp.addEventListener('input', () => inp.classList.remove('right', 'wrong'));
+    inp.addEventListener('input', () => { inp.classList.remove('right', 'wrong'); ans.put(q.id, { v: inp.value, st: '' }); });
     row.appendChild(inp); if (q.unit) row.appendChild(h('span', { class: 'qc__u' }, q.unit)); row.appendChild(b);
     box.appendChild(row); box.appendChild(out);
+    const s0 = ans.get(q.id);   /* drawn again as it was: nothing is told to the lesson record again */
+    if (s0) {
+      inp.value = s0.v || ''; wrong = s0.wrong || 0;
+      if (s0.st === 'r') inp.classList.add('right'); else if (s0.st === 'w') inp.classList.add('wrong');
+      if (s0.shown) showAns();
+      else if (s0.ok) { sayRight(); finish(); }
+      else if (wrong) sayWrong();
+    }
   }
   const QC = {
     'p1-qc-1': { part: 1, short: 'q1', title: 'Which band dries out most?', kind: 'text', acc: ['upper shore', 'upper', 'top of the shore', 'high shore', 'upper zone'],
@@ -981,6 +1027,7 @@
     const trip = mode === 'trip';
     $('#photo').hidden = trip; $('#cap').hidden = trip; $('#tripPhoto').hidden = !trip; $('#tripCap').hidden = !trip;
     $('#stageData').hidden = mode !== 'chi';
+    $('.stage').classList.toggle('chi', mode === 'chi');   /* part 5: the photo and its tables fit one screen (css .stage.chi) */
     stageH();
     if (mode === 'zones') drawZones($$('#zone-choices button').find(b => b.getAttribute('aria-pressed') === 'true').dataset.zone);
     else if (mode === 'method') drawMethod($$('#method-choices button').find(b => b.getAttribute('aria-pressed') === 'true').dataset.m);
@@ -1027,7 +1074,7 @@
   $('#credits').innerHTML = D.credits.map(c => `${c.what}: ${c.who}, <a href="${c.url}" target="_blank" rel="noopener">${c.licence}</a>`).join(' · ');
   RQ.forEach(r => reg({ id: 'p4-n' + r.q, part: 4, title: 'Limpets in random quadrat ' + r.q + ' (across ' + r.gx + ', down ' + r.gy + ')', kind: 'quad', group: 'p4-random' }));
   group({ id: 'p4-random', part: 4, title: 'Random quadrats', short: 'R' });
-  window.ShoreApp = { series, chi, pearson, ranks, fmt, store, h, mcq, L, reg, manifest };
+  window.ShoreApp = { series, chi, pearson, ranks, fmt, store, h, mcq, L, reg, manifest, ans };
   tableT(); tableR();
   const m0 = /#part-(\d+)/.exec(location.hash);
   show(m0 ? +m0[1] : 1, true);

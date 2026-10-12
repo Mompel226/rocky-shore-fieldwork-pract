@@ -4,6 +4,8 @@
   'use strict';
   const A = window.ShoreApp, $ = (s, el) => (el || document).querySelector(s), $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
   const h = A.h, fmt = A.fmt, L = A.L;
+  /* every answer survives a reload (app.js, ANS): kept by the question's board id; the lesson record is never told again */
+  const ANS = A.ans || { get: () => null, put() {}, drop() {} };
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   /* A card the student opens in place (one open at a time in a part: app.js) */
   function fold(kind, title, open) {
@@ -37,35 +39,56 @@
   function shown(inp) { return inp.dataset.num != null ? inp.dataset.show : JSON.parse(inp.dataset.acc)[0]; }
   /* Check marks each gap. The answers can be shown only after two complete tries (effort before answers). */
   /* id: the set's question id on the teacher's board; reg: its words there (part, title, short) */
-  function checker(box, after, id, meta) {
+  /* ver: the numbers a set's answers depend on (the frames): its marks come back only while they are the same */
+  function checker(box, after, id, meta, ver) {
     if (meta) A.reg(Object.assign({ id, kind: 'gaps', gaps: $$('input.gapin', box).map(i => i.dataset.label || shown(i)) }, meta));
     const out = h('p', { 'aria-live': 'polite' }), b = h('button', { class: 'btn', type: 'button' }, 'Check');
     const show = h('button', { class: 'btn ghost', type: 'button' }, 'Show the answers'); show.hidden = true;
     let tries = 0;
+    const gaps = () => $$('input.gapin', box);
+    const keep = o => { if (id) ANS.put(id, Object.assign({ v: gaps().map(i => i.value), ver: ver || '',
+      m: gaps().map(i => i.classList.contains('right') ? 'r' : i.classList.contains('wrong') ? 'w' : '') }, o || {})); };
+    const giveAns = i => { if (!(i.nextElementSibling && i.nextElementSibling.classList.contains('ans'))) i.insertAdjacentHTML('afterend', `<span class="ans">${esc(shown(i))}</span>`); };
     b.addEventListener('click', () => {
-      const g = $$('input.gapin', box);
+      const g = gaps();
       if (g.some(i => !i.value.trim())) { out.innerHTML = 'Type an answer in every gap first.'; return; }
       tries++; let ok = 0; const wrongs = [];
       g.forEach((i, k) => { const good = right(i); if (good) ok++; else wrongs.push((k + 1) + '=' + i.value.trim());
         i.classList.toggle('right', good); i.classList.toggle('wrong', !good); });
       if (id) L.check(id, ok === g.length, wrongs);
-      if (ok === g.length) { out.innerHTML = `<span class="ok">✓ All ${g.length} correct.</span>${after ? ' ' + after : ''}`; show.hidden = true; return; }
-      out.innerHTML = `<span class="bad">${ok} of ${g.length} correct.</span> Change the ones marked in red, then check again.` +
-        (tries < 2 ? ' Check your spelling too.' : '');
-      show.hidden = tries < 2;
+      if (ok === g.length) { out.innerHTML = `<span class="ok">✓ All ${g.length} correct.</span>${after ? ' ' + after : ''}`; show.hidden = true; }
+      else {
+        out.innerHTML = `<span class="bad">${ok} of ${g.length} correct.</span> Change the ones marked in red, then check again.` +
+          (tries < 2 ? ' Check your spelling too.' : '');
+        show.hidden = tries < 2;
+      }
+      keep({ out: out.innerHTML, tries: tries, sh: show.hidden ? 0 : 1 });
     });
     show.addEventListener('click', () => {
-      $$('input.gapin.wrong', box).forEach(i => { if (!(i.nextElementSibling && i.nextElementSibling.classList.contains('ans'))) i.insertAdjacentHTML('afterend', `<span class="ans">${esc(shown(i))}</span>`); });
+      const sa = [];
+      gaps().forEach((i, k) => { if (i.classList.contains('wrong')) { giveAns(i); sa.push(k); } });
       show.hidden = true;
+      keep({ sh: 0, sa: sa });
     });
     box.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('input.gapin')) { e.preventDefault(); b.click(); } });
-    box.addEventListener('input', e => { if (e.target.matches('input.gapin')) e.target.classList.remove('right', 'wrong'); });
+    box.addEventListener('input', e => { if (e.target.matches('input.gapin')) { e.target.classList.remove('right', 'wrong'); keep(); } });
     const restart = again(() => {
       $$('input.gapin', box).forEach(i => { i.value = ''; i.classList.remove('right', 'wrong'); });
       $$('.ans', box).forEach(a => a.remove()); tries = 0; show.hidden = true; out.innerHTML = '';
       if (id) L.restart([id]);
     });
     box.appendChild(b); box.appendChild(show); box.appendChild(restart); box.appendChild(out);
+    const s0 = id ? ANS.get(id) : null, g0 = gaps();   /* drawn again as it was: nothing is told to the lesson record again */
+    if (s0 && Array.isArray(s0.v) && s0.v.length === g0.length) {
+      g0.forEach((i, k) => { i.value = s0.v[k] || ''; });
+      if ((s0.ver || '') === (ver || '')) {   /* the numbers behind the set are the same: its marks and notes too */
+        tries = s0.tries || 0;
+        (s0.m || []).forEach((m, k) => { if (g0[k] && m) g0[k].classList.add(m === 'r' ? 'right' : 'wrong'); });
+        if (s0.out) out.innerHTML = s0.out;
+        show.hidden = !s0.sh;
+        (s0.sa || []).forEach(k => { if (g0[k]) giveAns(g0[k]); });
+      }
+    }
   }
 
   /* A model answer opens only after the pupil has written their own (at least 30 words). */
@@ -76,6 +99,21 @@
     return false;
   }
 
+  /* A written answer: the textarea, "Show a model answer" (after 30 words) and its tick list, kept as typed and drawn
+     again after a reload. d: the card's inside (its textarea already there); model, check: the model and its points. */
+  function written(d, id, model, check, out) {
+    const ta = $('textarea', d), b = h('button', { class: 'btn ghost', type: 'button' }, 'Show a model answer');
+    function drawModel(ticks) {
+      out.innerHTML = `<div class="box sea"><div class="k">A model answer</div><p>${model}</p><p class="note">Tick what your answer has:</p>${check.map(c => `<label class="tick"><input type="checkbox"> ${c}</label>`).join('')}</div>`;
+      const boxes = $$('input[type="checkbox"]', out);
+      boxes.forEach((x, k) => { x.checked = !!(ticks && ticks[k]); x.addEventListener('change', () => ANS.put(id, { ticks: boxes.map(y => y.checked) })); });
+    }
+    b.addEventListener('click', () => { if (!wroteEnough(d, out)) return; L.done(id); drawModel(); ANS.put(id, { t: ta.value, model: 1, ticks: [] }); });
+    ta.addEventListener('input', () => ANS.put(id, { t: ta.value }));
+    d.appendChild(b); d.appendChild(again(() => { ta.value = ''; out.innerHTML = ''; L.restart([id]); }));
+    const s0 = ANS.get(id);
+    if (s0) { ta.value = s0.t || ''; if (s0.model) drawModel(s0.ticks); }
+  }
   /* ---------- 1. type the word for each meaning ---------- */
   const WORDS = [
     ['Attached to the rock for the whole of its adult life, so it cannot move to a new place.', ['sessile']],
@@ -141,7 +179,7 @@
     box.innerHTML = '';
     F.forEach((f, i) => {
       const d = fold('Frame', f.t, i === 0), inn = $('.fold-in', d); inn.innerHTML = `<p class="note">${f.n}</p><p class="frame-s">${f.s}</p>`;
-      checker(inn, '', 'p7-frame-' + 'abcdef'[i], { part: 7, title: f.t, short: 'ABCDEF'[i] }); box.appendChild(d);
+      checker(inn, '', 'p7-frame-' + 'abcdef'[i], { part: 7, title: f.t, short: 'ABCDEF'[i] }, key); box.appendChild(d);
     });
   }
 
@@ -162,13 +200,8 @@
       const f = fold('Write', `Your turn ${i + 1}. ${t.t}`), d = $('.fold-in', f), id = 'p7-write-' + (i + 1); box.appendChild(f);
       A.reg({ id, part: 7, title: 'Your turn ' + (i + 1) + ': ' + t.t, short: 'Y' + (i + 1), kind: 'text' });
       d.innerHTML = `<p>${t.q}</p><textarea rows="5" aria-label="Your answer"></textarea>`;
-      const b = h('button', { class: 'btn ghost', type: 'button' }, 'Show a model answer'), out = h('div');
-      b.addEventListener('click', () => {
-        if (!wroteEnough(d, out)) return;
-        L.done(id);
-        out.innerHTML = `<div class="box sea"><div class="k">A model answer</div><p>${t.model}</p><p class="note">Tick what your answer has:</p>${t.check.map(c => `<label class="tick"><input type="checkbox"> ${c}</label>`).join('')}</div>`;
-      });
-      d.appendChild(b); d.appendChild(again(() => { $('textarea', d).value = ''; out.innerHTML = ''; L.restart([id]); })); d.appendChild(out);
+      const out = h('div');
+      written(d, id, t.model, t.check, out); d.appendChild(out);
     });
   }
 
@@ -203,23 +236,32 @@
       if (c.type === 'num') {
         const inp = h('input', { type: 'number', step: 'any', class: 'numin', 'aria-label': 'Your answer' }), b = h('button', { class: 'btn', type: 'button' }, 'Check');
         let wrong = 0;   // the working is offered only after two wrong answers
+        const whyT = () => typeof c.why === 'function' ? c.why() : c.why;
+        const sayWrong = () => {
+          out.innerHTML = `<span class="bad">✗ Not yet.</span> Try again.` + (wrong >= 2 ? ` Or <button class="linkish" type="button">show the working</button>.` : '');
+          const l = out.querySelector('.linkish'); if (l) l.addEventListener('click', () => { out.innerHTML = whyT(); ANS.put(id, { shown: 1 }); });
+        };
         b.addEventListener('click', () => {
-          const v = parseFloat(inp.value); const ans = typeof c.ans === 'function' ? c.ans() : c.ans, why = typeof c.why === 'function' ? c.why() : c.why;
+          const v = parseFloat(inp.value); const ans = typeof c.ans === 'function' ? c.ans() : c.ans;
           if (isNaN(v)) { out.innerHTML = 'Type a number first.'; return; }
           L.check(id, Math.abs(v - ans) <= c.tol, [String(inp.value).trim().slice(0, 20)]);
-          if (Math.abs(v - ans) <= c.tol) { out.innerHTML = `<span class="ok">✓ Correct.</span> ${why}`; return; }
+          if (Math.abs(v - ans) <= c.tol) { out.innerHTML = `<span class="ok">✓ Correct.</span> ${whyT()}`; ANS.put(id, { v: inp.value, ok: 1, wrong: wrong }); return; }
           wrong++;
-          out.innerHTML = `<span class="bad">✗ Not yet.</span> Try again.` + (wrong >= 2 ? ` Or <button class="linkish" type="button">show the working</button>.` : '');
-          const l = out.querySelector('.linkish'); if (l) l.addEventListener('click', () => { out.innerHTML = why; });
+          ANS.put(id, { v: inp.value, wrong: wrong });
+          sayWrong();
         });
+        inp.addEventListener('input', () => ANS.put(id, { v: inp.value }));
         d.appendChild(inp); d.appendChild(b); d.appendChild(again(() => { inp.value = ''; wrong = 0; out.innerHTML = ''; L.restart([id]); }));
+        const s0 = ANS.get(id);   /* drawn again as it was */
+        if (s0) {
+          inp.value = s0.v || ''; wrong = s0.wrong || 0;
+          if (s0.shown) out.innerHTML = whyT(); else if (s0.ok) out.innerHTML = `<span class="ok">✓ Correct.</span> ${whyT()}`; else if (wrong) sayWrong();
+        }
       } else if (c.type === 'mcq') {
         const reset = A.mcq(d, c, 31 + i * 5, id); d.appendChild(again(reset)); return;
       } else {
         d.insertAdjacentHTML('beforeend', '<textarea rows="6" aria-label="Your answer"></textarea>');
-        const b = h('button', { class: 'btn ghost', type: 'button' }, 'Show a model answer');
-        b.addEventListener('click', () => { if (!wroteEnough(d, out)) return; L.done(id); out.innerHTML = `<div class="box sea"><div class="k">A model answer</div><p>${c.model}</p><p class="note">Tick what your answer has:</p>${c.check.map(x => `<label class="tick"><input type="checkbox"> ${x}</label>`).join('')}</div>`; });
-        d.appendChild(b); d.appendChild(again(() => { $('textarea', d).value = ''; out.innerHTML = ''; L.restart([id]); }));
+        written(d, id, c.model, c.check, out);
       }
       d.appendChild(out);
     });

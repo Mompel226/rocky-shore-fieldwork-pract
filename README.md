@@ -20,11 +20,11 @@ challenge questions (including the Lincoln index) and an R extension. Parts 1–
 fills any time left; then about 20 minutes of real IB questions on paper, which the teacher hands out
 (IB copyright, so they are not in this repository).
 
-The ten parts are tabs along the top; each tab fills with a ring as its questions are answered, and each part opens with "Your task" and a tally. The photograph stays on the left in every part and shows that part's
+The ten parts are tabs along the top; a thin bar under each part's name fills as its questions are answered (a green circle when all are done; version 27 replaced a ring that read as a broken circle), and each part opens with "Your task" and a tally. **Every answer survives a reload** (version 27, 12 Oct 2026): typed words and numbers, choices, written answers, model answers opened and their ticks, the marks of each Check, the chi-squared step and its unlocked tables are kept in the browser (`rocky-shore.answers`, by the question's board id) and drawn again exactly as they were; ↺ Start again forgets only its own questions. The photograph stays on the left in every part and shows that part's
 results: the transect, the random area zoomed in, each random quadrat in the colour of its chi-squared group,
 the limpet counts of the challenge, and the temperature and cover beside each transect quadrat. After each
 piece of theory a **Quick check** asks a typed or multiple-choice question (options in a new random order
-each time, of similar length); in part 5, each table opens only after its quick check.
+each time, of similar length); in part 5, each table opens only after its quick check, and the observed and expected tables sit side by side under the photograph, which shrinks on a short screen so the photo and both tables are seen together.
 
 Part 10, **Your field trip**, is about the real trip, taken from the teacher's workbook (which changes every year and
 is not published): a rocky shore of dark volcanic rock with shallow pools; the animals students may find (top shell
@@ -45,7 +45,7 @@ has every Check, every choice and every ↺ Start again kept for their teacher, 
 they were right at the first check, and the wrong answers they typed or chose. It is saved a minute after their last
 answer, and only for students on the teacher's class list. The teacher sees it on the teacher page's **🔬 Practicals** tab:
 one square per question for each student, the questions the class finds hardest, and **● Live** during the lesson. It is
-not homework and not a mark. Signed out, the page works exactly the same and nothing leaves the browser.
+not homework and not a mark. Signed out, the page works exactly the same and nothing leaves the browser. The answers themselves stay in the browser either way: on another computer the board still has the record, but the boxes start empty.
 
 Behind it: `js/lesson.js` and `js/signin.js` are copies of `labs-shared/` (made by `tools/practicals-sync.mjs` in the
 workspace), `js/config.js` names this practical, and `data/questions.json` lists its questions for the board
