@@ -8,8 +8,11 @@ ecology field trip — listed under the IB toggle of the [Biology Hub](https://n
 
 Students practise the skills of the field trip on a practice shore before they go (not the shore of their trip): a real drone photograph of a rocky
 shore at low tide, with a 10 m transect and a 5 m × 5 m random-quadrat area drawn on it. Each quadrat
-opens as a close-up whose seaweed patches follow the photograph at that spot; they estimate percentage
-cover, lift the seaweed, count limpets, and then analyse their own numbers: a chi-squared test for
+opens as a diagram of a 0.5 m frame on the rock, with a key. In a transect quadrat they measure percentage
+cover by pressing every square of a 10 × 10 grid that is at least half covered (the page adds them up; Check,
+then "Show our squares"), lifting the seaweed for the barnacles. In a random quadrat they count the limpets
+by pressing each one (a periwinkle is not a limpet; a limpet on the frame counts only if more than half is
+inside) and say whether sea lettuce is present. Then they analyse their own numbers: a chi-squared test for
 association (limpets and sea lettuce), Pearson correlation with rock temperature (three species, three
 lessons: a straight line, a curve, a hump), a kite diagram, sentence frames for writing about data (every word and number typed, never chosen), harder
 challenge questions (including the Lincoln index) and an R extension. Parts 1–7 take about 50 minutes; part 8
@@ -49,20 +52,20 @@ workspace), `js/config.js` names this practical, and `data/questions.json` lists
 id when you reword it, or its students' records move to a new square.
 
 ## The data
-Simulated, and the page says so. The drone photograph is real; everything drawn on it is made for the
-page. `tools/make-shore.py` builds every quadrat image and `js/shore-data.js`: green and brown seaweed
-cover come from the photograph's colours at each quadrat (so the close-ups agree with the view from above,
-and a random quadrat that is partly a rock pool on the photograph shows the pool water in that part);
-barnacle cover, limpet numbers and rock temperatures are designed. Percentage cover is the grid count a
-careful student makes (squares at least half covered). The random quadrats were chosen so that every
-expected value is at least 5 (χ² = 8.17, p = 0.0043), inside one zone (the middle shore), as part 2 teaches. The source photographs are not in this repository:
-`tools/source-credits.json` lists each one with its licence and page.
+Simulated, and the page says so. The drone photograph is real; everything drawn on it is made for the page.
+`tools/make-shore.py` draws every quadrat as a diagram (`img/quad/*.svg`) and writes `js/shore-data.js` (12 Oct 2026:
+the photo close-ups before it could not be read, and are in the estate's Archive). Seaweed patches follow the drone
+photograph's colours at each quadrat; the cover of each species is the grid count of what is drawn (squares at least
+half covered), and the numbers are the first build's, so every analysis on the page is unchanged. `sq` in the data is
+our grid for "Show our squares"; `an` lists each animal of a random quadrat (position, limpet or periwinkle, counted
+or not). The random quadrats were chosen so that every expected value is at least 5 (χ² = 8.17, p = 0.0043), inside one
+zone (the middle shore), as part 2 teaches. Copy and Download in part 3 give exactly the numbers the page uses, so r in
+Google Sheets is the page's r. The generator needs the drone photograph in `full/` (not in this repository; its licence
+is in `tools/source-credits.json`).
 
 ## Pictures
 - Drone photograph of the shore: Boris Izmaylov, [Unsplash](https://unsplash.com/photos/vibrant-blue-ocean-meets-a-rocky-moss-covered-coastline-UFHcOip6GJA) (Unsplash Licence).
-- Textures in the quadrats: barnacles (Stickpen, public domain), rock (Vestman, CC BY 2.0), sea lettuce
-  (W.carter, CC0), brown seaweed (Ryan Hodnett, CC BY-SA 4.0), limpets *Cellana toreuma* (Jan Delsing,
-  public domain); pages in `tools/source-credits.json`.
+- The quadrat diagrams: drawn by `tools/make-shore.py` for this page (CC BY-NC-SA 4.0, as the teaching material).
 - Part 10's photographs of the top shell, limpet and chiton (`img/species/`): Dr Daniel Mompel Riera, CC BY-NC-SA 4.0,
   cropped from his own photographs; no camera or place data kept.
 - Part 10's pictures of the things to bring (`img/kit/`): [Fluent Emoji](https://github.com/microsoft/fluentui-emoji),

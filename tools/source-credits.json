@@ -1,59 +1,8 @@
 {
- "barnacles": {
-  "title": "Buckshotbarnacles.jpg",
-  "artist": "Stickpen",
-  "licence": "Public domain",
-  "licence_url": "",
-  "page": "https://commons.wikimedia.org/wiki/File:Buckshotbarnacles.jpg",
-  "w": 2576,
-  "h": 1995
- },
- "rock": {
-  "title": "Vestmannaeyjar - Rock Texture (4075340901).jpg",
-  "artist": "Vestman from Helsinki, Finland",
-  "licence": "CC BY 2.0",
-  "licence_url": "https://creativecommons.org/licenses/by/2.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Vestmannaeyjar_-_Rock_Texture_(4075340901).jpg",
-  "w": 2592,
-  "h": 3872
- },
- "ulva": {
-  "title": "Sea lettuce in Brofjorden 1 - cropped.jpg",
-  "artist": "W.carter",
-  "licence": "CC0",
-  "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-  "page": "https://commons.wikimedia.org/wiki/File:Sea_lettuce_in_Brofjorden_1_-_cropped.jpg",
-  "w": 3025,
-  "h": 3026
- },
- "limpet1": {
-  "title": "Cellana toreuma 001.jpg",
-  "artist": "Jan Delsing",
-  "licence": "Public domain",
-  "licence_url": "",
-  "page": "https://commons.wikimedia.org/wiki/File:Cellana_toreuma_001.jpg",
-  "w": 1030,
-  "h": 1122
- },
- "limpet2": {
-  "title": "Cellana toreuma 002.jpg",
-  "artist": "Jan Delsing",
-  "licence": "Public domain",
-  "licence_url": "",
-  "page": "https://commons.wikimedia.org/wiki/File:Cellana_toreuma_002.jpg",
-  "w": 1006,
-  "h": 1024
- },
  "drone": {
   "title": "UFHcOip6GJA",
   "artist": "Boris Izmaylov",
   "licence": "Unsplash Licence",
   "page": "https://unsplash.com/photos/vibrant-blue-ocean-meets-a-rocky-moss-covered-coastline-UFHcOip6GJA"
- },
- "rockweed": {
-  "title": "Rockweed (Fucus distichus) - Mobile, Newfoundland 2019-08-09.jpg",
-  "artist": "Ryan Hodnett",
-  "licence": "CC BY-SA 4.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Rockweed_(Fucus_distichus)_-_Mobile,_Newfoundland_2019-08-09.jpg"
  }
 }

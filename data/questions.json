@@ -223,79 +223,79 @@
    "short": "G"
   },
   {
-   "id": "p3-t0",
+   "id": "p3-c0",
    "part": 3,
-   "title": "Quadrat at 0 m",
+   "title": "Cover in the quadrat at 0 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t1",
+   "id": "p3-c1",
    "part": 3,
-   "title": "Quadrat at 1 m",
+   "title": "Cover in the quadrat at 1 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t2",
+   "id": "p3-c2",
    "part": 3,
-   "title": "Quadrat at 2 m",
+   "title": "Cover in the quadrat at 2 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t3",
+   "id": "p3-c3",
    "part": 3,
-   "title": "Quadrat at 3 m",
+   "title": "Cover in the quadrat at 3 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t4",
+   "id": "p3-c4",
    "part": 3,
-   "title": "Quadrat at 4 m",
+   "title": "Cover in the quadrat at 4 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t5",
+   "id": "p3-c5",
    "part": 3,
-   "title": "Quadrat at 5 m",
+   "title": "Cover in the quadrat at 5 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t6",
+   "id": "p3-c6",
    "part": 3,
-   "title": "Quadrat at 6 m",
+   "title": "Cover in the quadrat at 6 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t7",
+   "id": "p3-c7",
    "part": 3,
-   "title": "Quadrat at 7 m",
+   "title": "Cover in the quadrat at 7 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t8",
+   "id": "p3-c8",
    "part": 3,
-   "title": "Quadrat at 8 m",
+   "title": "Cover in the quadrat at 8 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t9",
+   "id": "p3-c9",
    "part": 3,
-   "title": "Quadrat at 9 m",
+   "title": "Cover in the quadrat at 9 m",
    "kind": "quad",
    "group": "p3-transect"
   },
   {
-   "id": "p3-t10",
+   "id": "p3-c10",
    "part": 3,
-   "title": "Quadrat at 10 m",
+   "title": "Cover in the quadrat at 10 m",
    "kind": "quad",
    "group": "p3-transect"
   },
@@ -333,212 +333,212 @@
    ]
   },
   {
-   "id": "p4-r1",
+   "id": "p4-n1",
    "part": 4,
-   "title": "Random quadrat 1 (across 7, down 9)",
+   "title": "Limpets in random quadrat 1 (across 7, down 9)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r2",
+   "id": "p4-n2",
    "part": 4,
-   "title": "Random quadrat 2 (across 9, down 9)",
+   "title": "Limpets in random quadrat 2 (across 9, down 9)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r3",
+   "id": "p4-n3",
    "part": 4,
-   "title": "Random quadrat 3 (across 6, down 2)",
+   "title": "Limpets in random quadrat 3 (across 6, down 2)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r4",
+   "id": "p4-n4",
    "part": 4,
-   "title": "Random quadrat 4 (across 3, down 5)",
+   "title": "Limpets in random quadrat 4 (across 3, down 5)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r5",
+   "id": "p4-n5",
    "part": 4,
-   "title": "Random quadrat 5 (across 1, down 2)",
+   "title": "Limpets in random quadrat 5 (across 1, down 2)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r6",
+   "id": "p4-n6",
    "part": 4,
-   "title": "Random quadrat 6 (across 5, down 0)",
+   "title": "Limpets in random quadrat 6 (across 5, down 0)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r7",
+   "id": "p4-n7",
    "part": 4,
-   "title": "Random quadrat 7 (across 4, down 1)",
+   "title": "Limpets in random quadrat 7 (across 4, down 1)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r8",
+   "id": "p4-n8",
    "part": 4,
-   "title": "Random quadrat 8 (across 3, down 7)",
+   "title": "Limpets in random quadrat 8 (across 3, down 7)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r9",
+   "id": "p4-n9",
    "part": 4,
-   "title": "Random quadrat 9 (across 9, down 5)",
+   "title": "Limpets in random quadrat 9 (across 9, down 5)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r10",
+   "id": "p4-n10",
    "part": 4,
-   "title": "Random quadrat 10 (across 4, down 9)",
+   "title": "Limpets in random quadrat 10 (across 4, down 9)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r11",
+   "id": "p4-n11",
    "part": 4,
-   "title": "Random quadrat 11 (across 0, down 1)",
+   "title": "Limpets in random quadrat 11 (across 0, down 1)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r12",
+   "id": "p4-n12",
    "part": 4,
-   "title": "Random quadrat 12 (across 4, down 4)",
+   "title": "Limpets in random quadrat 12 (across 4, down 4)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r13",
+   "id": "p4-n13",
    "part": 4,
-   "title": "Random quadrat 13 (across 9, down 8)",
+   "title": "Limpets in random quadrat 13 (across 9, down 8)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r14",
+   "id": "p4-n14",
    "part": 4,
-   "title": "Random quadrat 14 (across 1, down 5)",
+   "title": "Limpets in random quadrat 14 (across 1, down 5)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r15",
+   "id": "p4-n15",
    "part": 4,
-   "title": "Random quadrat 15 (across 8, down 9)",
+   "title": "Limpets in random quadrat 15 (across 8, down 9)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r16",
+   "id": "p4-n16",
    "part": 4,
-   "title": "Random quadrat 16 (across 2, down 9)",
+   "title": "Limpets in random quadrat 16 (across 2, down 9)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r17",
+   "id": "p4-n17",
    "part": 4,
-   "title": "Random quadrat 17 (across 9, down 4)",
+   "title": "Limpets in random quadrat 17 (across 9, down 4)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r18",
+   "id": "p4-n18",
    "part": 4,
-   "title": "Random quadrat 18 (across 3, down 2)",
+   "title": "Limpets in random quadrat 18 (across 3, down 2)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r19",
+   "id": "p4-n19",
    "part": 4,
-   "title": "Random quadrat 19 (across 1, down 7)",
+   "title": "Limpets in random quadrat 19 (across 1, down 7)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r20",
+   "id": "p4-n20",
    "part": 4,
-   "title": "Random quadrat 20 (across 3, down 9)",
+   "title": "Limpets in random quadrat 20 (across 3, down 9)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r21",
+   "id": "p4-n21",
    "part": 4,
-   "title": "Random quadrat 21 (across 1, down 8)",
+   "title": "Limpets in random quadrat 21 (across 1, down 8)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r22",
+   "id": "p4-n22",
    "part": 4,
-   "title": "Random quadrat 22 (across 5, down 7)",
+   "title": "Limpets in random quadrat 22 (across 5, down 7)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r23",
+   "id": "p4-n23",
    "part": 4,
-   "title": "Random quadrat 23 (across 9, down 3)",
+   "title": "Limpets in random quadrat 23 (across 9, down 3)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r24",
+   "id": "p4-n24",
    "part": 4,
-   "title": "Random quadrat 24 (across 2, down 8)",
+   "title": "Limpets in random quadrat 24 (across 2, down 8)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r25",
+   "id": "p4-n25",
    "part": 4,
-   "title": "Random quadrat 25 (across 3, down 1)",
+   "title": "Limpets in random quadrat 25 (across 3, down 1)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r26",
+   "id": "p4-n26",
    "part": 4,
-   "title": "Random quadrat 26 (across 6, down 4)",
+   "title": "Limpets in random quadrat 26 (across 6, down 4)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r27",
+   "id": "p4-n27",
    "part": 4,
-   "title": "Random quadrat 27 (across 1, down 3)",
+   "title": "Limpets in random quadrat 27 (across 1, down 3)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r28",
+   "id": "p4-n28",
    "part": 4,
-   "title": "Random quadrat 28 (across 0, down 8)",
+   "title": "Limpets in random quadrat 28 (across 0, down 8)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r29",
+   "id": "p4-n29",
    "part": 4,
-   "title": "Random quadrat 29 (across 8, down 1)",
+   "title": "Limpets in random quadrat 29 (across 8, down 1)",
    "kind": "quad",
    "group": "p4-random"
   },
   {
-   "id": "p4-r30",
+   "id": "p4-n30",
    "part": 4,
-   "title": "Random quadrat 30 (across 9, down 0)",
+   "title": "Limpets in random quadrat 30 (across 9, down 0)",
    "kind": "quad",
    "group": "p4-random"
   },

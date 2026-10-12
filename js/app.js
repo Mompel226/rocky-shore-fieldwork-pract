@@ -185,17 +185,21 @@
   $$('#method-choices button').forEach(b => b.addEventListener('click', () => drawMethod(b.dataset.m)));
 
   /* ---------------- part 3: the transect ---------------- */
+  /* Percentage cover by pressing squares (12 Oct 2026, Daniel and his students: the photo close-ups could not be read, and
+     a guess is not a measurement). Each quadrat is a diagram (tools/make-shore.py); the page lays a 10 × 10 grid over it,
+     and each square at least half covered by a species is 1 %. Limpets are counted in the random quadrats (part 4). */
   const SP = [
-    { k: 'barn', name: 'Barnacles', unit: '%', col: 'var(--barn)', hex: '#F5F5F0', note: 'with the seaweed lifted' },
-    { k: 'green', name: 'Sea lettuce', unit: '%', col: 'var(--green)', hex: '#6BE34B' },
-    { k: 'brown', name: 'Brown seaweed', unit: '%', col: 'var(--brown)', hex: '#E0A030' },
-    { k: 'limp', name: 'Limpets', unit: 'number', col: 'var(--limp)', hex: '#FF7A59', note: 'with the seaweed lifted' }
+    { k: 'barn', name: 'Barnacles', unit: '%', col: 'var(--barn)', hex: '#F5F5F0', ink: '#5B5446', note: 'with the seaweed lifted' },
+    { k: 'green', name: 'Sea lettuce', unit: '%', col: 'var(--green)', hex: '#6BE34B', ink: '#23731A' },
+    { k: 'brown', name: 'Brown seaweed', unit: '%', col: 'var(--brown)', hex: '#E0A030', ink: '#6E430A' }
   ];
-  let mine = store.get('transect', {});        // {d: {barn, green, brown, limp}}
+  let mine = store.get('transect3', {});       // {d: {sel: {barn: [squares], green, brown}, done, filled}}
+  const tDone = d => !!(mine[d] && mine[d].done);
+  const tVal = (d, k) => { const m = mine[d]; if (!m || !m.done) return ''; return m.filled ? ST.find(s => s.d === d)[k] : (m.sel[k] || []).length; };
   function drawTransect(sel) {
     clear(); scaleBar(); tape();
     ST.forEach(s => {
-      const done = mine[s.d] && SP.every(p => mine[s.d][p.k] !== '' && mine[s.d][p.k] != null);
+      const done = tDone(s.d);
       el('rect', { class: 'q' + (sel === s.d ? ' on' : done ? ' done' : ''), x: TX(s), y: s.py - Q / 2, width: Q, height: Q }, ov);
       const g = el('g', { class: 'stn' + (done ? ' done' : ''), tabindex: 0, role: 'button', 'aria-label': 'Quadrat at ' + s.d + ' m' }, ov);
       el('line', { class: 'leader', x1: s.px - 72, y1: s.py, x2: TX(s), y2: s.py }, g);
@@ -207,7 +211,7 @@
     label(ST[10].px + 60, ST[10].py + 14, '10 m: near the sea');
     $('#t-pick').innerHTML = '';
     ST.forEach(s => {
-      const done = mine[s.d] && SP.every(p => mine[s.d][p.k] !== '' && mine[s.d][p.k] != null);
+      const done = tDone(s.d);
       const b = h('button', { type: 'button', class: done ? 'done' : '', 'aria-label': 'Quadrat at ' + s.d + ' m' + (done ? ', recorded' : '') }, s.d + ' m');
       b.addEventListener('click', () => openQuad('t', s.d));
       $('#t-pick').appendChild(b);
@@ -217,11 +221,11 @@
      be found on the shore; the square is shaded by that value */
   function drawCorr() {
     clear(); scaleBar(); tape();
-    const S = series(true), p = SP.find(x => x.k === sp), max = sp === 'limp' ? 10 : 100;
+    const S = series(true), p = SP.find(x => x.k === sp), max = 100;
     ST.forEach((s, i) => {
       const v = S[i][sp];
       el('rect', { class: 'q', x: TX(s), y: s.py - Q / 2, width: Q, height: Q, style: `fill:${p.hex};fill-opacity:${Math.min(1, v / max) * 0.9}` }, ov);
-      el('text', { class: 'lab-s', x: s.px + 50, y: s.py + 12 }, ov, `${fmt(s.temp, 1)} °C · ${v}${sp === 'limp' ? ' limpets' : ' %'}`);
+      el('text', { class: 'lab-s', x: s.px + 50, y: s.py + 12 }, ov, `${fmt(s.temp, 1)} °C · ${v} %`);
     });
     el('text', { class: 'lab', x: TX(ST[10]) - 20, y: ST[10].py - 70, 'text-anchor': 'middle' }, ov, p.name);
   }
@@ -242,41 +246,46 @@
   }
   function tableT() {
     const t = $('#t-table');
-    let html = '<thead><tr><th>Distance<br>/ m</th><th>Rock temperature<br>/ °C</th>' + SP.map(p => `<th><span class="sw" style="background:${p.col}"></span>${p.name}<br>/ ${p.unit === '%' ? '%' : 'number'}</th>`).join('') + '</tr></thead><tbody>';
+    let html = '<thead><tr><th>Distance<br>/ m</th><th>Rock temperature<br>/ °C</th>' + SP.map(p => `<th><span class="sw" style="background:${p.col}"></span>${p.name}<br>/ %</th>`).join('') + '</tr></thead><tbody>';
     ST.forEach(s => {
-      const m = mine[s.d] || {};
-      html += `<tr><td>${s.d}</td><td>${fmt(s.temp, 1)}</td>` + SP.map(p => { const v = m[p.k]; return v === '' || v == null ? '<td class="miss">—</td>' : `<td>${v}</td>`; }).join('') + '</tr>';
+      html += `<tr><td>${s.d}</td><td>${fmt(s.temp, 1)}</td>` + SP.map(p => { const v = tVal(s.d, p.k); return v === '' ? '<td class="miss">—</td>' : `<td>${v}</td>`; }).join('') + '</tr>';
     });
     t.innerHTML = html + '</tbody>';
   }
+  /* each row: distance, temperature, then each species' cover: the pupil's own where recorded, else ours (useKey) */
   function rowsT(useKey) {
-    return ST.map(s => {
-      const m = mine[s.d] || {};
-      return [s.d, s.temp].concat(SP.map(p => (m[p.k] !== '' && m[p.k] != null) ? Number(m[p.k]) : (useKey ? s[p.k] : '')));
-    });
+    return ST.map(s => [s.d, s.temp].concat(SP.map(p => { const v = tVal(s.d, p.k); return v === '' ? (useKey ? s[p.k] : '') : v; })));
   }
-  const HEAD_T = ['distance_m', 'temperature_C', 'barnacles_pct', 'sea_lettuce_pct', 'brown_seaweed_pct', 'limpets_n'];
-  const HEAD_T_SHEETS = ['Distance / m', 'Rock temperature / °C', 'Barnacles / %', 'Sea lettuce / %', 'Brown seaweed / %', 'Limpets / number'];
+  const HEAD_T = ['distance_m', 'temperature_C', 'barnacles_pct', 'sea_lettuce_pct', 'brown_seaweed_pct'];
+  const HEAD_T_SHEETS = ['Distance / m', 'Rock temperature / °C', 'Barnacles / %', 'Sea lettuce / %', 'Brown seaweed / %'];
   function download(name, text) {
     const a = h('a', { href: URL.createObjectURL(new Blob([text], { type: 'text/csv' })), download: name });
     document.body.appendChild(a); a.click(); a.remove();
   }
+  /* Copy and Download give exactly the numbers parts 6 and 7 use (yours, and ours in a quadrat you have not recorded),
+     so r in Google Sheets is the r on this page. Before 12 Oct 2026 they left those cells empty: CORREL then used only the
+     quadrats a pupil had done, and one pupil's r had the opposite sign to the page's. */
+  const missingT = () => ST.filter(s => !tDone(s.d)).length;
   $('#t-copy').addEventListener('click', async () => {
-    const txt = [HEAD_T_SHEETS].concat(rowsT(false)).map(r => r.join('\t')).join('\n');
-    try { await navigator.clipboard.writeText(txt); $('#t-msg').textContent = 'Copied. In Google Sheets, click cell A1 and paste.'; }
+    const txt = [HEAD_T_SHEETS].concat(rowsT(true)).map(r => r.join('\t')).join('\n'), n = missingT();
+    const said = n ? ` ${n} quadrat${n > 1 ? 's' : ''} you have not recorded use${n > 1 ? '' : 's'} our counts, as in part 6.` : '';
+    try { await navigator.clipboard.writeText(txt); $('#t-msg').textContent = 'Copied. In Google Sheets, click cell A1 and paste.' + said; }
     catch (e) { $('#t-msg').textContent = 'Your browser blocked copying. Use Download as CSV, then File ▸ Import in Google Sheets.'; }
   });
-  $('#t-csv').addEventListener('click', () => download('transect.csv', [HEAD_T].concat(rowsT(false)).map(r => r.join(',')).join('\n')));
+  $('#t-csv').addEventListener('click', () => download('transect.csv', [HEAD_T].concat(rowsT(true)).map(r => r.join(',')).join('\n')));
   $('#t-fill').addEventListener('click', () => {
-    ST.forEach(s => { mine[s.d] = mine[s.d] || {}; SP.forEach(p => { if (mine[s.d][p.k] === '' || mine[s.d][p.k] == null) { mine[s.d][p.k] = s[p.k]; store.set('tfilled', true); } }); });
-    store.set('transect', mine); tableT(); drawTransect(); $('#t-msg').textContent = 'The empty cells now hold our counts. Your own estimates are unchanged.';
+    ST.forEach(s => { if (!tDone(s.d)) { mine[s.d] = { sel: (mine[s.d] || {}).sel || {}, done: true, filled: true }; store.set('tfilled', true); } });
+    store.set('transect3', mine); tableT(); drawTransect(); $('#t-msg').textContent = 'The empty rows now hold our counts. Your own quadrats are unchanged.';
   });
-  $('#t-clear').addEventListener('click', () => { if (!confirm('Delete all your transect estimates?')) return; L.restart(ST.map(s => 'p3-t' + s.d)); mine = {}; store.set('transect', mine); store.set('tfilled', false); tableT(); drawTransect(); });
+  $('#t-clear').addEventListener('click', () => { if (!confirm('Delete all your transect records?')) return; L.restart(ST.map(s => 'p3-c' + s.d)); mine = {}; store.set('transect3', mine); store.set('tfilled', false); tableT(); drawTransect(); });
 
   /* ---------------- part 4: random quadrats ---------------- */
   const A = D.area, AX = A.x0 * PW, AY = A.y0 * PH, CELL = 50;
   const RQ = D.random.filter(r => !r.skip);
-  let rmine = store.get('random', {});         // {q: {limp: 'yes'|'no', green: 'yes'|'no'}}
+  let rmine = store.get('random3', {});        // {q: {marks: [the animals pressed, in order], green: 'yes'|'no', done, filled}}
+  const rDone = q => !!(rmine[q] && rmine[q].done);
+  const rLimp = r => rmine[r.q].filled ? r.limp : rmine[r.q].marks.length;              /* the limpets the pupil counted */
+  const rGreen = r => rmine[r.q].filled ? (r.green > 0 ? 'yes' : 'no') : rmine[r.q].green;
   let rnext = store.get('rnext', 0);
   const ZOOM = [AX - 140, AY - 52, 760, 641];          /* the 5 m × 5 m area with its labels, about twice as large */
   const POOLQ = D.random.filter(r => r.skip);           /* the square skipped because it is mostly a rock pool */
@@ -293,9 +302,9 @@
     clear(methodView ? null : ZOOM); scaleBar();
     for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) {
       const r = RQ.find(q => q.gx === i && q.gy === j);
-      const cls = 'cell' + (methodView ? (r ? ' pick' : '') : r && rmine[r.q] ? ' seen' : r && RQ.indexOf(r) === rnext - 1 ? ' pick' : '');
+      const cls = 'cell' + (methodView ? (r ? ' pick' : '') : r && rDone(r.q) ? ' seen' : r && RQ.indexOf(r) === rnext - 1 ? ' pick' : '');
       const c = el('rect', { class: cls, x: AX + i * CELL, y: AY + j * CELL, width: CELL, height: CELL }, ov);
-      if (!methodView && r && (rmine[r.q] || RQ.indexOf(r) < rnext)) { c.style.cursor = 'pointer'; c.addEventListener('click', () => openQuad('r', r.q)); }
+      if (!methodView && r && (rDone(r.q) || RQ.indexOf(r) < rnext)) { c.style.cursor = 'pointer'; c.addEventListener('click', () => openQuad('r', r.q)); }
     }
     areaFrame();
   }
@@ -304,7 +313,7 @@
   const CAT = { yy: { c: '#8B5CF6', l: 'L+S', w: 'limpets and sea lettuce' }, yn: { c: '#F97316', l: 'L', w: 'limpets only' },
                 ny: { c: '#22C55E', l: 'S', w: 'sea lettuce only' }, nn: { c: '#E5E7EB', l: '–', w: 'neither' } };
   function catOf(r) {
-    const m = rmine[r.q], L = m ? m.limp === 'yes' : r.limp > 0, G = m ? m.green === 'yes' : r.green > 0;
+    const m = rDone(r.q), L = m ? rLimp(r) > 0 : r.limp > 0, G = m ? rGreen(r) === 'yes' : r.green > 0;
     return (L ? 'y' : 'n') + (G ? 'y' : 'n');
   }
   function drawChiArea() {
@@ -333,7 +342,7 @@
     const o = { yy: 0, yn: 0, ny: 0, nn: 0, n: 0 };
     RQ.forEach(r => {
       let L, G;
-      if (rmine[r.q]) { L = rmine[r.q].limp === 'yes'; G = rmine[r.q].green === 'yes'; }
+      if (rDone(r.q)) { L = rLimp(r) > 0; G = rGreen(r) === 'yes'; }
       else if (useKey) { L = r.limp > 0; G = r.green > 0; }
       else return;
       o.n++; o[(L ? 'y' : 'n') + (G ? 'y' : 'n')]++;
@@ -346,8 +355,8 @@
       <tr><th>Limpets present</th><td>${c.yy}</td><td>${c.yn}</td><td>${c.yy + c.yn}</td></tr>
       <tr><th>Limpets absent</th><td>${c.ny}</td><td>${c.nn}</td><td>${c.ny + c.nn}</td></tr>
       <tr><th>Total</th><td>${c.yy + c.ny}</td><td>${c.yn + c.nn}</td><td>${c.n}</td></tr></tbody>`;
-    let html = '<thead><tr><th>Quadrat</th><th>Across</th><th>Down</th><th>Limpets</th><th>Sea lettuce</th></tr></thead><tbody>';
-    RQ.forEach(r => { const m = rmine[r.q]; if (m) html += `<tr><td>${r.q}</td><td>${r.gx}</td><td>${r.gy}</td><td>${m.limp === 'yes' ? 'present' : 'absent'}</td><td>${m.green === 'yes' ? 'present' : 'absent'}</td></tr>`; });
+    let html = '<thead><tr><th>Quadrat</th><th>Across</th><th>Down</th><th>Limpets<br>/ number</th><th>Limpets</th><th>Sea lettuce</th></tr></thead><tbody>';
+    RQ.forEach(r => { if (rDone(r.q)) { const n = rLimp(r); html += `<tr><td>${r.q}</td><td>${r.gx}</td><td>${r.gy}</td><td>${n}</td><td>${n > 0 ? 'present' : 'absent'}</td><td>${rGreen(r) === 'yes' ? 'present' : 'absent'}</td></tr>`; } });
     $('#r-table').innerHTML = html + '</tbody>';
     $('#r-status').textContent = c.n === 30 ? 'All 30 quadrats are recorded. Go on to part 5.' : `${c.n} of 30 quadrats recorded.`;
     $('#r-next').disabled = rnext >= RQ.length;
@@ -358,108 +367,189 @@
     openQuad('r', r.q);
   });
   $('#r-fill').addEventListener('click', () => {
-    RQ.forEach(r => { if (!rmine[r.q]) { rmine[r.q] = { limp: r.limp > 0 ? 'yes' : 'no', green: r.green > 0 ? 'yes' : 'no' }; store.set('rfilled', true); } });
-    rnext = RQ.length; store.set('random', rmine); store.set('rnext', rnext); drawArea(false); tableR();
+    RQ.forEach(r => { if (!rDone(r.q)) { rmine[r.q] = { marks: [], green: '', done: true, filled: true }; store.set('rfilled', true); } });
+    rnext = RQ.length; store.set('random3', rmine); store.set('rnext', rnext); drawArea(false); tableR();
   });
-  $('#r-clear').addEventListener('click', () => { if (!confirm('Delete all your random-quadrat records?')) return; L.restart(RQ.map(r => 'p4-r' + r.q)); rmine = {}; rnext = 0; store.set('random', rmine); store.set('rnext', 0); store.set('rfilled', false); drawArea(false); tableR(); });
+  $('#r-clear').addEventListener('click', () => { if (!confirm('Delete all your random-quadrat records?')) return; L.restart(RQ.map(r => 'p4-n' + r.q)); rmine = {}; rnext = 0; store.set('random3', rmine); store.set('rnext', 0); store.set('rfilled', false); drawArea(false); tableR(); });
   $('#r-csv').addEventListener('click', () => {
-    const rows = RQ.map(r => { const m = rmine[r.q] || { limp: r.limp > 0 ? 'yes' : 'no', green: r.green > 0 ? 'yes' : 'no' }; return [r.q, r.gx, r.gy, m.limp === 'yes' ? 'present' : 'absent', m.green === 'yes' ? 'present' : 'absent']; });
-    download('random-quadrats.csv', [['quadrat', 'across', 'down', 'limpets', 'sea_lettuce']].concat(rows).map(r => r.join(',')).join('\n'));
+    const rows = RQ.map(r => { const n = rDone(r.q) ? rLimp(r) : r.limp, g = rDone(r.q) ? rGreen(r) : (r.green > 0 ? 'yes' : 'no');
+      return [r.q, r.gx, r.gy, n, n > 0 ? 'present' : 'absent', g === 'yes' ? 'present' : 'absent']; });
+    download('random-quadrats.csv', [['quadrat', 'across', 'down', 'limpets_n', 'limpets', 'sea_lettuce']].concat(rows).map(r => r.join(',')).join('\n'));
   });
 
-  /* ---------------- the quadrat window ---------------- */
-  const dlg = $('#quad');
-  let cur = null, lifted = false;
-  function openQuad(kind, id) {
-    cur = { kind, id }; lifted = false;
-    const form = $('#quad-form'); form.innerHTML = ''; $('#quad-msg').textContent = '';
-    $('#quad-lift').setAttribute('aria-pressed', 'false');
+  /* ---------------- the quadrat window ----------------
+     Each quadrat is a diagram (img/quad/*.svg, tools/make-shore.py), put into the page so that the page can draw on it.
+     Transect (12 Oct 2026, Daniel: "how are the students expected to get it right … they were trying all of the
+     different values"): no number is typed. A 10 × 10 grid lies over the quadrat; a pupil chooses a species and presses
+     every square at least half covered by it; the page adds them up (each square is 1 %). After Check, "Show our squares"
+     lays our squares over theirs. Random quadrat: the pupil presses each limpet as it is counted (a periwinkle is not a
+     limpet; a limpet on the frame counts only if more than half of it is inside), and says whether sea lettuce is there. */
+  const dlg = $('#quad'), QD = D.quad, SVGS = {};                /* NS: the SVG namespace, defined above */
+  const VQ = (($('script[src*="js/app.js"]') || {}).src || '').split('v=')[1] || '1';
+  let cur = null, lifted = false, active = 'barn', showKey = false;
+  const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+  async function quadSvg(name) {
+    if (!SVGS[name]) SVGS[name] = await fetch(`img/quad/${name}.svg?v=${VQ}`).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); });
+    return SVGS[name];
+  }
+  /* the key beside every quadrat: each thing drawn, its name, and what to do with it here */
+  function legend(kind) {
+    const it = (pic, name, what) => `<li><svg viewBox="0 0 60 60" aria-hidden="true">${pic}</svg><span><b>${name}</b>${what}</span></li>`;
+    const rock = '<rect width="60" height="60" rx="8" fill="#CBC4B5"/>';
+    const barn = rock + '<rect x="6" y="6" width="48" height="48" rx="12" fill="#E9E3D5" stroke="#A9A08C" stroke-width="1.5"/>' +
+      [[19, 19], [41, 19], [30, 30], [19, 41], [41, 41]].map(([x, y]) => `<use href="#q-b" transform="translate(${x} ${y}) scale(.6)"/>`).join('');
+    const green = rock + '<path d="M8,30 C8,12 26,6 38,10 C54,14 56,32 48,44 C40,56 18,54 10,44 Z" fill="#7FBF4A" stroke="#356F1E" stroke-width="2"/>';
+    const brown = rock + '<path d="M8,30 C8,12 26,6 38,10 C54,14 56,32 48,44 C40,56 18,54 10,44 Z" fill="#A07F3A" stroke="#5A4413" stroke-width="2"/><path d="M20,40 L30,26 L24,16 M30,26 L40,18 M34,44 L40,32 L48,30" fill="none" stroke="#6B5219" stroke-width="2"/>';
+    const limpet = rock + '<use href="#q-limpet" x="7" y="10" width="46" height="40"/>';
+    const snail = rock + '<use href="#q-snail" x="14" y="14" width="32" height="32"/>';
+    const pool = rock + '<path d="M8,30 C8,14 24,8 36,10 C52,13 54,30 48,42 C40,54 16,54 10,42 Z" fill="#9CC2D6" stroke="#557F98" stroke-width="2"/>';
+    const frame = '<rect width="60" height="60" rx="8" fill="#CBC4B5"/><rect x="8" y="8" width="44" height="44" fill="none" stroke="#FBFBF8" stroke-width="6"/><rect x="5" y="5" width="50" height="50" fill="none" stroke="#8F8C83" stroke-width="1"/>';
+    const items = kind === 't'
+      ? [it(barn, 'Barnacles', 'a crowd of small plated cones: estimate their cover'), it(green, 'Sea lettuce', 'thin green sheets: estimate their cover'),
+         it(brown, 'Brown seaweed', 'olive fronds with air bladders: estimate their cover'), it(frame, 'The quadrat', 'the white frame, 0.5 m × 0.5 m inside')]
+      : [it(limpet, 'Limpet', 'a ribbed cone, no coil: count each one'), it(snail, 'Periwinkle', 'a snail with a coiled shell: not a limpet'),
+         it(green, 'Sea lettuce', 'present or absent?'), it(barn, 'Barnacles', 'not recorded here'), it(pool, 'Rock pool', 'water: nothing to record')];
+    return `<p class="qkey__h">Key</p><ul class="qkey">${items.join('')}</ul>`;
+  }
+  function sqCount(m, k) { return (m.sel[k] || []).length; }
+  function paintGrid() {
+    const pic = $('#quad-pic'), svg = $('svg', pic); if (!svg || !cur || cur.kind !== 't') return;
+    const s = ST.find(x => x.d === cur.id), m = mine[cur.id];
+    $$('.qgrid rect', svg).forEach(r => {
+      const i = +r.dataset.i, on = (m.sel[active] || []).includes(i), p = SP.find(q => q.k === active);
+      r.setAttribute('fill', on ? p.ink : 'transparent'); r.setAttribute('fill-opacity', on ? '.42' : '0');
+      r.classList.toggle('on', on); r.classList.toggle('key', showKey && s.sq[active][i] === '1');
+    });
+    const dots = $('.qdots', svg); dots.innerHTML = '';
+    SP.forEach((p, n) => { if (p.k === active) return; (m.sel[p.k] || []).forEach(i => svgEl('circle', { cx: QD.frame + (i % 10) * 100 + 16 + n * 18, cy: QD.frame + Math.floor(i / 10) * 100 + 16, r: 7, fill: p.ink, stroke: '#fff', 'stroke-width': 2 }, dots)); });
+    $$('#quad-form .qsp button').forEach(b => { const k = b.dataset.k; b.setAttribute('aria-pressed', String(k === active)); $('.qsp__n', b).textContent = sqCount(m, k) + ' %'; });
+    const hint = $('#quad-hint');
+    if (hint) hint.textContent = active === 'barn' && s.lifted && !lifted ? 'Barnacles also grow under the seaweed: press Lift the seaweed first, then press their squares.'
+      : `${SP.find(q => q.k === active).name}: ${sqCount(m, active)} squares pressed = ${sqCount(m, active)} %.`;
+  }
+  function paintAnimals() {
+    const pic = $('#quad-pic'), svg = $('svg', pic); if (!svg || !cur || cur.kind !== 'r') return;
+    const r = RQ.find(x => x.q === cur.id), m = rmine[cur.id], g = $('.qmarks', svg); g.innerHTML = '';
+    m.marks.forEach((j, n) => { const [x, y] = r.an[j]; svgEl('circle', { cx: x, cy: y - 46, r: 19, class: 'qbadge' }, g); svgEl('text', { x, y: y - 45, class: 'qbadge-t' }, g).textContent = n + 1; });
+    if (showKey) r.an.forEach(([x, y, k, c]) => { if (k === 'L' && c) svgEl('circle', { cx: x, cy: y, r: 52, class: 'qring' }, g); });
+    $('#q-n').textContent = m.marks.length;
+    $$('#quad-form .qgreen button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === m.green)));
+  }
+  async function openQuad(kind, id) {
+    cur = { kind, id }; lifted = false; showKey = false;
+    const own = () => { if (rmine[id].filled) rmine[id] = { marks: [], green: '' }; };   /* a filled random quadrat becomes the pupil's own on first touch */
+    const pic = $('#quad-pic'), form = $('#quad-form'); form.innerHTML = ''; $('#quad-msg').innerHTML = ''; pic.innerHTML = '';
+    $('#quad-lift').setAttribute('aria-pressed', 'false'); $('#quad-lift').textContent = 'Lift the seaweed';
+    $('#quad-key').innerHTML = '';
     if (kind === 't') {
-      const s = ST.find(x => x.d === id), m = mine[id] || {};
+      const s = ST.find(x => x.d === id);
+      mine[id] = mine[id] || { sel: {} }; SP.forEach(p => { mine[id].sel[p.k] = mine[id].sel[p.k] || []; });
       $('#quad-title').textContent = `Quadrat at ${id} m`;
-      $('#quad-sub').innerHTML = `0.5 m × 0.5 m, 100 small squares. Rock temperature from the probe: <b>${fmt(s.temp, 1)} °C</b>.`;
+      $('#quad-sub').innerHTML = `Rock temperature from the probe: <b>${fmt(s.temp, 1)} °C</b>.`;
+      $('#quad-how').innerHTML = 'Choose a species. Then press every small square that is <u>at least half covered</u> by it. Each square is 1 %: the page adds them up.';
       $('#quad-lift').style.display = s.lifted ? '' : 'none';
-      $('#quad-img').src = `img/t${String(id).padStart(2, '0')}.jpg`;
-      $('#quad-img').alt = `The quadrat at ${id} m along the transect`;
       $('#quad-tag').textContent = `${id} m`;
-      SP.forEach(p => {
-        const row = h('div', { class: 'row' });
-        row.innerHTML = `<label for="f-${p.k}"><span class="sw" style="background:${p.col}"></span>${p.name}${p.note ? ' <span class="note">(' + p.note + ')</span>' : ''}</label>
-          <input id="f-${p.k}" type="number" inputmode="numeric" min="0" max="${p.unit === '%' ? 100 : 50}" step="1" value="${m[p.k] != null ? m[p.k] : ''}" aria-label="${p.name} ${p.unit === '%' ? 'percentage cover' : 'number'}">
-          <span class="key">${p.unit}</span>`;
-        form.appendChild(row);
-      });
-      drawTransect(id);
+      const bar = h('div', { class: 'qsp', role: 'group', 'aria-label': 'Species' });
+      SP.forEach(p => { const b = h('button', { type: 'button', 'data-k': p.k, 'aria-pressed': 'false' }, `<span class="sw" style="background:${p.ink}"></span>${p.name}<b class="qsp__n"></b>`);
+        b.addEventListener('click', () => { active = p.k; paintGrid(); }); bar.appendChild(b); });
+      form.appendChild(bar); form.appendChild(h('p', { class: 'note', id: 'quad-hint', 'aria-live': 'polite' }));
     } else {
-      const r = RQ.find(x => x.q === id), m = rmine[id] || {};
+      const r = RQ.find(x => x.q === id);
+      rmine[id] = rmine[id] || { marks: [], green: '' };
       $('#quad-title').textContent = `Random quadrat ${id}`;
-      $('#quad-sub').innerHTML = `Position: across <b>${r.gx}</b>, down <b>${r.gy}</b>. Record only whether each species is present.`;
+      $('#quad-sub').innerHTML = `Position: across <b>${r.gx}</b>, down <b>${r.gy}</b>.`;
+      $('#quad-how').innerHTML = 'Press each <u>limpet</u> as you count it (press it again to undo). A limpet on the frame counts only if <u>more than half</u> of it is inside. Then say whether sea lettuce is in the quadrat.';
       $('#quad-lift').style.display = 'none';
-      $('#quad-img').src = `img/r${String(id).padStart(2, '0')}.jpg`;
-      $('#quad-img').alt = `Random quadrat ${id}`;
       $('#quad-tag').textContent = `across ${r.gx}, down ${r.gy}`;
-      [['limp', 'Limpets', 'var(--limp)'], ['green', 'Sea lettuce', 'var(--green)']].forEach(([k, name, col]) => {
-        const row = h('div', { class: 'row' });
-        row.innerHTML = `<label for="f-${k}"><span class="sw" style="background:${col}"></span>${name}</label>
-          <select id="f-${k}"><option value="">choose</option><option value="yes"${m[k] === 'yes' ? ' selected' : ''}>present</option><option value="no"${m[k] === 'no' ? ' selected' : ''}>absent</option></select><span></span>`;
-        form.appendChild(row);
-      });
+      form.appendChild(h('p', { class: 'qcount' }, 'Limpets counted: <b id="q-n">0</b>'));
+      const gr = h('div', { class: 'qgreen', role: 'group', 'aria-label': 'Sea lettuce' }, '<span>Sea lettuce:</span>');
+      [['yes', 'present'], ['no', 'absent']].forEach(([v, w]) => { const b = h('button', { type: 'button', 'data-v': v, 'aria-pressed': 'false' }, w);
+        b.addEventListener('click', () => { own(); rmine[id].green = v; store.set('random3', rmine); paintAnimals(); }); gr.appendChild(b); });
+      form.appendChild(gr);
     }
     $('#quad-nextq').textContent = kind === 't' ? 'Next quadrat' : 'Next random quadrat';
     if (!dlg.open) dlg.showModal();
-  }
-  $('#quad-lift').addEventListener('click', () => {
-    lifted = !lifted; const id = cur.id;
-    $('#quad-img').src = `img/t${String(id).padStart(2, '0')}${lifted ? '-lifted' : ''}.jpg`;
-    $('#quad-img').alt = `The quadrat at ${id} m along the transect${lifted ? ', with the seaweed lifted' : ''}`;
-    $('#quad-lift').setAttribute('aria-pressed', String(lifted));
-    $('#quad-lift').textContent = lifted ? 'Put the seaweed back' : 'Lift the seaweed';
-    $('#quad-tag').textContent = `${id} m${lifted ? ' · seaweed lifted' : ''}`;
-  });
-  function save() {
-    if (cur.kind === 't') {
-      const m = mine[cur.id] || {};
-      SP.forEach(p => { const v = $('#f-' + p.k).value; m[p.k] = v === '' ? '' : Math.max(0, Math.min(p.unit === '%' ? 100 : 50, Math.round(Number(v)))); });
-      mine[cur.id] = m; store.set('transect', mine); tableT();
+    let text;
+    try { text = await quadSvg((kind === 't' ? 't' : 'r') + String(id).padStart(2, '0')); }
+    catch (e) { pic.innerHTML = '<p class="bad">The drawing did not load. Close this window and open the quadrat again.</p>'; return; }
+    if (!cur || cur.kind !== kind || cur.id !== id) return;                 /* another quadrat was opened meanwhile */
+    pic.innerHTML = text;
+    $('#quad-key').innerHTML = legend(kind);                                /* after the drawing: the key uses its symbols */
+    const svg = $('svg', pic);
+    if (kind === 't') {
+      const g = svgEl('g', { class: 'qgrid', role: 'group', 'aria-label': 'The 100 small squares of the quadrat' }, svg);
+      for (let i = 0; i < 100; i++) svgEl('rect', { x: QD.frame + (i % 10) * 100, y: QD.frame + Math.floor(i / 10) * 100, width: 100, height: 100, 'data-i': i }, g);
+      svgEl('g', { class: 'qdots' }, svg);
+      g.addEventListener('click', e => {
+        const i = e.target.getAttribute && e.target.getAttribute('data-i'); if (i == null) return;
+        if (mine[id].filled) { mine[id].filled = false; mine[id].done = false; }    /* our counts out: the pupil's own from now on */
+        const a = mine[id].sel[active], n = a.indexOf(+i);
+        if (n >= 0) a.splice(n, 1); else a.push(+i);
+        store.set('transect3', mine); tableT(); drawTransect(id); paintGrid();
+      });
+      paintGrid();
     } else {
-      const L = $('#f-limp').value, G = $('#f-green').value;
-      if (L && G) { rmine[cur.id] = { limp: L, green: G }; store.set('random', rmine); }
-      tableR();
+      const r = RQ.find(x => x.q === id), g = svgEl('g', { class: 'qan' }, svg);
+      r.an.forEach(([x, y], j) => svgEl('circle', { cx: x, cy: y, r: 48, 'data-j': j, class: 'qhit' }, g));
+      svgEl('g', { class: 'qmarks' }, svg);
+      g.addEventListener('click', e => {
+        const j = e.target.getAttribute && e.target.getAttribute('data-j'); if (j == null) return;
+        own(); const a = rmine[id].marks, n = a.indexOf(+j);
+        if (n >= 0) a.splice(n, 1); else a.push(+j);
+        store.set('random3', rmine); paintAnimals();
+      });
+      paintAnimals();
     }
   }
-  $('#quad-form').addEventListener('change', save);
+  $('#quad-lift').addEventListener('click', () => {
+    lifted = !lifted; const svg = $('#quad-pic svg'); if (svg) svg.classList.toggle('lifted', lifted);
+    $('#quad-lift').setAttribute('aria-pressed', String(lifted));
+    $('#quad-lift').textContent = lifted ? 'Put the seaweed back' : 'Lift the seaweed';
+    $('#quad-tag').textContent = `${cur.id} m${lifted ? ' · seaweed lifted' : ''}`;
+    paintGrid();
+  });
+  function keyButton(label) {
+    const b = h('button', { type: 'button', class: 'linkish' }, label);
+    b.addEventListener('click', () => { showKey = !showKey; b.textContent = showKey ? 'Hide ours' : label; cur.kind === 't' ? paintGrid() : paintAnimals(); });
+    return b;
+  }
   $('#quad-check').addEventListener('click', () => {
-    save();
     const msg = $('#quad-msg');
     if (cur.kind === 't') {
       const s = ST.find(x => x.d === cur.id), m = mine[cur.id];
-      const lines = SP.map(p => {
-        const v = m[p.k];
-        if (v === '' || v == null) return `${p.name}: enter a value first.`;
-        const tol = p.unit === '%' ? 5 : 0, ok = Math.abs(v - s[p.k]) <= tol;
-        return `<span class="${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✗'}</span> ${p.name}: you ${v}, our count ${s[p.k]}${p.unit === '%' ? ' %' : ''}`;
-      });
-      const off = SP.filter(p => m[p.k] !== '' && m[p.k] != null && Math.abs(m[p.k] - s[p.k]) > (p.unit === '%' ? 5 : 0));
-      if (SP.every(p => m[p.k] !== '' && m[p.k] != null)) L.check('p3-t' + cur.id, !off.length, off.map(p => p.name + ': ' + m[p.k]));
-      msg.innerHTML = lines.join('<br>') + (s.limpHidden ? `<br><span class="note">${s.limpHidden} of the ${s.limp} limpets are under the seaweed.</span>` : '') +
-        '<br><span class="note">Within 5 % counts as a good estimate.</span>';
-      drawTransect(cur.id);
+      m.done = true; m.filled = false; store.set('transect3', mine);
+      const res = SP.map(p => ({ p, v: sqCount(m, p.k), ok: Math.abs(sqCount(m, p.k) - s[p.k]) <= 5 }));
+      L.check('p3-c' + cur.id, res.every(x => x.ok), res.filter(x => !x.ok).map(x => x.p.name + ': ' + x.v));
+      msg.innerHTML = res.map(x => `<span class="${x.ok ? 'ok' : 'bad'}">${x.ok ? '✓' : '✗'}</span> ${x.p.name}: you ${x.v} %, our count ${s[x.p.k]} %`).join('<br>') +
+        '<br><span class="note">Within 5 % of our count is a good estimate. Compare square by square: </span>';
+      msg.appendChild(keyButton('Show our squares'));
+      tableT(); drawTransect(cur.id);
     } else {
       const r = RQ.find(x => x.q === cur.id), m = rmine[cur.id];
-      if (!m) { msg.textContent = 'Choose present or absent for both species first.'; return; }
-      const a = m.limp === (r.limp > 0 ? 'yes' : 'no'), b = m.green === (r.green > 0 ? 'yes' : 'no');
-      L.check('p4-r' + cur.id, a && b, [a ? '' : 'Limpets: ' + (m.limp === 'yes' ? 'present' : 'absent'), b ? '' : 'Sea lettuce: ' + (m.green === 'yes' ? 'present' : 'absent')].filter(Boolean));
-      msg.innerHTML = `<span class="${a ? 'ok' : 'bad'}">${a ? '✓' : '✗'}</span> Limpets: ${r.limp > 0 ? 'present (' + r.limp + ')' : 'absent'}<br><span class="${b ? 'ok' : 'bad'}">${b ? '✓' : '✗'}</span> Sea lettuce: ${r.green > 0 ? 'present (' + r.green + ' % cover)' : 'absent'}`;
-      drawArea(false);
+      if (!m.green) { msg.textContent = 'Say whether sea lettuce is present or absent first.'; return; }
+      m.done = true; store.set('random3', rmine);
+      const right = m.marks.filter(j => r.an[j][2] === 'L' && r.an[j][3]).length, snails = m.marks.filter(j => r.an[j][2] === 'P').length;
+      const edge = m.marks.filter(j => r.an[j][2] === 'L' && !r.an[j][3]).length, okL = right === r.limp && !snails && !edge;
+      const okG = m.green === (r.green > 0 ? 'yes' : 'no');
+      L.check('p4-n' + cur.id, okL && okG, [okL ? '' : 'limpets: ' + m.marks.length, okG ? '' : 'sea lettuce: ' + (m.green === 'yes' ? 'present' : 'absent')].filter(Boolean));
+      const why = [];
+      if (snails) why.push(`You pressed ${snails > 1 ? snails + ' periwinkles' : 'a periwinkle'}: a snail with a coiled shell. A limpet is a cone with ridges and no coil.`);
+      if (edge) why.push('You counted a limpet that is less than half inside the frame.');
+      if (!snails && !edge && right < r.limp) why.push(`Look again: you have not pressed every limpet.`);
+      msg.innerHTML = `<span class="${okL ? 'ok' : 'bad'}">${okL ? '✓' : '✗'}</span> Limpets: you counted ${m.marks.length}, our count ${r.limp}<br>` +
+        `<span class="${okG ? 'ok' : 'bad'}">${okG ? '✓' : '✗'}</span> Sea lettuce: ${r.green > 0 ? 'present' : 'absent'}` +
+        (why.length ? '<br><span class="note">' + why.join(' ') + '</span>' : '') + '<br>';
+      if (!okL) msg.appendChild(keyButton('Show the limpets we counted'));
+      drawArea(false); tableR();
     }
   });
   $('#quad-nextq').addEventListener('click', () => {
-    save();
-    if (cur.kind === 't') { const n = (cur.id + 1) % 11; openQuad('t', n); }
-    else { if (rnext < RQ.length) { const r = RQ[rnext]; rnext++; store.set('rnext', rnext); drawArea(false); tableR(); openQuad('r', r.q); } else { dlg.close(); } }
+    if (cur.kind === 't') openQuad('t', (cur.id + 1) % 11);
+    else if (rnext < RQ.length) { const r = RQ[rnext]; rnext++; store.set('rnext', rnext); drawArea(false); tableR(); openQuad('r', r.q); }
+    else dlg.close();
   });
   $('#quad-close').addEventListener('click', () => dlg.close());
-  dlg.addEventListener('close', () => { save(); show(currentPart, true); });
+  dlg.addEventListener('close', () => { if (!dlg.open) cur = null; show(currentPart, true); });
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
 
   /* ---------------- part 5: chi-squared, step by step ---------------- */
@@ -507,7 +597,18 @@
         (big ? `<p><b>Which direction?</b> Compare O with E. Limpets and sea lettuce together: observed ${O[0][0]}, expected ${fmt(E[0][0], 1)}. They were found together <u>${neg ? 'less' : 'more'} often</u> than expected: a <b>${neg ? 'negative' : 'positive'} association</b>.</p>` : '') +
         `<div class="box"><div class="k">Reading p</div><p>p = ${k.p < 0.001 ? 'less than 0.001' : fmt(k.p, 3)}. If the two species were really independent, chance alone would give a χ² this large ${k.p < 0.001 ? 'less than 1 time in 1,000' : k.p < 0.01 ? 'about ' + Math.round(k.p * 1000) + ' times in 1,000' : 'about ' + Math.round(k.p * 100) + ' times in 100'}. If p is below 0.05, the result is significant. <b>Small p, big news. Big p, no news.</b></p></div>`,
       `<p>The test shows an association. <u>It does not show the cause.</u> Possible explanations for a negative association:</p><ul><li><b>Grazing (herbivory):</b> limpets graze young seaweed, so the rock where limpets feed stays bare.</li><li><b>Different niches:</b> the two species need different conditions, for example sea lettuce where the rock stays wet, and limpets on rock that dries out.</li><li><b>Competition:</b> C4.1.15 notes that a χ² association can be evidence for interspecific competition between two species that need the same resource, such as space on the rock. In the strongest case, one species excludes the other: <button class="term" data-t="exclusion">competitive exclusion</button>.</li></ul><div class="box sea"><div class="k">How to test a cause</div><p>An experiment: fix small mesh cages that keep limpets out of some squares of rock, and leave other squares open. If sea lettuce cover becomes higher inside the cages, this supports grazing as a cause.</p></div>`,
-      `<p>Put the observed counts in a 2 × 2 block, for example cells B2:C3 (rows: limpets present, absent; columns: sea lettuce present, absent).</p><p>1. Expected value for cell B2, in F2:</p><div class="formula">=SUM(B2:C2)*SUM(B2:B3)/SUM(B2:C3)</div><p>Complete F2:G3 the same way, changing the row and the column.</p><p>2. The p-value directly:</p><div class="formula">=CHISQ.TEST(B2:C3, F2:G3)</div><p>3. The χ² value, from the p-value:</p><div class="formula">=CHISQ.INV.RT(CHISQ.TEST(B2:C3, F2:G3), 1)</div><p>4. The critical value, to compare:</p><div class="formula">=CHISQ.INV.RT(0.05, 1)</div><p class="note">The workbook in part 10 has all of this set up. Excel uses the same formulas.</p>`
+      `<p>Do the same test in Google Sheets (or Excel), and check each answer against this page.</p>` +
+        `<p><b>1. The observed counts.</b> In a new sheet, type the headings and the four counts (they are under the photograph):</p>` +
+        `<div class="tablewrap"><table class="data sheetgrid"><thead><tr><th></th><th>A</th><th>B</th><th>C</th></tr></thead><tbody>` +
+        `<tr><th>1</th><td></td><td>Sea lettuce present</td><td>Sea lettuce absent</td></tr>` +
+        `<tr><th>2</th><td class="l">Limpets present</td><td>${O[0][0]}</td><td>${O[0][1]}</td></tr>` +
+        `<tr><th>3</th><td class="l">Limpets absent</td><td>${O[1][0]}</td><td>${O[1][1]}</td></tr></tbody></table></div>` +
+        `<p><b>2. The expected counts.</b> Click <b>F2</b>, type this and press Enter:</p><div class="formula">=SUM($B2:$C2)*SUM(B$2:B$3)/SUM($B$2:$C$3)</div>` +
+        `<p>Copy F2 (⌘C, or Ctrl+C) and paste it into <b>G2</b>, <b>F3</b> and <b>G3</b>. The $ signs keep each total in its place, so each cell uses its own row and column. F2 should show <b>${fmt(E[0][0], 2)}</b>.</p>` +
+        `<p><b>3. χ²</b>, the same sum as in step 5. In <b>F5</b>:</p><div class="formula">=SUMPRODUCT((B2:C3-F2:G3)^2/F2:G3)</div><p>It should show <b>${fmt(k.X, 2)}</b>.</p>` +
+        `<p><b>4. The p-value</b>, in <b>F6</b>:</p><div class="formula">=CHISQ.TEST(B2:C3, F2:G3)</div><p>It should show <b>${k.p < 0.001 ? 'a number below 0.001' : fmt(k.p, 4)}</b>.</p>` +
+        `<p><b>5. The critical value</b> for p = 0.05 and 1 degree of freedom, in <b>F7</b>:</p><div class="formula">=CHISQ.INV.RT(0.05, 1)</div><p>It shows <b>3.84</b>. Compare F5 with F7, or F6 with 0.05.</p>` +
+        `<p class="note">If a number differs from this page, check the cell names in the formula and that each count is in the right cell. Excel uses the same formulas.</p>`
     ];
     $('#c-body').innerHTML = B[cstep];
     /* the quick checks inside the steps: the student works out one value; the step's table then shows (or after two tries) */
@@ -523,9 +624,23 @@
            why: '(3 − 1) × (2 − 1) = 2. The critical value at p = 0.05 is then 5.99.' }
     };
     const qb = $('[data-chiqc]', $('#c-body'));
-    if (qb && CQ[cstep]) { const st = cstep; quick(qb, CQ[st], () => { chiGate[st] = true; const g = $('.gate', $('#c-body')); if (g) g.hidden = false; }); }
+    if (qb && CQ[cstep]) { const st = cstep; quick(qb, CQ[st], () => { chiGate[st] = true; const g = $('.gate', $('#c-body')); if (g) g.hidden = false; stageChi(k); }); }
+    stageChi(k);
     $('#c-key').innerHTML = Object.keys(CAT).map(c => `<span class="catk"><i style="background:${CAT[c].c}"></i><b>${CAT[c].l}</b> ${CAT[c].w}: ${k.O[c[0] === 'y' ? 0 : 1][c[1] === 'y' ? 0 : 1]}</span>`).join('');
     $('#c-prev').disabled = cstep === 0; $('#c-next').disabled = cstep === CSTEPS.length - 1;
+  }
+  /* the tables under the photograph (12 Oct 2026, Daniel: "show the table with the data … so you don't have to go back
+     and forth"): the observed counts always, the expected ones once their quick check is done */
+  function stageChi(k) {
+    const cell = (c, v) => `<td class="cat c-${c}">${v}</td>`, O = k.O, E = k.E;
+    let t = `<p class="sd__h">Observed (O): the 30 random quadrats</p><div class="tablewrap"><table class="data"><thead><tr><th></th><th>Sea lettuce present</th><th>Sea lettuce absent</th><th>Total</th></tr></thead><tbody>` +
+      `<tr><th>Limpets present</th>${cell('yy', O[0][0])}${cell('yn', O[0][1])}<td>${k.R[0]}</td></tr>` +
+      `<tr><th>Limpets absent</th>${cell('ny', O[1][0])}${cell('nn', O[1][1])}<td>${k.R[1]}</td></tr>` +
+      `<tr><th>Total</th><td>${k.C[0]}</td><td>${k.C[1]}</td><td>${k.N}</td></tr></tbody></table></div>`;
+    if (chiGate[3]) t += `<p class="sd__h">Expected (E)</p><div class="tablewrap"><table class="data"><tbody>` +
+      `<tr><th>Limpets present</th>${cell('yy', fmt(E[0][0], 2))}${cell('yn', fmt(E[0][1], 2))}</tr>` +
+      `<tr><th>Limpets absent</th>${cell('ny', fmt(E[1][0], 2))}${cell('nn', fmt(E[1][1], 2))}</tr></tbody></table></div>`;
+    $('#stageData').innerHTML = t;
   }
   $('#c-prev').addEventListener('click', () => { cstep = Math.max(0, cstep - 1); renderChi(); });
   $('#c-next').addEventListener('click', () => { cstep = Math.min(CSTEPS.length - 1, cstep + 1); renderChi(); });
@@ -536,7 +651,7 @@
   let sp = 'barn';
   function series(useKey) {
     const rows = rowsT(true);
-    return rows.map(r => ({ d: r[0], t: r[1], barn: r[2], green: r[3], brown: r[4], limp: r[5] }));
+    return rows.map(r => ({ d: r[0], t: r[1], barn: r[2], green: r[3], brown: r[4] }));
   }
   function ranks(v) { const s = v.map((x, i) => [x, i]).sort((a, b) => a[0] - b[0]), r = new Array(v.length);
     for (let i = 0; i < s.length;) { let j = i; while (j + 1 < s.length && s[j + 1][0] === s[i][0]) j++; for (let k = i; k <= j; k++) r[s[k][1]] = (i + j) / 2 + 1; i = j + 1; } return r; }
@@ -549,29 +664,28 @@
   const SPTXT = {
     barn: k => `<p><b>Barnacles.</b> r = ${fmt(k.r, 2)}: a <b>strong positive correlation</b>. The points lie close to a straight line. ${Math.abs(k.r) > 0.602 ? 'r is further from 0 than the critical value 0.602 (11 quadrats), so the correlation is <b>significant</b> (p &lt; 0.05).' : 'r is closer to 0 than the critical value 0.602, so the correlation is not significant.'}</p><p>R² = ${fmt(k.r * k.r, 2)}: about ${Math.round(k.r * k.r * 100)} % of the variation in barnacle cover is accounted for by the straight line.</p><div class="box amber"><div class="k">Correlation is not cause</div><p>Barnacle cover is higher where the rock is hotter. But higher on the shore the rock is also out of the water for longer, and there is less seaweed to compete with. The data cannot separate these. An experiment that changes only the temperature would give stronger evidence.</p></div>`,
     brown: k => `<p><b>Brown seaweed.</b> r = ${fmt(k.r, 2)}: a strong negative correlation, and ${Math.abs(k.r) > 0.602 ? 'significant' : 'not significant'} by the critical value. <u>But look at the graph</u>: the points do not follow a straight line. The cover is near 0 % over most of the shore, then rises steeply near the water.</p><div class="box amber"><div class="k">Always look at the scatter graph first</div><p>Pearson's r measures how close the points are to a <u>straight line</u>, so for a curve it can mislead. Spearman's rank correlation (beyond the guide) uses only the order of the values. Here ρ = ${fmt(k.rho, 2)}; its own critical value for 11 pairs is 0.618. ρ is weaker than r, partly because five quadrats tie at 0 %.</p></div>`,
-    green: k => `<p><b>Sea lettuce.</b> r = ${fmt(k.r, 2)}: ${Math.abs(k.r) > 0.602 ? 'significant' : 'weak, and <b>not significant</b>'}. Yet sea lettuce clearly lives in a zone: it is in the middle of the transect only.</p><div class="box sea"><div class="k">A hump: the realized niche</div><p>The cover is high at middle temperatures and low at both ends. Above, the rock is too hot and dry: an abiotic limit, set by its range of tolerance. Below, brown seaweed occupies the space: a biotic limit, as in Connell's barnacles (part 1). The hump shows its realized niche on this shore. A hump-shaped pattern can give r close to 0 even when the abiotic variable matters a lot: r measures only straight-line patterns.</p></div>`,
-    limp: k => `<p><b>Limpets.</b> r = ${fmt(k.r, 2)}: no significant correlation with rock temperature. Limpets live along most of the transect. Their numbers are small, so a few limpets more or less change the pattern a lot: count more quadrats for a clearer answer.</p>`
+    green: k => `<p><b>Sea lettuce.</b> r = ${fmt(k.r, 2)}: ${Math.abs(k.r) > 0.602 ? 'significant' : 'weak, and <b>not significant</b>'}. Yet sea lettuce clearly lives in a zone: it is in the middle of the transect only.</p><div class="box sea"><div class="k">A hump: the realized niche</div><p>The cover is high at middle temperatures and low at both ends. Above, the rock is too hot and dry: an abiotic limit, set by its range of tolerance. Below, brown seaweed occupies the space: a biotic limit, as in Connell's barnacles (part 1). The hump shows its realized niche on this shore. A hump-shaped pattern can give r close to 0 even when the abiotic variable matters a lot: r measures only straight-line patterns.</p></div>`
   };
   function drawScatter() {
     const S = series(true), x = S.map(s => s.t), y = S.map(s => s[sp]);
     const k = pearson(x, y), svg = $('#k-chart'); svg.innerHTML = ''; k.rho = pearson(ranks(x), ranks(y)).r;
     const X0 = 62, X1 = 540, Y0 = 290, Y1 = 22, xmin = 22, xmax = 36;
-    const ymax = sp === 'limp' ? 10 : 100;
+    const ymax = 100;
     const sx = v => X0 + (v - xmin) / (xmax - xmin) * (X1 - X0), sy = v => Y0 - v / ymax * (Y0 - Y1);
     for (let v = xmin; v <= xmax; v += 2) { el('line', { class: 'gr', x1: sx(v), y1: Y0, x2: sx(v), y2: Y1 }, svg); el('text', { x: sx(v), y: Y0 + 18, 'text-anchor': 'middle' }, svg, v); }
     for (let v = 0; v <= ymax; v += ymax / 5) { el('line', { class: 'gr', x1: X0, y1: sy(v), x2: X1, y2: sy(v) }, svg); el('text', { x: X0 - 8, y: sy(v) + 4, 'text-anchor': 'end' }, svg, v); }
     el('line', { class: 'ax', x1: X0, y1: Y0, x2: X1, y2: Y0 }, svg); el('line', { class: 'ax', x1: X0, y1: Y0, x2: X0, y2: Y1 }, svg);
     el('text', { x: (X0 + X1) / 2, y: 330, 'text-anchor': 'middle' }, svg, 'Rock temperature / °C');
     const name = SP.find(p => p.k === sp);
-    el('text', { x: 16, y: (Y0 + Y1) / 2, 'text-anchor': 'middle', transform: `rotate(-90 16 ${(Y0 + Y1) / 2})` }, svg, name.name + (sp === 'limp' ? ' / number' : ' / % cover'));
-    const col = getComputedStyle(document.documentElement).getPropertyValue(sp === 'barn' ? '--barn' : sp === 'green' ? '--green' : sp === 'brown' ? '--brown' : '--limp');
+    el('text', { x: 16, y: (Y0 + Y1) / 2, 'text-anchor': 'middle', transform: `rotate(-90 16 ${(Y0 + Y1) / 2})` }, svg, name.name + ' / % cover');
+    const col = getComputedStyle(document.documentElement).getPropertyValue(sp === 'barn' ? '--barn' : sp === 'green' ? '--green' : '--brown');
     const lo = Math.min(...x), hi = Math.max(...x);
     el('line', { class: 'fit', x1: sx(lo), y1: sy(Math.max(0, Math.min(ymax, k.a + k.b * lo))), x2: sx(hi), y2: sy(Math.max(0, Math.min(ymax, k.a + k.b * hi))), stroke: col }, svg);
     S.forEach(s => el('circle', { class: 'pt', cx: sx(s.t), cy: sy(s[sp]), r: 6.5, fill: col }, svg));
     el('text', { x: X1 - 6, y: Y1 + 14, 'text-anchor': 'end' }, svg, `r = ${fmt(k.r, 2)}   R² = ${fmt(k.r * k.r, 2)}   n = ${S.length}`);
     $('#k-text').innerHTML = SPTXT[sp](k);
     $$('#k-choices button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sp === sp)));
-    const own = ST.every(s => mine[s.d] && SP.every(p => mine[s.d][p.k] !== '' && mine[s.d][p.k] != null));
+    const own = ST.every(s => tDone(s.d));
     $('#k-source').textContent = !own ? 'The empty cells of your table use our counts. Finish part 3 to use only your own.'
       : store.get('tfilled', false) ? 'These graphs use your estimates from part 3, and our counts where you pressed Fill.' : 'These graphs use your own estimates from part 3.';
   }
@@ -612,7 +726,7 @@
     return { id: 'rocky-shore-fieldwork-pract', v: 1, parts: PARTS.filter(p => used.has(p[0])).map(p => ({ n: p[0], title: p[1] })),
              groups: GREG.slice(), questions: qs };
   }
-  ST.forEach(s => reg({ id: 'p3-t' + s.d, part: 3, title: 'Quadrat at ' + s.d + ' m', kind: 'quad', group: 'p3-transect' }));
+  ST.forEach(s => reg({ id: 'p3-c' + s.d, part: 3, title: 'Cover in the quadrat at ' + s.d + ' m', kind: 'quad', group: 'p3-transect' }));
   group({ id: 'p3-transect', part: 3, title: 'Transect quadrats', short: 'T' });
 
   /* ---------------- quick checks ---------------- */
@@ -823,6 +937,7 @@
     // part 10 is about the real field trip, so its picture is a photograph of that kind of shore, not the practice shore
     const trip = mode === 'trip';
     $('#photo').hidden = trip; $('#cap').hidden = trip; $('#tripPhoto').hidden = !trip; $('#tripCap').hidden = !trip;
+    $('#stageData').hidden = mode !== 'chi';
     stageH();
     if (mode === 'zones') drawZones($$('#zone-choices button').find(b => b.getAttribute('aria-pressed') === 'true').dataset.zone);
     else if (mode === 'method') drawMethod($$('#method-choices button').find(b => b.getAttribute('aria-pressed') === 'true').dataset.m);
@@ -841,6 +956,10 @@
     document.dispatchEvent(new CustomEvent('partshown', { detail: n }));
   }
   $$('.tabs button').forEach((b, i) => b.addEventListener('click', () => show(i + 1)));
+  function wordBank(open) { $('#wb').hidden = !open; $('#wbBtn').setAttribute('aria-expanded', String(open)); }
+  $('#wbBtn').addEventListener('click', () => wordBank($('#wb').hidden));
+  $('#wbClose').addEventListener('click', () => wordBank(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#wb').hidden) wordBank(false); });
   // Cards (details.fold) open in place, one at a time in a part (Daniel: explore, do not scroll a wall). The card that is
   // pressed stays exactly where it is on the screen while the others close (11 Oct 2026: before, the page jumped up).
   document.addEventListener('click', e => {
@@ -862,7 +981,7 @@
   window.addEventListener('resize', stageH);
   if (PHONE.addEventListener) PHONE.addEventListener('change', () => { const n = +((/#part-(\d+)/.exec(location.hash) || [0, 1])[1]); if ($('#part-' + n).dataset.mode === 'transect') drawTransect(); });
   $('#credits').innerHTML = D.credits.map(c => `${c.what}: ${c.who}, <a href="${c.url}" target="_blank" rel="noopener">${c.licence}</a>`).join(' · ');
-  RQ.forEach(r => reg({ id: 'p4-r' + r.q, part: 4, title: 'Random quadrat ' + r.q + ' (across ' + r.gx + ', down ' + r.gy + ')', kind: 'quad', group: 'p4-random' }));
+  RQ.forEach(r => reg({ id: 'p4-n' + r.q, part: 4, title: 'Limpets in random quadrat ' + r.q + ' (across ' + r.gx + ', down ' + r.gy + ')', kind: 'quad', group: 'p4-random' }));
   group({ id: 'p4-random', part: 4, title: 'Random quadrats', short: 'R' });
   window.ShoreApp = { series, chi, pearson, ranks, fmt, store, h, mcq, L, reg, manifest };
   tableT(); tableR();
